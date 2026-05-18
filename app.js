@@ -11,19 +11,16 @@ class MiPinchaApp {
   }
 
   async init() {
-    console.log('[App] Initializing...');
-    
-    // Exponer queue global para mini-apps
+    console.log('[App] Iniciando...');
     window.queue = queue;
-    window.MP_REPO = 'mipincha/mipincha.github.io'; // Configurar aquí o vía build
-    // window.MP_API_TOKEN = 'ghp_...'; // Inyectar de forma segura
 
     await this.loadSnapshots();
     this.bindUI();
     this.render();
     
-    console.log('[App] Ready');
-    window.dispatchEvent(new Event('mipincha:ready'));
+    // Escuchar sincronizaciones exitosas
+    window.addEventListener('mp:synced', () => this.loadSnapshots());
+    console.log('[App] Listo');
   }
 
   async loadSnapshots() {
@@ -31,47 +28,47 @@ class MiPinchaApp {
       const month = new Date().toISOString().slice(0, 7);
       const res = await fetch(`./data/snapshots/jobs-${month}.json`);
       if (res.ok) {
-        this.snapshots.jobs = (await res.json()).jobs || [];
+        const data = await res.json();
+        this.snapshots.jobs = data.jobs || [];
       }
     } catch (err) {
-      console.warn('[App] Snapshot load failed, using empty state');
+      console.warn('[App] Snapshot no disponible aún.');
     }
+    this.render();
   }
 
   bindUI() {
-    // Registro Candidato
+    // Registrar Candidato
     document.querySelectorAll('[data-action="register-candidate"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const form = document.getElementById('register-candidate-form');
-        if (form) {
-          const data = new FormData(form);
-          queue.enqueue('candidate_register', {
-            name: data.get('name'),
-            email: data.get('email'),
-            phone: data.get('phone'),
-            role: 'candidate'
-          });
-          alert('✅ Registro enviado. Se procesará en la próxima sincronización.');
-          form.reset();
-        }
+        if (!form) return;
+        const fd = new FormData(form);
+        queue.enqueue('candidate_register', {
+          name: fd.get('name'),
+          email: fd.get('email'),
+          phone: fd.get('phone'),
+          role: 'candidate'
+        });
+        alert('✅ Registro enviado. Se procesará en la próxima sincronización.');
+        form.reset();
       });
     });
 
-    // Registro Empresa
+    // Registrar Empresa
     document.querySelectorAll('[data-action="register-company"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const form = document.getElementById('register-company-form');
-        if (form) {
-          const data = new FormData(form);
-          queue.enqueue('company_register', {
-            name: data.get('name'),
-            email: data.get('email'),
-            sector: data.get('sector'),
-            role: 'company'
-          });
-          alert('✅ Empresa registrada. Se procesará en la próxima sincronización.');
-          form.reset();
-        }
+        if (!form) return;
+        const fd = new FormData(form);
+        queue.enqueue('company_register', {
+          name: fd.get('name'),
+          email: fd.get('email'),
+          sector: fd.get('sector'),
+          role: 'company'
+        });
+        alert('✅ Empresa registrada. Se procesará en la próxima sincronización.');
+        form.reset();
       });
     });
 
@@ -79,49 +76,54 @@ class MiPinchaApp {
     document.querySelectorAll('[data-action="publish-job"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const form = document.getElementById('publish-job-form');
-        if (form) {
-          const data = new FormData(form);
-          queue.enqueue('job_publish', {
-            title: data.get('title'),
-            category: data.get('category'),
-            location: data.get('location'),
-            modality: data.get('modality'),
-            description: data.get('description')
-          });
-          alert('✅ Vacante enviada a revisión. Aparecerá tras compactación.');
-          form.reset();
-        }
+        if (!form) return;
+        const fd = new FormData(form);
+        queue.enqueue('job_publish', {
+          title: fd.get('title'),
+          category: fd.get('category'),
+          location: fd.get('location'),
+          modality: fd.get('modality'),
+          description: fd.get('description')
+        });
+        alert('✅ Vacante enviada. Aparecerá tras compactación horaria.');
+        form.reset();
       });
     });
   }
 
   render() {
-    // Renderizar jobs desde snapshot
     const grid = document.getElementById('jobs-grid');
-    if (grid && this.snapshots.jobs.length > 0) {
-      grid.innerHTML = this.snapshots.jobs.slice(-4).map(job => `
-        <article class="job-card">
-          <div class="job-header">
-            <h3 class="job-title">${job.payload.category || 'General'}</h3>
-            <span class="job-subtitle">${job.payload.title}</span>
-          </div>
-          <div class="job-meta">
-            <span class="job-location">📍 ${job.payload.location || 'La Habana'}</span>
-            <span class="job-type job-type--${(job.payload.modality||'remoto').toLowerCase().replace(/ /g,'-')}">${job.payload.modality || 'Remoto'}</span>
-          </div>
-          <div class="job-footer">
-            <span class="job-date">${new Date(job.meta.ts).toLocaleDateString('es-CU')}</span>
-          </div>
-        </article>
-      `).join('');
-    }
+    if (!grid) return;
 
-    // Stats dinámicos
+    const jobs = this.snapshots.jobs.length > 0 
+      ? this.snapshots.jobs.slice(-4) 
+      : [
+          { payload: { category: 'Ingeniería', title: 'Diseñador Industrial', location: 'Centro Habana', modality: 'Remoto' }, meta: { ts: Date.now() } },
+          { payload: { category: 'Educación', title: 'Profesor de Idiomas', location: 'Vedado', modality: 'Presencial' }, meta: { ts: Date.now() } },
+          { payload: { category: 'Servicios', title: 'Niñera', location: 'Habana Vieja', modality: 'Temporal' }, meta: { ts: Date.now() } },
+          { payload: { category: 'Construcción', title: 'Electricista', location: 'Playa', modality: 'Por proyecto' }, meta: { ts: Date.now() } }
+        ];
+
+    grid.innerHTML = jobs.map(job => `
+      <article class="job-card">
+        <div class="job-header">
+          <h3 class="job-title">${job.payload.category}</h3>
+          <span class="job-subtitle">${job.payload.title}</span>
+        </div>
+        <div class="job-meta">
+          <span class="job-location">📍 ${job.payload.location}</span>
+          <span class="job-type job-type--${(job.payload.modality||'remoto').toLowerCase().replace(/ /g,'-')}">${job.payload.modality}</span>
+        </div>
+        <div class="job-footer">
+          <span class="job-date">${new Date(job.meta.ts).toLocaleDateString('es-CU')}</span>
+        </div>
+      </article>
+    `).join('');
+
     document.getElementById('stat-found').textContent = `+${this.snapshots.jobs.length + 100}`;
   }
 }
 
-// Init
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => new MiPinchaApp().init());
 } else {

@@ -1,141 +1,92 @@
 /**
  * Queue System - APPEND-ONLY + BATCHING
  * Ubicación: src/core/queue.js
+ * 
+ * Los placeholders __MP_REPO__ y __MP_DISPATCH_SECRET__ son reemplazados automáticamente 
+ * por el prebuild. NUNCA expongas tokens reales aquí.
  */
-const QUEUE_CONFIG = {
+const CONFIG = {
   STORAGE_KEY: 'mp_queue_v1',
   MAX_BATCH_SIZE: 10,
   FLUSH_INTERVAL_MS: 30000,
-  MAX_RETRIES: 3,
-  RETRY_DELAY_MS: 5000,
-  // Se inyecta de forma segura vía build o variable de entorno
-  API_BASE: 'https://api.github.com',
-  REPO: window.MP_REPO || 'mipincha/mipincha.github.io',
-  QUEUE_PATH: 'data/queue'
+  REPO: '__MP_REPO__',
+  DISPATCH_SECRET: '__MP_DISPATCH_SECRET__'
 };
 
 class JobQueue {
   constructor() {
     this.queue = this._load();
-    this.isFlushing = false;
-    this._scheduleFlush();
-    console.log(`[Queue] Init: ${this.queue.length} pending jobs`);
+    this.isSyncing = false;
+    this._scheduleAutoFlush();
+    console.log(`[Queue] Inicializado. ${this.queue.length} jobs en cola.`);
   }
 
   _load() {
-    try {
-      const raw = localStorage.getItem(QUEUE_CONFIG.STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || '[]'); }
+    catch { return []; }
   }
 
   _save() {
-    localStorage.setItem(QUEUE_CONFIG.STORAGE_KEY, JSON.stringify(this.queue));
+    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.queue));
   }
 
   enqueue(type, payload) {
     if (!type || !payload) throw new Error('Job inválido');
     
-    const job = {
-      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2),
+    this.queue.push({
+      id: crypto.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`,
       type,
       payload,
-      meta: {
-        ts: Date.now(),
-        ua: navigator.userAgent.slice(0, 80),
-        origin: location.hostname
-      }
-    };
-
-    this.queue.push(job);
+      meta: { ts: Date.now(), origin: location.hostname }
+    });
+    
     this._save();
-
-    if (this.queue.length >= QUEUE_CONFIG.MAX_BATCH_SIZE) {
-      this.flush();
-    }
-
-    return job.id;
+    if (this.queue.length >= CONFIG.MAX_BATCH_SIZE) this.sync();
   }
 
-  async flush() {
-    if (this.isFlushing || this.queue.length === 0) return;
-    this.isFlushing = true;
+  async sync() {
+    if (this.isSyncing || this.queue.length === 0) return;
+    this.isSyncing = true;
 
     const batch = {
-      batch_id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36),
+      batch_id: crypto.randomUUID?.() || Date.now().toString(36),
       jobs: this.queue.slice(),
       meta: { count: this.queue.length, created_at: new Date().toISOString() }
     };
 
     try {
-      await this._pushToQueue(batch);
+      await this._dispatch(batch);
       this.queue = [];
       this._save();
-      console.log('[Queue] Flush success');
+      console.log('[Queue] Sincronización exitosa');
+      window.dispatchEvent(new CustomEvent('mp:synced', { detail: batch }));
     } catch (err) {
-      console.error('[Queue] Flush failed:', err);
-      this._scheduleRetry(batch);
+      console.warn('[Queue] Sincronización fallida (se reintentará):', err.message);
     } finally {
-      this.isFlushing = false;
+      this.isSyncing = false;
     }
   }
 
-  async _pushToQueue(batch) {
-    const now = new Date();
-    const shard = `${QUEUE_CONFIG.QUEUE_PATH}/${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
-    const filename = `batch-${batch.batch_id}.json`;
-    const path = `${shard}/${filename}`;
-    const content = btoa(JSON.stringify(batch)); // Base64 para GitHub API
-
-    // Token seguro: inyectado vía build o variable global controlada
-    const token = window.MP_API_TOKEN;
-    if (!token) throw new Error('MP_API_TOKEN no configurado');
-
-    const response = await fetch(`${QUEUE_CONFIG.API_BASE}/repos/${QUEUE_CONFIG.REPO}/contents/${path}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json'
-      },
+  async _dispatch(batch) {
+    const url = `https://api.github.com/repos/${CONFIG.REPO}/dispatches`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: `chore: queue batch ${batch.batch_id}`,
-        content,
-        branch: 'main' // O branch dedicado si prefieres
+        event_type: 'queue-batch',
+        client_payload: {
+          secret: CONFIG.DISPATCH_SECRET,
+          batch: btoa(JSON.stringify(batch))
+        }
       })
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(`GitHub API ${response.status}: ${err.message || 'Unknown'}`);
-    }
+    if (!res.ok && res.status !== 204) throw new Error(`GitHub API ${res.status}`);
   }
 
-  _scheduleRetry(batch) {
-    let attempts = 0;
-    const retry = async () => {
-      if (attempts >= QUEUE_CONFIG.MAX_RETRIES) {
-        console.warn('[Queue] Max retries reached. Batch saved locally.');
-        return;
-      }
-      attempts++;
-      setTimeout(async () => {
-        try {
-          await this._pushToQueue(batch);
-          this.queue = this.queue.filter(j => !batch.jobs.includes(j));
-          this._save();
-        } catch {
-          retry();
-        }
-      }, QUEUE_CONFIG.RETRY_DELAY_MS * attempts);
-    };
-    retry();
-  }
-
-  _scheduleFlush() {
-    setInterval(() => this.flush(), QUEUE_CONFIG.FLUSH_INTERVAL_MS);
-    window.addEventListener('beforeunload', () => this.flush());
-    window.addEventListener('online', () => this.flush());
+  _scheduleAutoFlush() {
+    setInterval(() => this.sync(), CONFIG.FLUSH_INTERVAL_MS);
+    window.addEventListener('beforeunload', () => this.sync());
+    window.addEventListener('online', () => this.sync());
   }
 
   getPendingCount() { return this.queue.length; }
