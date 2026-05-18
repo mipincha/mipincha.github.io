@@ -1,0 +1,10 @@
+{
+  "id": "stats-counter",
+  "name": "Contador de Estadísticas",
+  "version": "1.0.0",
+  "description": "Muestra estadísticas de usuarios",
+  "entry": "index.js",
+  "permissions": ["db:read", "ui:render"],
+  "mountPoint": "[data-mini-app=\"stats-counter\"]",
+  "autoMount": true
+}

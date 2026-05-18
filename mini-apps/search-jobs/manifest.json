@@ -1,0 +1,11 @@
+{
+  "id": "search-jobs",
+  "name": "Buscador de Empleo",
+  "version": "1.0.0",
+  "description": "Buscador principal de vacantes con filtros",
+  "entry": "index.js",
+  "styles": "styles.css",
+  "permissions": ["db:read", "ui:render", "queue:write"],
+  "mountPoint": "[data-mini-app=\"search-jobs\"]",
+  "autoMount": true
+}

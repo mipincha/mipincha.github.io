@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "miniApps": [
+    {
+      "id": "search-jobs",
+      "name": "Buscador de Empleo",
+      "path": "/mini-apps/search-jobs",
+      "permissions": ["db:read", "ui:render", "queue:write"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "search-talent",
+      "name": "Buscador de Talento",
+      "path": "/mini-apps/search-talent",
+      "permissions": ["db:read", "ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "auth",
+      "name": "Autenticación",
+      "path": "/mini-apps/auth",
+      "permissions": ["db:write", "queue:write", "ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "job-listing",
+      "name": "Listado de Vacantes",
+      "path": "/mini-apps/job-listing",
+      "permissions": ["db:read", "ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "stats-counter",
+      "name": "Contador de Estadísticas",
+      "path": "/mini-apps/stats-counter",
+      "permissions": ["db:read", "ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "candidate-benefits",
+      "name": "Beneficios Candidatos",
+      "path": "/mini-apps/candidate-benefits",
+      "permissions": ["ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "company-benefits",
+      "name": "Beneficios Empresas",
+      "path": "/mini-apps/company-benefits",
+      "permissions": ["ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "trust-logos",
+      "name": "Logos de Confianza",
+      "path": "/mini-apps/trust-logos",
+      "permissions": ["ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "workflow-display",
+      "name": "Cómo Funciona",
+      "path": "/mini-apps/workflow-display",
+      "permissions": ["ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    },
+    {
+      "id": "bottom-stats",
+      "name": "Estadísticas Inferiores",
+      "path": "/mini-apps/bottom-stats",
+      "permissions": ["db:read", "ui:render"],
+      "enabled": true,
+      "version": "1.0.0"
+    }
+  ]
+}

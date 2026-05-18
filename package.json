@@ -1,0 +1,24 @@
+{
+  "name": "mipincha-github-io",
+  "version": "1.0.0",
+  "description": "Mi Pincha - Agencia de Empleos Cuba",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve .",
+    "validate": "node scripts/validate.js",
+    "compact": "node scripts/compact-queue.js",
+    "test": "npm run validate"
+  },
+  "keywords": [
+    "empleo",
+    "cuba",
+    "jobs",
+    "recruitment"
+  ],
+  "author": "Mi Pincha",
+  "license": "MIT",
+  "devDependencies": {
+    "ajv": "^8.12.0",
+    "serve": "^14.2.0"
+  }
+}

@@ -1,0 +1,30 @@
+/**
+ * Estilos específicos del buscador
+ * Ubicación: mini-apps/search-jobs/styles.css
+ */
+
+.search-container {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.search-inputs .input:focus {
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 3px rgba(238, 117, 27, 0.15);
+}
+
+.search-tab {
+  transition: all 0.3s ease;
+}
+
+.tag {
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  transform: translateY(-2px);
+}

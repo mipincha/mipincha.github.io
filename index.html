@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Pincha - Conectamos talento con oportunidades</title>
+  <meta name="description" content="Agencia de empleos en Cuba. Encuentra trabajo o talento calificado en La Habana."/>
+  <link rel="icon" href="./assets/favicon.png" type="image/png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./styles.css"/>
+  <style>
+    :root{--naranja:#EE751B;--azul:#163961;--blanco:#FFFFFF;--gris-bg:#F5F7FA}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--blanco)}
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#main-content" class="logo" aria-label="Ir al contenido principal">
+        <img src="./assets/logo.png" alt="Mi Pincha" width="180" height="48"/>
+      </a>
+      
+      <nav class="nav" id="main-nav">
+        <a href="#inicio" class="nav__link active">Inicio</a>
+        <a href="#buscar-empleo" class="nav__link">Buscar Empleo</a>
+        <a href="#empresas" class="nav__link">Empresas</a>
+        <a href="#candidatos" class="nav__link">Candidatos</a>
+        <a href="#nosotros" class="nav__link">Nosotros</a>
+        <a href="#recursos" class="nav__link">Recursos</a>
+      </nav>
+      
+      <div class="auth-buttons">
+        <button class="btn btn--outline" onclick="openModal('login')">Iniciar sesión</button>
+        <button class="btn btn--primary" onclick="openModal('register')">Crear cuenta</button>
+      </div>
+      
+      <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú"></button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <h1 class="hero__title">
+            Conectamos <span class="text-naranja">talento</span> con <span class="text-naranja">oportunidades</span>
+          </h1>
+          <p class="hero__subtitle">
+            En Mi Pincha agencia de empleos ayudamos a personas a encontrar el trabajo ideal y a empresas a encontrar el talento que impulsa su crecimiento en La Habana.
+          </p>
+          
+          <!-- Buscador Inteligente -->
+          <div class="search-container">
+            <form id="search-form" class="search-form">
+              <div class="search-inputs">
+                <div class="input-group">
+                  <span class="input-icon"></span>
+                  <input type="text" id="search-keyword" placeholder="Puesto, empresa, o palabra clave..." list="autocomplete-list" autocomplete="off"/>
+                  <datalist id="autocomplete-list"></datalist>
+                </div>
+                <div class="input-group">
+                  <span class="input-icon">📍</span>
+                  <select id="search-location">
+                    <option value="">Ubicación</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <span class="input-icon">📂</span>
+                  <select id="search-category">
+                    <option value="">Categoría</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <span class="input-icon">💼</span>
+                  <select id="search-position">
+                    <option value="">Puesto</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn--naranja">Buscar</button>
+              </div>
+            </form>
+          </div>
+          
+          <!-- Selector de Rol -->
+          <div class="user-type-selector">
+            <button class="type-btn active" data-role="candidate" onclick="setRole('candidate')">
+              <span class="type-icon"></span> Soy candidato
+            </button>
+            <button class="type-btn" data-role="company" onclick="setRole('company')">
+              <span class="type-icon">🏢</span> Soy empresa
+            </button>
+          </div>
+          
+          <!-- Stats Dinámicos -->
+          <div class="hero-stats">
+            <div class="stat-content">
+              <p class="stat-text">
+                <strong class="text-naranja" id="stat-found">+100</strong> personas ya encontraron su próximo gran trabajo.
+              </p>
+              <p class="stat-recent" id="stat-recent">Últimos registros: Ana G., Carlos M., Laura P.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero__image">
+          <img src="./assets/mascot-hero.png" alt="Mascota Mi Pincha" class="mascot"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proceso de 4 Pasos -->
+    <section class="section section--light" id="proceso">
+      <div class="container">
+        <h2 class="section-title">¿Cómo <span class="text-naranja">empezar</span>?</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <div class="step-icon">📝</div>
+            <h3 class="step-title">Regístrate gratis</h3>
+            <p class="step-desc">Crea tu perfil en minutos y comienza tu búsqueda.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <div class="step-icon">🔍</div>
+            <h3 class="step-title">Encuentra Empleo</h3>
+            <p class="step-desc">Explora miles de vacantes que se ajustan a tu perfil.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <div class="step-icon"></div>
+            <h3 class="step-title">Postúlate Fácil</h3>
+            <p class="step-desc">Envía tu CV con un clic y destaca ante empresas.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">04</div>
+            <div class="step-icon"></div>
+            <h3 class="step-title">Empieza tu futuro</h3>
+            <p class="step-desc">Conectamos tu talento con grandes oportunidades.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vacantes Destacadas -->
+    <section class="section" id="vacantes">
+      <div class="container">
+        <h2 class="section-title">Vacantes <span class="text-naranja">destacadas</span></h2>
+        <div class="jobs-grid" id="jobs-grid"></div>
+      </div>
+    </section>
+
+    <!-- Empresas que Confían -->
+    <section class="section section--light" id="empresas">
+      <div class="container">
+        <h2 class="section-title">Empresas que <span class="text-naranja">confían</span> en nosotros</h2>
+        <div class="trust-slider">
+          <div class="trust-logos-grid">
+            <div class="trust-logo">TechSolutions</div>
+            <div class="trust-logo">InnovaTech</div>
+            <div class="trust-logo">Brandify</div>
+            <div class="trust-logo">Finansoft</div>
+            <div class="trust-logo">DataCore</div>
+            <div class="trust-logo">NextGen</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección Dual -->
+    <section class="section section--dual" id="dual-cta">
+      <div class="container">
+        <div class="dual-grid">
+          <div class="dual-card dual-card--candidate">
+            <div class="dual-content">
+              <h3 class="dual-title">Para candidatos</h3>
+              <p class="dual-subtitle">Todo lo que necesitas para impulsar tu carrera profesional.</p>
+              <ul class="benefits-list">
+                <li class="benefit-item">✓ Miles de vacantes verificadas</li>
+                <li class="benefit-item">✓ Postulación rápida y segura</li>
+                <li class="benefit-item">✓ Alertas personalizadas</li>
+                <li class="benefit-item">✓ Recursos para tu crecimiento</li>
+                <li class="benefit-item">✓ Acompañamiento profesional</li>
+              </ul>
+              <button class="btn btn--white btn--large" onclick="openModal('register-candidate')">Crear mi perfil gratis</button>
+            </div>
+          </div>
+          
+          <div class="dual-card dual-card--company">
+            <div class="dual-content">
+              <h3 class="dual-title">Para empresas</h3>
+              <p class="dual-subtitle">Encuentra el talento ideal para hacer crecer tu negocio.</p>
+              <ul class="benefits-list">
+                <li class="benefit-item">✓ Publica vacantes ilimitadas</li>
+                <li class="benefit-item">✓ Accede a talento calificado</li>
+                <li class="benefit-item">✓ Filtros inteligentes</li>
+                <li class="benefit-item">✓ Evaluaciones y entrevistas</li>
+                <li class="benefit-item">✓ Soporte personalizado</li>
+              </ul>
+              <button class="btn btn--white btn--large" onclick="openModal('register-company')">Publicar una vacante</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Bottom -->
+    <section class="section section--azul" id="stats-bottom">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" data-target="10000">0</div>
+            <div class="stat-label">Candidatos activos</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value" data-target="1500">0</div>
+            <div class="stat-label">Empresas registradas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">💼</div>
+            <div class="stat-value" data-target="15000">0</div>
+            <div class="stat-label">Vacantes publicadas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" data-target="1000">0</div>
+            <div class="stat-label">Contrataciones Exitosas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- CORRECCIÓN AQUÍ: src="./assets/logo.png" -->
+        <div class="footer-brand">
+          <img src="./assets/logo.png" alt="Mi Pincha" width="150" height="40" class="footer-logo-white"/>
+          <p class="footer-tagline">Conectamos talento con oportunidades</p>
+        </div>
+        
+        <div class="footer-links">
+          <h4 class="footer-title">Plataforma</h4>
+          <a href="#buscar-empleo" class="footer-link">Buscar Empleo</a>
+          <a href="#empresas" class="footer-link">Para Empresas</a>
+          <a href="#candidatos" class="footer-link">Para Candidatos</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4 class="footer-title">Legal</h4>
+          <a href="#" class="footer-link" onclick="openModal('terms'); return false;">Términos</a>
+          <a href="#" class="footer-link" onclick="openModal('conditions'); return false;">Condiciones</a>
+          <a href="#" class="footer-link" onclick="openModal('privacy'); return false;">Privacidad</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4 class="footer-title">Contacto</h4>
+          <p class="contact-item">✉️ mipinchainfo@gmail.com</p>
+          <p class="contact-item">📱 +53 51283542</p>
+          <p class="contact-item">🕐 Lunes a Viernes, 9:00 - 17:00 (Cuba)</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; <span id="current-year">2026</span> Mi Pincha. Todos los derechos reservados. | Hecho con ❤️ en 🇺</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
+    <div class="modal-content" id="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // DATOS
+    const LOCATIONS = ["Playa", "Plaza de la Revolución", "Centro Habana", "Habana Vieja", "Regla", "Habana del Este", "Guanabacoa", "San Miguel del Padrón", "10 de Octubre", "Cerro", "Marianao", "La Lisa", "Arroyo Naranjo", "Boyeros", "Cotorro"];
+    
+    const CATEGORIES = {
+      "tecnologia": { name: "Tecnología e Informática", positions: ["Desarrollador Frontend", "Desarrollador Backend", "Full Stack", "Ingeniero de Software", "UX/UI Designer", "DevOps", "Data Scientist", "Soporte IT"] },
+      "salud": { name: "Salud y Medicina", positions: ["Médico General", "Enfermero", "Psicólogo", "Nutricionista", "Fisioterapeuta", "Técnico Laboratorio", "Odontólogo"] },
+      "educacion": { name: "Educación y Formación", positions: ["Profesor Primaria/Secundaria", "Tutor Académico", "Instructor Online", "Profesor de Idiomas", "Diseñador Instruccional"] },
+      "administracion": { name: "Administración y Oficina", positions: ["Administrativo", "Recepcionista", "Asistente Ejecutivo", "Data Entry", "Office Manager"] },
+      "finanzas": { name: "Finanzas y Contabilidad", positions: ["Contador", "Auditor", "Analista Financiero", "Cajero", "Tesorero", "Asesor Fiscal"] },
+      "legal": { name: "Legal y Jurídico", positions: ["Abogado", "Asistente Legal", "Notario", "Mediador", "Especialista Compliance"] },
+      "ingenieria": { name: "Ingeniería y Arquitectura", positions: ["Ingeniero Civil", "Ingeniero Industrial", "Arquitecto", "Dibujante Técnico", "Topógrafo", "Supervisor de Obras"] },
+      "construccion": { name: "Construcción y Oficios", positions: ["Albañil", "Electricista", "Fontanero", "Pintor", "Soldador", "Carpintero", "Operador Maquinaria"] },
+      "transporte": { name: "Transporte y Logística", positions: ["Chofer", "Repartidor", "Operador Logístico", "Jefe de Almacén", "Planificador Transporte"] },
+      "ventas": { name: "Ventas y Comercial", positions: ["Vendedor", "Ejecutivo Comercial", "Teleoperador", "Promotor", "Gerente Comercial"] },
+      "marketing": { name: "Marketing y Publicidad", positions: ["Community Manager", "Diseñador Gráfico", "Copywriter", "Trafficker Digital", "Productor Contenido"] },
+      "hosteleria": { name: "Hostelería y Turismo", positions: ["Chef/Cocinero", "Camarero", "Bartender", "Recepcionista Hotel", "Guía Turístico"] },
+      "domesticos": { name: "Servicios Domésticos", positions: ["Empleada Doméstica", "Niñera", "Cuidador", "Cocinero Particular", "Jardinero"] },
+      "manufactura": { name: "Manufactura y Producción", positions: ["Operario Producción", "Control Calidad", "Técnico Mecatrónico", "Empacador"] }
+    };
+
+    const JOBS = [
+      { title: "Diseñador Industrial", cat: "ingenieria", loc: "Centro Habana", type: "Remoto", salary: "$30-40 USD", date: "Hace 2 días" },
+      { title: "Profesor de Idiomas", cat: "educacion", loc: "Vedado", type: "Presencial", salary: "$30-40 USD", date: "Hace 4 días" },
+      { title: "Niñera", cat: "domesticos", loc: "Habana Vieja", type: "Temporal", salary: "$50 USD", date: "Hace 1 día" },
+      { title: "Electricista", cat: "construccion", loc: "Playa", type: "Por proyecto", salary: "A convenir", date: "Hoy" }
+    ];
+
+    let currentRole = 'candidate';
+    let allKeywords = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initHeader();
+      initSearch();
+      initStats();
+      renderJobs();
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    });
+
+    function initHeader() {
+      const toggle = document.getElementById('nav-toggle');
+      const nav = document.getElementById('main-nav');
+      
+      toggle.addEventListener('click', () => {
+        const isActive = nav.classList.toggle('active');
+        toggle.textContent = isActive ? '✕' : '☰';
+        toggle.setAttribute('aria-expanded', isActive);
+      });
+
+      nav.querySelectorAll('.nav__link').forEach(link => {
+        link.addEventListener('click', () => {
+          nav.classList.remove('active');
+          toggle.textContent = '☰';
+          document.querySelectorAll('.nav__link').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        });
+      });
+    }
+
+    function initSearch() {
+      const locSelect = document.getElementById('search-location');
+      LOCATIONS.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc; opt.textContent = loc;
+        locSelect.appendChild(opt);
+      });
+
+      const catSelect = document.getElementById('search-category');
+      Object.keys(CATEGORIES).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key; opt.textContent = CATEGORIES[key].name;
+        catSelect.appendChild(opt);
+      });
+
+      catSelect.addEventListener('change', (e) => {
+        const posSelect = document.getElementById('search-position');
+        posSelect.innerHTML = '<option value="">Puesto</option>';
+        const key = e.target.value;
+        if (key && CATEGORIES[key]) {
+          CATEGORIES[key].positions.forEach(pos => {
+            const opt = document.createElement('option');
+            opt.value = pos; opt.textContent = pos;
+            posSelect.appendChild(opt);
+          });
+        }
+      });
+
+      const keywordInput = document.getElementById('search-keyword');
+      const datalist = document.getElementById('autocomplete-list');
+      
+      Object.values(CATEGORIES).forEach(cat => {
+        allKeywords.push(cat.name);
+        cat.positions.forEach(p => allKeywords.push(p));
+      });
+      JOBS.forEach(j => {
+        allKeywords.push(j.title);
+        allKeywords.push(j.loc);
+      });
+
+      keywordInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        datalist.innerHTML = '';
+        if (val.length > 0) {
+          const matches = allKeywords.filter(k => k.toLowerCase().includes(val)).slice(0, 10);
+          matches.forEach(match => {
+            const opt = document.createElement('option');
+            opt.value = match;
+            datalist.appendChild(opt);
+          });
+        }
+      });
+
+      document.getElementById('search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          keyword: keywordInput.value,
+          location: locSelect.value,
+          category: catSelect.value,
+          position: document.getElementById('search-position').value,
+          role: currentRole
+        };
+        alert(`🔍 Buscando como ${data.role === 'candidate' ? 'Candidato' : 'Empresa'}:\n${JSON.stringify(data, null, 2)}`);
+      });
+    }
+
+    function setRole(role) {
+      currentRole = role;
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.role === role);
+      });
+      localStorage.setItem('mipincha_role', role);
+    }
+
+    function renderJobs() {
+      const grid = document.getElementById('jobs-grid');
+      grid.innerHTML = JOBS.map(job => `
+        <article class="job-card">
+          <div class="job-header">
+            <h3 class="job-title">${CATEGORIES[job.cat]?.name || job.cat}</h3>
+            <span class="job-subtitle">${job.title}</span>
+          </div>
+          <div class="job-meta">
+            <span class="job-location">📍 ${job.loc}</span>
+            <span class="job-type job-type--${job.type.toLowerCase().replace(/ /g,'-')}">${job.type}</span>
+          </div>
+          <div class="job-footer">
+            <span class="job-salary">${job.salary}</span>
+            <span class="job-date">${job.date}</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function initStats() {
+      const counters = document.querySelectorAll('.stat-value[data-target]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const target = +el.dataset.target;
+            animateCounter(el, target);
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.5 });
+      counters.forEach(c => observer.observe(c));
+
+      const recentUsers = ["Ana G.", "Carlos M.", "Laura P."];
+      document.getElementById('stat-recent').textContent = `Últimos registros: ${recentUsers.join(', ')}`;
+    }
+
+    function animateCounter(el, target) {
+      let current = 0;
+      const step = Math.ceil(target / 60);
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        el.textContent = `+${current.toLocaleString('es-CU')}`;
+      }, 30);
+    }
+
+    const MODALS = {
+      login: `<h2>Iniciar Sesión</h2><form onsubmit="event.preventDefault(); alert('Login simulado'); closeModal();"><input type="email" placeholder="Email" required style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc;border-radius:6px;"><input type="password" placeholder="Contraseña" required style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc;border-radius:6px;"><button type="submit" class="btn btn--naranja btn--full">Entrar</button></form>`,
+      register: `<h2>Crear Cuenta</h2><p>Selecciona tu tipo:</p><button class="btn btn--naranja btn--full" style="margin:10px 0;" onclick="openModal('register-candidate')">Soy Candidato</button><button class="btn btn--outline btn--full" style="margin:10px 0;border-color:#EE751B;color:#EE751B;" onclick="openModal('register-company')">Soy Empresa</button>`,
+      'register-candidate': `<h2>Registro de Candidato</h2><form onsubmit="event.preventDefault(); alert('¡Registro exitoso!'); closeModal();"><input type="text" placeholder="Nombre completo" required style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><input type="email" placeholder="Email" required style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><input type="tel" placeholder="Teléfono" style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><input type="password" placeholder="Contraseña (min 8)" required minlength="8" style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><button type="submit" class="btn btn--naranja btn--full">Crear perfil gratis</button></form>`,
+      'register-company': `<h2>Registro de Empresa</h2><form onsubmit="event.preventDefault(); alert('¡Empresa registrada!'); closeModal();"><input type="text" placeholder="Nombre de la empresa" required style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><input type="email" placeholder="Email corporativo" required style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><input type="text" placeholder="Sector / Industria" style="width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;"><button type="submit" class="btn btn--naranja btn--full">Registrar empresa</button></form>`,
+      terms: `<h2>Términos de Uso</h2><p style="text-align:left;line-height:1.6;margin-top:10px;">Al usar Mi Pincha, aceptas que la plataforma conecta candidatos con empresas. No somos empleadores directos. Los usuarios son responsables de la veracidad de su información. Nos reservamos el derecho de moderar contenido y suspender cuentas que violen estas normas.</p>`,
+      conditions: `<h2>Condiciones de Servicio</h2><p style="text-align:left;line-height:1.6;margin-top:10px;">El servicio es gratuito para candidatos. Las empresas pueden publicar vacantes bajo planes definidos. Mi Pincha no garantiza contrataciones, solo facilita el match. Los datos se procesan bajo la legislación cubana vigente. Uso indebido = suspensión inmediata.</p>`,
+      privacy: `<h2>Política de Privacidad</h2><p style="text-align:left;line-height:1.6;margin-top:10px;">Tus datos están alojados en infraestructura soberana. No compartimos información con terceros sin consentimiento. Puedes solicitar eliminación de datos en cualquier momento. Cumplimos con estándares de protección de datos personales.</p>`
+    };
+
+    function openModal(type) {
+      document.getElementById('modal-body').innerHTML = MODALS[type] || '<p>Contenido no disponible</p>';
+      document.getElementById('modal-overlay').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(e) {
+      if (!e || e.target.id === 'modal-overlay' || e.target.classList.contains('modal-close')) {
+        document.getElementById('modal-overlay').classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+{
+  "version": "1.0",
+  "updated": "2026-05-18",
+  "categories": [
+    {
+      "id": "tecnologia",
+      "name": "Tecnología e Informática",
+      "subcategories": [
+        "Desarrollador Frontend", "Desarrollador Backend", "Desarrollador Full Stack",
+        "Ingeniero de Software", "Programador Web", "Programador Mobile",
+        "Programador de Videojuegos", "Arquitecto de Software", "DevOps Engineer",
+        "Cloud Engineer", "Administrador de Sistemas", "Administrador de Redes",
+        "Técnico de Soporte IT", "Help Desk", "QA Tester", "Analista de Datos",
+        "Científico de Datos", "Ingeniero de Datos", "Especialista en IA",
+        "Especialista en Machine Learning", "Especialista en Ciberseguridad",
+        "Hacker Ético", "DBA", "Scrum Master", "Product Owner", "Product Manager",
+        "UX Designer", "UI Designer", "Diseñador Web", "Especialista SEO",
+        "Especialista SEM", "Community Manager", "Especialista en Marketing Digital",
+        "Especialista CRM", "Técnico en Hardware", "Técnico en Telecomunicaciones",
+        "Especialista Blockchain", "Ingeniero IoT", "Ingeniero de Automatización"
+      ]
+    },
+    {
+      "id": "salud",
+      "name": "Salud y Medicina",
+      "subcategories": [
+        "Médico General", "Médico Especialista", "Cirujano", "Pediatra",
+        "Ginecólogo", "Cardiólogo", "Dermatólogo", "Psiquiatra", "Psicólogo",
+        "Psicoterapeuta", "Enfermero", "Auxiliar de Enfermería", "Odontólogo",
+        "Ortodoncista", "Higienista Dental", "Farmacéutico", "Bioquímico",
+        "Nutricionista", "Fisioterapeuta", "Terapeuta Ocupacional", "Paramédico",
+        "Técnico de Laboratorio", "Radiólogo", "Veterinario", "Asistente Médico",
+        "Recepcionista Clínica", "Cuidador de Adultos Mayores", "Cuidador Infantil",
+        "Optometrista", "Logopeda", "Técnico en Prótesis"
+      ]
+    },
+    {
+      "id": "educacion",
+      "name": "Educación y Formación",
+      "subcategories": [
+        "Profesor de Primaria", "Profesor de Secundaria", "Profesor Universitario",
+        "Maestro Infantil", "Tutor Académico", "Instructor Online",
+        "Capacitador Empresarial", "Profesor de Idiomas", "Profesor de Música",
+        "Profesor de Arte", "Investigador Académico", "Orientador Educativo",
+        "Bibliotecario", "Director Escolar", "Coordinador Académico",
+        "Diseñador Instruccional"
+      ]
+    },
+    {
+      "id": "administracion",
+      "name": "Administración y Oficina",
+      "subcategories": [
+        "Administrativo", "Secretario", "Recepcionista", "Asistente Ejecutivo",
+        "Auxiliar Administrativo", "Data Entry", "Archivista",
+        "Coordinador Administrativo", "Office Manager", "Gestor Documental",
+        "Asistente Virtual", "Mensajero Administrativo"
+      ]
+    },
+    {
+      "id": "finanzas",
+      "name": "Finanzas y Contabilidad",
+      "subcategories": [
+        "Contador", "Auditor", "Analista Financiero", "Asesor Financiero",
+        "Controller Financiero", "Cajero", "Tesorero", "Ejecutivo Bancario",
+        "Corredor de Bolsa", "Actuario", "Especialista en Impuestos",
+        "Analista de Riesgos", "Consultor Financiero", "Gestor de Cobros"
+      ]
+    },
+    {
+      "id": "legal",
+      "name": "Legal y Jurídico",
+      "subcategories": [
+        "Abogado", "Fiscal", "Juez", "Notario", "Asistente Legal", "Procurador",
+        "Mediador", "Especialista Compliance", "Asesor Jurídico", "Investigador Legal"
+      ]
+    },
+    {
+      "id": "ingenieria",
+      "name": "Ingeniería y Arquitectura",
+      "subcategories": [
+        "Ingeniero Civil", "Ingeniero Industrial", "Ingeniero Mecánico",
+        "Ingeniero Eléctrico", "Ingeniero Electrónico", "Ingeniero Químico",
+        "Ingeniero Ambiental", "Ingeniero Petrolero", "Ingeniero Biomédico",
+        "Ingeniero Aeronáutico", "Arquitecto", "Dibujante Técnico", "Topógrafo",
+        "Calculista Estructural", "Supervisor de Obras", "Inspector de Calidad"
+      ]
+    },
+    {
+      "id": "construccion",
+      "name": "Construcción y Oficios",
+      "subcategories": [
+        "Albañil", "Carpintero", "Electricista", "Fontanero", "Pintor", "Soldador",
+        "Cerrajero", "Yesero", "Techador", "Operador de Maquinaria",
+        "Maestro de Obras", "Instalador de Aire Acondicionado", "Técnico HVAC",
+        "Jardinero", "Vidriero", "Herrero", "Mecánico Industrial"
+      ]
+    },
+    {
+      "id": "transporte",
+      "name": "Transporte y Logística",
+      "subcategories": [
+        "Chofer", "Conductor de Camión", "Taxista", "Repartidor", "Courier",
+        "Piloto", "Copiloto", "Azafata", "Operador Logístico", "Jefe de Almacén",
+        "Almacenista", "Operador de Montacargas", "Planificador Logístico",
+        "Despachador", "Coordinador de Transporte", "Marinero"
+      ]
+    },
+    {
+      "id": "ventas",
+      "name": "Ventas y Comercial",
+      "subcategories": [
+        "Vendedor", "Ejecutivo Comercial", "Representante de Ventas",
+        "Account Manager", "Key Account Manager", "Teleoperador",
+        "Call Center Agent", "Asesor Comercial", "Promotor", "Merchandiser",
+        "Gerente Comercial", "Supervisor de Ventas", "Ejecutivo de Cuentas"
+      ]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing y Publicidad",
+      "subcategories": [
+        "Copywriter", "Diseñador Gráfico", "Director Creativo", "Brand Manager",
+        "Publicista", "Trafficker Digital", "Especialista en Redes Sociales",
+        "Productor de Contenido", "Fotógrafo", "Videógrafo", "Editor de Video",
+        "Relaciones Públicas", "Organizador de Eventos"
+      ]
+    },
+    {
+      "id": "arte",
+      "name": "Arte, Cultura y Entretenimiento",
+      "subcategories": [
+        "Actor", "Actriz", "Músico", "Cantante", "DJ", "Bailarín", "Coreógrafo",
+        "Escritor", "Guionista", "Pintor", "Escultor", "Ilustrador",
+        "Animador 2D", "Animador 3D", "Director de Cine", "Productor Musical",
+        "Sonidista", "Técnico de Iluminación"
+      ]
+    },
+    {
+      "id": "hosteleria",
+      "name": "Hostelería y Turismo",
+      "subcategories": [
+        "Recepcionista de Hotel", "Botones", "Conserje", "Chef", "Cocinero",
+        "Ayudante de Cocina", "Camarero", "Bartender", "Barista", "Sommelier",
+        "Gerente de Restaurante", "Guía Turístico", "Agente de Viajes",
+        "Animador Turístico", "Housekeeping", "Personal de Limpieza Hotelera"
+      ]
+    },
+    {
+      "id": "limpieza",
+      "name": "Limpieza y Mantenimiento",
+      "subcategories": [
+        "Personal de Limpieza", "Conserje", "Técnico de Mantenimiento",
+        "Operario de Limpieza Industrial", "Lavandero", "Limpiador de Cristales",
+        "Supervisor de Mantenimiento", "Operario de Planta"
+      ]
+    },
+    {
+      "id": "manufactura",
+      "name": "Manufactura y Producción",
+      "subcategories": [
+        "Operario de Producción", "Ensamblador", "Operador de Máquina",
+        "Técnico de Producción", "Supervisor de Planta", "Control de Calidad",
+        "Empacador", "Operario Textil", "Operario Alimentario",
+        "Técnico Mecatrónico"
+      ]
+    },
+    {
+      "id": "agricultura",
+      "name": "Agricultura, Ganadería y Pesca",
+      "subcategories": [
+        "Agricultor", "Ganadero", "Pescador", "Técnico Agrícola",
+        "Ingeniero Agrónomo", "Operador Forestal", "Recolector",
+        "Veterinario Rural", "Apicultor", "Operador de Maquinaria Agrícola"
+      ]
+    },
+    {
+      "id": "seguridad",
+      "name": "Seguridad y Defensa",
+      "subcategories": [
+        "Policía", "Militar", "Guardia de Seguridad", "Vigilante",
+        "Detective Privado", "Bombero", "Rescatista", "Guardaespaldas",
+        "Supervisor de Seguridad", "Analista de Seguridad"
+      ]
+    },
+    {
+      "id": "rrhh",
+      "name": "Recursos Humanos",
+      "subcategories": [
+        "Reclutador", "Talent Acquisition", "HR Manager", "Generalista RRHH",
+        "Especialista Nómina", "Especialista Capacitación",
+        "Psicólogo Organizacional", "Employer Branding", "Headhunter"
+      ]
+    },
+    {
+      "id": "ciencia",
+      "name": "Ciencia e Investigación",
+      "subcategories": [
+        "Investigador Científico", "Biólogo", "Químico", "Físico", "Matemático",
+        "Astrónomo", "Geólogo", "Oceanógrafo", "Arqueólogo", "Antropólogo",
+        "Estadístico"
+      ]
+    },
+    {
+      "id": "medios",
+      "name": "Medios y Comunicación",
+      "subcategories": [
+        "Periodista", "Reportero", "Locutor", "Presentador TV", "Editor",
+        "Corrector de Estilo", "Traductor", "Intérprete",
+        "Comunicador Corporativo", "Podcaster"
+      ]
+    },
+    {
+      "id": "deportes",
+      "name": "Deportes y Fitness",
+      "subcategories": [
+        "Entrenador Personal", "Preparador Físico", "Nutricionista Deportivo",
+        "Árbitro", "Deportista Profesional", "Instructor de Yoga",
+        "Instructor de Gimnasio", "Instructor de Natación", "Coach Deportivo"
+      ]
+    },
+    {
+      "id": "domesticos",
+      "name": "Servicios Domésticos",
+      "subcategories": [
+        "Empleada Doméstica", "Niñera", "Cuidador", "Cocinero Particular",
+        "Chofer Privado", "Jardinero Particular", "Mayordomo", "Asistente Personal"
+      ]
+    },
+    {
+      "id": "freelance",
+      "name": "Freelance y Economía Digital",
+      "subcategories": [
+        "Freelancer", "Consultor Independiente", "Creador de Contenido",
+        "Streamer", "Influencer", "Dropshipper", "Vendedor Ecommerce", "Trader",
+        "Asistente Virtual Freelance", "Diseñador Freelance"
+      ]
+    },
+    {
+      "id": "energia",
+      "name": "Energía y Medio Ambiente",
+      "subcategories": [
+        "Técnico Solar", "Instalador de Paneles Solares", "Ingeniero Energético",
+        "Técnico Eólico", "Especialista Medioambiental",
+        "Consultor Sostenibilidad", "Gestor de Residuos", "Auditor Ambiental"
+      ]
+    },
+    {
+      "id": "blockchain",
+      "name": "Blockchain, Cripto y Web3",
+      "subcategories": [
+        "Desarrollador Blockchain", "Smart Contract Developer", "Analista Cripto",
+        "Community Manager Web3", "NFT Artist", "Auditor Smart Contracts",
+        "Trader Cripto"
+      ]
+    },
+    {
+      "id": "ia",
+      "name": "Inteligencia Artificial y Automatización",
+      "subcategories": [
+        "Prompt Engineer", "Entrenador de IA", "Especialista NLP",
+        "Ingeniero Robótico", "Automatizador RPA", "Analista de Automatización",
+        "Especialista Chatbots"
+      ]
+    }
+  ]
+}

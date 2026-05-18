@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Job Schema",
+  "description": "Esquema para vacantes de empleo",
+  "type": "object",
+  "required": ["id", "title", "company", "category", "location", "created_at"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^job_[a-z0-9]{8}$",
+      "description": "ID único del job"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120,
+      "description": "Título del puesto"
+    },
+    "company": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "verified": { "type": "boolean", "default": false },
+        "logo": { "type": "string", "format": "uri-reference" },
+        "size": { "type": "string", "enum": ["1-10", "11-50", "51-200", "201-500", "500+"] }
+      }
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tecnologia", "salud", "educacion", "administracion", "finanzas",
+        "legal", "ingenieria", "construccion", "transporte", "ventas",
+        "marketing", "arte", "hosteleria", "limpieza", "manufactura",
+        "agricultura", "seguridad", "rrhh", "ciencia", "medios",
+        "deportes", "domesticos", "freelance", "energia", "blockchain", "ia"
+      ]
+    },
+    "subcategory": { "type": "string" },
+    "location": {
+      "type": "string",
+      "enum": [
+        "Playa", "Plaza de la Revolución", "Centro Habana", "Habana Vieja",
+        "Regla", "Habana del Este", "Guanabacoa", "San Miguel del Padrón",
+        "10 de Octubre", "Cerro", "Marianao", "La Lisa", "Arroyo Naranjo",
+        "Boyeros", "Cotorro"
+      ]
+    },
+    "modality": {
+      "type": "array",
+      "items": {
+        "enum": ["Presencial", "Remoto", "Híbrido", "Freelance", "Temporal", "Medio Tiempo", "Tiempo Completo", "Por Proyecto"]
+      }
+    },
+    "contract_type": {
+      "enum": ["Indefinido", "Temporal", "Freelance", "Contrato por obra", "Contrato parcial", "Contrato completo"]
+    },
+    "experience_level": {
+      "enum": ["Sin experiencia", "Junior", "Semi Senior", "Senior", "Lead", "Manager", "Director"]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "requirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "salary_range": {
+      "type": "object",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "currency": { "enum": ["CUP", "USD", "EUR"], "default": "CUP" }
+      }
+    },
+    "application_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "ts": { "type": "number" },
+        "ua": { "type": "string", "maxLength": 100 },
+        "origin": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    }
+  }
+}

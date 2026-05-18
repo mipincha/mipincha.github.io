@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "country": "Cuba",
+  "province": "La Habana",
+  "municipios": [
+    "Playa",
+    "Plaza de la Revolución",
+    "Centro Habana",
+    "Habana Vieja",
+    "Regla",
+    "Habana del Este",
+    "Guanabacoa",
+    "San Miguel del Padrón",
+    "10 de Octubre",
+    "Cerro",
+    "Marianao",
+    "La Lisa",
+    "Arroyo Naranjo",
+    "Boyeros",
+    "Cotorro"
+  ]
+}

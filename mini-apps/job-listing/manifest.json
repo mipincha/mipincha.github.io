@@ -1,0 +1,10 @@
+{
+  "id": "job-listing",
+  "name": "Listado de Vacantes",
+  "version": "1.0.0",
+  "description": "Muestra vacantes destacadas",
+  "entry": "index.js",
+  "permissions": ["db:read", "ui:render"],
+  "mountPoint": "[data-mini-app=\"job-listing\"]",
+  "autoMount": true
+}

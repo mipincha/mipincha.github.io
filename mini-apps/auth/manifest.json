@@ -1,0 +1,11 @@
+{
+  "id": "auth",
+  "name": "Autenticación",
+  "version": "1.0.0",
+  "description": "Login y registro de usuarios",
+  "entry": "index.js",
+  "styles": "styles.css",
+  "permissions": ["db:write", "queue:write", "ui:render"],
+  "mountPoint": "[data-action=\"login\"], [data-action=\"register\"]",
+  "autoMount": false
+}

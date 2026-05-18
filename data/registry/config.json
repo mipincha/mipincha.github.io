@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "Mi Pincha",
+    "tagline": "Conectamos talento con oportunidades",
+    "version": "1.0.0",
+    "env": "production"
+  },
+  "contact": {
+    "email": "mipinchainfo@gmail.com",
+    "whatsapp": "+53 51283542",
+    "hours": "Lunes a Viernes, 9:00 - 17:00 (Cuba)"
+  },
+  "features": {
+    "batchSize": 10,
+    "flushInterval": 30000,
+    "maxFileSize": 1048576,
+    "enableAnalytics": false
+  },
+  "limits": {
+    "maxJobsPerUser": 100,
+    "maxApplicationsPerDay": 20,
+    "sessionTimeout": 86400000
+  }
+}

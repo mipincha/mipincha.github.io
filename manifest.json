@@ -1,0 +1,27 @@
+{
+  "name": "Mi Pincha - Agencia de Empleos",
+  "short_name": "Mi Pincha",
+  "description": "Conectamos talento con oportunidades en Cuba",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#163961",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "jobs"],
+  "lang": "es-CU",
+  "dir": "ltr"
+}
