@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica tu correo - Mi Pincha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+    <div id="statusIcon" class="text-5xl mb-4">📧</div>
+    <h2 id="statusTitle" class="text-2xl font-bold text-pincha-blue mb-2">Revisa tu correo</h2>
+    <p id="statusMsg" class="text-gray-600 mb-4">Hemos enviado un enlace de confirmación a:</p>
+    <p id="userEmail" class="font-bold text-pincha-orange text-lg mb-6 break-all">cargando...</p>
+    
+    <div class="space-y-3">
+      <button id="btnResend" class="w-full bg-gray-100 text-pincha-blue font-medium py-2 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+        Reenviar enlace
+      </button>
+      <button onclick="window.location.href='index.html'" class="w-full border border-gray-300 text-gray-600 font-medium py-2 rounded-lg hover:bg-gray-50 transition">
+        Volver al inicio
+      </button>
+    </div>
+
+    <div id="toast" class="mt-4 text-sm hidden p-3 rounded-lg"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const email = new URLSearchParams(window.location.search).get('email') || localStorage.getItem('pendingEmail') || '';
+    document.getElementById('userEmail').textContent = email || 'tu correo';
+
+    let pollingInterval;
+    let resendCooldown = 0;
+
+    // 1. Verificar estado periódicamente (ligero para conexiones variables)
+    async function checkVerification() {
+      if (!email) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.email_confirmed_at) {
+          clearInterval(pollingInterval);
+          showToast('✅ Correo verificado. Redirigiendo...', 'success');
+          setTimeout(() => window.location.href = 'index.html', 1500);
+        }
+      } catch (e) {
+        // Silenciar errores de red transitorios
+      }
+    }
+
+    // Iniciar polling cada 4s (equilibrio entre latencia y consumo de datos)
+    if (email) pollingInterval = setInterval(checkVerification, 4000);
+
+    // 2. Reenvío con cooldown
+    document.getElementById('btnResend').addEventListener('click', async () => {
+      if (resendCooldown > 0) return;
+      const btn = document.getElementById('btnResend');
+      btn.disabled = true;
+      showToast('Enviando...', 'info');
+
+      const { error } = await supabase.auth.resend({ type: 'signup', email });
+      if (error) {
+        showToast('❌ ' + error.message, 'error');
+      } else {
+        showToast('✅ Correo reenviado. Revisa bandeja/spam.', 'success');
+        resendCooldown = 30;
+        const timer = setInterval(() => {
+          resendCooldown--;
+          btn.textContent = resendCooldown > 0 ? `Reenviar (${resendCooldown}s)` : 'Reenviar enlace';
+          if (resendCooldown <= 0) {
+            btn.disabled = false;
+            clearInterval(timer);
+          }
+        }, 1000);
+      }
+    });
+
+    // 3. Toast messages
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `mt-4 text-sm p-3 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : type === 'error' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 5000);
+    }
+
+    // Fallback offline
+    window.addEventListener('offline', () => showToast('⚠️ Sin conexión. El enlace se procesará al recuperar internet.', 'error'));
+  </script>
+</body>
+</html>

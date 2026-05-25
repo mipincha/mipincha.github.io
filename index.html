@@ -4,440 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Pincha - Agencia de Empleos</title>
-    <link rel="icon" href="images/favicon.png">
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- HEADER -->
-    <header class="header">
-        <div class="container header-content">
-            <div class="logo">
-                <img src="images/logo.png" alt="Mi Pincha" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <div class="logo-fallback" style="display:none; align-items:center; gap:4px;">
-                    <span style="font-size:28px; font-weight:800; color:#1E3A5F;">M</span>
-                    <span style="font-size:28px; font-weight:800; color:#FF6B35;">P</span>
-                </div>
-            </div>
-            <nav class="nav">
-                <a href="#" class="nav-link active">Inicio</a>
-                <a href="#" class="nav-link">Buscar Empleo</a>
-                <a href="#" class="nav-link">Empresas</a>
-                <a href="#" class="nav-link">Candidatos</a>
-                <a href="#" class="nav-link">Nosotros</a>
-                <a href="#" class="nav-link">Recursos</a>
-            </nav>
-            <div class="auth-buttons">
-                <button class="btn btn-ghost">Iniciar sesión</button>
-                <button class="btn btn-primary">Crear cuenta</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="container hero-grid">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Conectamos talento con <span class="text-orange">oportunidades</span>
-                </h1>
-                <p class="hero-subtitle">
-                    En Mi Pincha agencia de empleos ayudamos a personas a encontrar el trabajo ideal y a empresas a encontrar el talento que impulsa su crecimiento en La Habana.
-                </p>
-
-                <!-- SEARCH BOX -->
-                <div class="search-box">
-                    <div class="search-tabs">
-                        <button class="search-tab active">Buscar empleo</button>
-                        <button class="search-tab">Buscar talento</button>
-                    </div>
-                    <div class="search-inputs">
-                        <div class="input-group">
-                            <span class="input-icon">🔍</span>
-                            <input type="text" id="searchKeyword" placeholder="Puesto, empresa, o palabra clave...">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-icon">📍</span>
-                            <input type="text" id="searchLocation" placeholder="Ubicación">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-icon">📂</span>
-                            <select id="searchCategory">
-                                <option value="">Todas las categorías</option>
-                                <option value="Tecnología e Informática">Tecnología</option>
-                                <option value="Salud y Medicina">Salud</option>
-                                <option value="Educación y Formación">Educación</option>
-                                <option value="Construcción y Oficios">Construcción</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-search" onclick="performSearch()">Buscar</button>
-                    </div>
-                    <div class="search-tags">
-                        <span class="tag" onclick="setSearch('Diseñador')">Diseño</span>
-                        <span class="tag" onclick="setSearch('Marketing')">Marketing</span>
-                        <span class="tag" onclick="setSearch('Cocinero')">Cocinero</span>
-                        <span class="tag" onclick="setSearch('Ventas')">Ventas</span>
-                        <a href="#" class="tag-link">Ver más →</a>
-                    </div>
-                </div>
-
-                <!-- USER TYPE BUTTONS -->
-                <div class="user-type-buttons">
-                    <button class="btn btn-candidate" onclick="goToRegister('candidate')">Soy candidato 👤</button>
-                    <button class="btn btn-company-outline" onclick="goToRegister('company')">Soy empresa 🏢</button>
-                </div>
-
-                <div class="social-proof">
-                    <div class="avatars">
-                        <div class="avatar" style="background:#FFB380"></div>
-                        <div class="avatar" style="background:#80C4FF"></div>
-                        <div class="avatar" style="background:#A0E7A0"></div>
-                    </div>
-                    <p><strong>+100</strong> personas ya encontraron su próximo gran trabajo.</p>
-                </div>
-            </div>
-
-            <div class="hero-image">
-                <div class="mascot-placeholder">🐜</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- STEPS SECTION -->
-    <section class="steps">
-        <div class="container">
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-icon">📝</div>
-                    <h3 class="step-title">Regístrate gratis</h3>
-                    <p class="step-desc">Crea tu perfil en minutos y comienza tu búsqueda.</p>
-                    <span class="step-number">01</span>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">🔍</div>
-                    <h3 class="step-title">Encuentra Empleo</h3>
-                    <p class="step-desc">Explora miles de vacantes que se ajustan a tu perfil.</p>
-                    <span class="step-number">02</span>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">🚀</div>
-                    <h3 class="step-title">Postúlate Fácil</h3>
-                    <p class="step-desc">Envía tu CV con un clic y destaca ante empresas.</p>
-                    <span class="step-number">03</span>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">📈</div>
-                    <h3 class="step-title">Empieza tu futuro</h3>
-                    <p class="step-desc">Conectamos tu talento con grandes oportunidades.</p>
-                    <span class="step-number">04</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FEATURED JOBS (DINÁMICO) -->
-    <section class="featured-jobs">
-        <div class="container">
-            <h2 class="section-title">Vacantes <span class="text-orange">destacadas</span></h2>
-            <div id="jobsContainer" class="jobs-grid">
-                <!-- Los empleos se cargarán aquí desde Supabase -->
-                <div class="job-card loading">
-                    <div class="job-title" style="height:20px; background:#eee; border-radius:4px;"></div>
-                    <div class="job-category" style="height:16px; background:#eee; border-radius:4px; margin:8px 0;"></div>
-                    <div style="display:flex; gap:8px;">
-                        <div style="height:20px; width:100px; background:#eee; border-radius:4px;"></div>
-                        <div style="height:20px; width:60px; background:#eee; border-radius:4px;"></div>
-                    </div>
-                </div>
-                <div class="job-card loading">
-                    <div class="job-title" style="height:20px; background:#eee; border-radius:4px;"></div>
-                    <div class="job-category" style="height:16px; background:#eee; border-radius:4px; margin:8px 0;"></div>
-                    <div style="display:flex; gap:8px;">
-                        <div style="height:20px; width:100px; background:#eee; border-radius:4px;"></div>
-                        <div style="height:20px; width:60px; background:#eee; border-radius:4px;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- TRUSTED COMPANIES -->
-    <section class="trusted-companies">
-        <div class="container text-center">
-            <h3 class="section-title">Empresas que <span class="text-orange">confían</span> en nosotros</h3>
-            <div class="companies-list">
-                <span class="company">AxisSoft</span>
-                <span class="company">STIKMANIA</span>
-                <span class="company">Juanky's Pan</span>
-                <span class="company">Home Deli</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- DUAL CTA -->
-    <section class="dual-cta">
-        <div class="container">
-            <div class="cta-grid">
-                <div class="cta-card cta-candidate">
-                    <h3 class="cta-title">Para candidatos</h3>
-                    <p class="cta-desc">Todo lo que necesitas para impulsar tu carrera profesional.</p>
-                    <ul class="cta-list">
-                        <li>✓ Miles de vacantes verificadas</li>
-                        <li>✓ Postulación rápida y segura</li>
-                        <li>✓ Alertas personalizadas</li>
-                        <li>✓ Recursos para tu crecimiento</li>
-                        <li>✓ Acompañamiento profesional</li>
-                    </ul>
-                    <button class="btn btn-cta" onclick="goToRegister('candidate')">Crear mi perfil gratis</button>
-                </div>
-                <div class="cta-card cta-employer">
-                    <h3 class="cta-title">Para empresas</h3>
-                    <p class="cta-desc">Encuentra el talento ideal para hacer crecer tu negocio.</p>
-                    <ul class="cta-list">
-                        <li>✓ Publica vacantes ilimitadas</li>
-                        <li>✓ Accede a talento calificado</li>
-                        <li>✓ Filtros inteligentes</li>
-                        <li>✓ Evaluaciones y entrevistas</li>
-                        <li>✓ Soporte personalizado</li>
-                    </ul>
-                    <button class="btn btn-cta-white" onclick="goToRegister('company')">Publicar una vacante</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section class="how-it-works">
-        <div class="container text-center">
-            <h2 class="section-title">¿Cómo <span class="text-orange">funciona</span>?</h2>
-            <p class="section-subtitle">Un proceso simple para conectar talento y oportunidades.</p>
-            <div class="process-grid">
-                <div class="process-step">
-                    <div class="process-icon">📝</div>
-                    <h4 class="process-title">Regístrate</h4>
-                    <p class="process-desc">Crea tu cuenta como candidato o empresa en minutos.</p>
-                </div>
-                <div class="process-step">
-                    <div class="process-icon">🔍</div>
-                    <h4 class="process-title">Explora y publica</h4>
-                    <p class="process-desc">Busca vacantes o publica tu oferta de empleos fácilmente.</p>
-                </div>
-                <div class="process-step">
-                    <div class="process-icon">🤝</div>
-                    <h4 class="process-title">Conecta</h4>
-                    <p class="process-desc">Postula o recibe postulaciones de candidatos calificados.</p>
-                </div>
-                <div class="process-step">
-                    <div class="process-icon">📈</div>
-                    <h4 class="process-title">Contrata y crece</h4>
-                    <p class="process-desc">Encuentra el match perfecto y construye tu futuro.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- STATS -->
-    <section class="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">+10,000</div>
-                    <div class="stat-label">Candidatos activos</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">+1,500</div>
-                    <div class="stat-label">Empresas registradas</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">+15,000</div>
-                    <div class="stat-label">Vacantes publicadas</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">+1,000</div>
-                    <div class="stat-label">Contrataciones Exitosas</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <h4 class="footer-title">Mi Pincha</h4>
-                    <p class="footer-text">Agencia de empleos en La Habana. Conectamos talento con oportunidades.</p>
-                    <div class="social-links">
-                        <a href="#">FB</a>
-                        <a href="#">IG</a>
-                        <a href="#">LI</a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="footer-title">Candidatos</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Buscar empleo</a></li>
-                        <li><a href="#">Crear perfil</a></li>
-                        <li><a href="#">Guía de CV</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Empresas</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Publicar vacante</a></li>
-                        <li><a href="#">Buscar candidatos</a></li>
-                        <li><a href="#">Precios</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Contacto</h4>
-                    <ul class="footer-links">
-                        <li>📍 La Habana, Cuba</li>
-                        <li>📞 +53 51283542</li>
-                        <li>✉️ mipinchainfo@gmail.com</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2024 Mi Pincha. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- ✅ SUPABASE INTEGRATION (TUS CREDENCIALES) -->
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // 🔑 TUS CREDENCIALES DE SUPABASE (Ya integradas)
-        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Función para cargar empleos desde Supabase
-        async function loadJobs(filters = {}) {
-            const container = document.getElementById('jobsContainer');
-            
-            // Mostrar estado de carga
-            if(!filters.keyword && !filters.location && !filters.category) {
-                container.innerHTML = '<div class="text-center py-8 text-gray-500">Cargando vacantes...</div>';
-            }
-
-            try {
-                let query = supabase.from('jobs').select('*').eq('is_active', true);
-                
-                // Aplicar filtros si existen
-                if(filters.keyword) {
-                    query = query.ilike('title', `%${filters.keyword}%`);
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
                 }
-                if(filters.location) {
-                    query = query.ilike('location', `%${filters.location}%`);
-                }
-                if(filters.category) {
-                    query = query.eq('category', filters.category);
-                }
-
-                const { data, error } = await query.order('created_at', { ascending: false }).limit(10);
-
-                if(error) throw error;
-
-                renderJobs(data || []);
-
-            } catch (error) {
-                console.error('Error al cargar empleos:', error);
-                container.innerHTML = `<div class="text-center py-8 text-red-500">⚠️ Error al cargar vacantes. Verifica tu conexión.</div>`;
             }
         }
-
-        // Función para renderizar las tarjetas de empleo
-        function renderJobs(jobs) {
-            const container = document.getElementById('jobsContainer');
-            
-            if(jobs.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-gray-500 col-span-full">No se encontraron vacantes con esos criterios.</div>';
-                return;
-            }
-
-            container.innerHTML = jobs.map(job => {
-                // Determinar tipo de badge según modalidad
-                const getTypeBadge = (type) => {
-                    const types = {
-                        'Remoto': 'remote',
-                        'Presencial': 'presencial', 
-                        'Temporal': 'temporal',
-                        'Por proyecto': 'proyecto',
-                        'Híbrido': 'hibrido',
-                        'Freelance': 'freelance'
-                    };
-                    return types[type] || 'default';
-                };
-
-                const badgeClass = getTypeBadge(job.modality || job.contract_type);
-                
-                return `
-                <div class="job-card" onclick="viewJob('${job.id}')">
-                    <h4 class="job-title">${job.title}</h4>
-                    <p class="job-category">${job.category || 'Sin categoría'}</p>
-                    <div class="job-meta">
-                        <span class="job-location">📍 ${job.location || 'La Habana'}</span>
-                        <span class="job-type ${badgeClass}">${job.modality || job.contract_type || 'N/A'}</span>
-                    </div>
-                    <div class="job-footer">
-                        <span class="job-salary">${job.salary || 'A convenir'}</span>
-                        <span class="job-date">${formatDate(job.created_at)}</span>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-
-        // Formatear fecha relativa
-        function formatDate(dateString) {
-            if(!dateString) return 'Reciente';
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-            
-            if(diffDays === 0) return 'Hoy';
-            if(diffDays === 1) return 'Ayer';
-            if(diffDays < 7) return `Hace ${diffDays} días`;
-            return date.toLocaleDateString('es-CU');
-        }
-
-        // Función de búsqueda
-        function performSearch() {
-            const keyword = document.getElementById('searchKeyword').value;
-            const location = document.getElementById('searchLocation').value;
-            const category = document.getElementById('searchCategory').value;
-            
-            loadJobs({ keyword, location, category });
-        }
-
-        // Función para tags de búsqueda rápida
-        function setSearch(keyword) {
-            document.getElementById('searchKeyword').value = keyword;
-            performSearch();
-        }
-
-        // Ver detalle de empleo
-        function viewJob(jobId) {
-            // Aquí podrías redirigir a una página de detalle
-            alert(`Viendo detalles del empleo: ${jobId}\n\n(En la versión completa, esto abriría la página de detalle)`);
-        }
-
-        // Redirigir a registro
-        function goToRegister(type) {
-            alert(`Redirigiendo a registro de ${type === 'candidate' ? 'candidato' : 'empresa'}...\n\n(En producción: /registro?tipo=${type})`);
-        }
-
-        // Inicializar cuando cargue la página
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Mi Pincha - Web cargada');
-            console.log('🔗 Conectado a Supabase:', SUPABASE_URL);
-            
-            // Cargar empleos iniciales
-            loadJobs();
-        });
     </script>
+    <style>
+        /* Estilos explícitos para evitar limitaciones de Tailwind CDN con clases dinámicas */
+        .tab-btn { transition: all 0.2s ease; cursor: pointer; }
+        .tab-btn.active { background-color: white; color: #FF6B35; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
+        .tab-btn.inactive { background-color: transparent; color: #6B7280; box-shadow: none; }
+        .tab-btn:hover:not(.active) { color: #374151; }
+        
+        .form-section { display: none; }
+        .form-section.show { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .btn-tactile:active { transform: scale(0.97); }
+        .btn-tactile { transition: all 0.15s ease; }
+        
+        .search-dropdown { display: none; }
+        .search-dropdown.show { display: block; animation: slideDown 0.2s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 antialiased">
+
+    <!-- 🔒 AUTH GATE (Punto de entrada obligatorio) -->
+    <div id="authGate" class="fixed inset-0 bg-gradient-to-br from-pincha-blue to-gray-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <div class="text-center mb-6">
+                <div class="flex justify-center gap-1 mb-2">
+                    <span class="text-4xl font-black text-pincha-blue">M</span>
+                    <span class="text-4xl font-black text-pincha-orange">P</span>
+                </div>
+                <h2 class="text-2xl font-bold text-pincha-blue">Bienvenido a Mi Pincha</h2>
+                <p class="text-gray-500 text-sm">Conectamos talento con oportunidades en La Habana</p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <button id="tabLogin" class="tab-btn active flex-1 py-2 rounded-md font-bold">Iniciar sesión</button>
+                <button id="tabRegister" class="tab-btn inactive flex-1 py-2 rounded-md font-bold">Crear cuenta</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="form-section show space-y-4">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                <input type="password" id="loginPass" placeholder="Contraseña" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="keepSession" checked class="w-4 h-4 accent-pincha-orange">
+                    <label for="keepSession" class="text-sm text-gray-600">Mantener sesión iniciada</label>
+                </div>
+                <button type="submit" class="auth-btn w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">Entrar</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="form-section space-y-4">
+                <select id="regType" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                    <option value="candidate">👤 Soy Candidato</option>
+                    <option value="company">🏢 Soy Empresa</option>
+                </select>
+                <input type="text" id="regName" placeholder="Nombre completo / Razón social" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                <input type="email" id="regEmail" placeholder="Correo electrónico" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                <input type="password" id="regPass" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                <button type="submit" class="auth-btn w-full bg-pincha-blue text-white font-bold py-3 rounded-lg hover:bg-blue-800 btn-tactile shadow-md">Registrarme</button>
+            </form>
+            <div id="authMsg" class="mt-4 text-center text-sm hidden font-bold"></div>
+        </div>
+    </div>
+
+    <!-- 🌐 MAIN APP (Bloqueado hasta auth) -->
+    <div id="mainApp" class="min-h-screen flex flex-col blur-sm pointer-events-none transition-all duration-300">
+        
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2 cursor-pointer btn-tactile" onclick="window.location.reload()">
+                    <span class="text-2xl font-black text-pincha-blue">M</span>
+                    <span class="text-2xl font-black text-pincha-orange">P</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="userBadge" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Cargando...</span>
+                    <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Cerrar sesión</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+            
+            <!-- SEARCH BAR -->
+            <div class="relative mb-6">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-2 flex flex-col md:flex-row gap-2">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Buscar puesto, categoría o empresa..." 
+                               class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                        <div id="searchDropdown" class="search-dropdown absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto z-50"></div>
+                    </div>
+                    <select id="locationFilter" class="md:w-48 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                        <option value="">📍 Todas las ubicaciones</option>
+                        <option value="Playa">Playa</option>
+                        <option value="Vedado">Vedado</option>
+                        <option value="Centro Habana">Centro Habana</option>
+                        <option value="Habana Vieja">Habana Vieja</option>
+                        <option value="Plaza de la Revolución">Plaza de la Revolución</option>
+                    </select>
+                    <button id="searchBtn" class="bg-pincha-orange text-white font-bold px-6 py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">
+                        🔍 Buscar
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTER TAGS -->
+            <div class="flex flex-wrap gap-2 mb-6" id="filterTags">
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Tecnología e Informática">Tecnología</span>
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Salud y Medicina">Salud</span>
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Educación y Formación">Educación</span>
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Construcción y Oficios">Construcción</span>
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Ventas y Comercial">Ventas</span>
+                <span class="filter-tag px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm cursor-pointer hover:bg-pincha-orange hover:text-white btn-tactile" data-cat="Servicios Domésticos">Servicios</span>
+            </div>
+
+            <!-- JOBS GRID -->
+            <div id="jobsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
+                <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
+                <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-pincha-blue text-white py-6 text-center text-sm mt-8">
+            <p>© 2024 Mi Pincha. Conectamos talento con oportunidades.</p>
+        </footer>
+    </div>
 
     <script src="js/app.js"></script>
 </body>

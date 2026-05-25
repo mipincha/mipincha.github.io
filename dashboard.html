@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mi Pincha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
+    </script>
+    <style> .loader { border: 3px solid #f3f3f3; border-top: 3px solid #FF6B35; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- HEADER DASHBOARD -->
+    <header class="bg-white shadow-sm py-4 sticky top-0 z-50">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2">
+                <span class="text-2xl font-bold text-pincha-blue">M</span>
+                <span class="text-2xl font-bold text-pincha-orange">P</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <span id="userName" class="text-sm font-medium text-gray-600 hidden sm:block">Cargando...</span>
+                <button onclick="logout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition">Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow container mx-auto px-6 py-8">
+        
+        <!-- VISTA: EMPRESA -->
+        <div id="viewEmpresa" class="hidden">
+            <h2 class="text-2xl font-bold text-pincha-blue mb-6">🏢 Panel de Empresa</h2>
+            
+            <!-- Formulario de Publicación -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                <h3 class="text-lg font-bold mb-4">Publicar Nueva Vacante</h3>
+                <form id="formPublicar" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="titulo" placeholder="Título del puesto" required class="p-3 border rounded-lg w-full">
+                    <select id="categoria" class="p-3 border rounded-lg w-full">
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Salud">Salud</option>
+                        <option value="Educación">Educación</option>
+                        <option value="Construcción">Construcción</option>
+                        <option value="Ventas">Ventas</option>
+                        <option value="Servicios">Servicios</option>
+                    </select>
+                    <input type="text" id="ubicacion" placeholder="Ubicación (Ej: Vedado, Playa)" required class="p-3 border rounded-lg w-full">
+                    <input type="text" id="salario" placeholder="Salario (Ej: $500 USD)" class="p-3 border rounded-lg w-full">
+                    <textarea id="descripcion" placeholder="Descripción de la oferta..." rows="3" class="p-3 border rounded-lg w-full md:col-span-2"></textarea>
+                    <button type="submit" class="bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition md:col-span-2">Publicar Vacante</button>
+                </form>
+            </div>
+
+            <!-- Lista de Empleos Publicados -->
+            <h3 class="text-lg font-bold mb-4">Mis Vacantes Publicadas</h3>
+            <div id="listaEmpleosEmpresa" class="grid gap-4"></div>
+        </div>
+
+        <!-- VISTA: CANDIDATO -->
+        <div id="viewCandidato" class="hidden">
+            <h2 class="text-2xl font-bold text-pincha-blue mb-6">👤 Panel de Candidato</h2>
+            
+            <!-- Buscador Rápido -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8 flex gap-2">
+                <input type="text" id="buscador" placeholder="Buscar por puesto o categoría..." class="flex-grow p-2 border rounded-lg">
+                <button onclick="cargarEmpleos()" class="bg-pincha-blue text-white px-6 rounded-lg font-bold">Buscar</button>
+            </div>
+
+            <!-- Feed de Empleos -->
+            <h3 class="text-lg font-bold mb-4">Vacantes Disponibles</h3>
+            <div id="feedEmpleos" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- LOADING -->
+        <div id="loading" class="flex justify-center py-12">
+            <div class="loader"></div>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+
+        // 1. VERIFICAR SESIÓN AL INICIAR
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html'; // Si no hay sesión, manda al login
+                return;
+            }
+            currentUser = session.user;
+            document.getElementById('userName').textContent = currentUser.email;
+
+            // Obtener tipo de usuario de la metadata
+            const userType = currentUser.user_metadata.user_type;
+
+            document.getElementById('loading').classList.add('hidden');
+
+            if (userType === 'company') {
+                document.getElementById('viewEmpresa').classList.remove('hidden');
+                cargarMisEmpleos();
+            } else {
+                document.getElementById('viewCandidato').classList.remove('hidden');
+                cargarEmpleos();
+            }
+        }
+
+        // 2. FUNCIONES DE EMPRESA
+        document.getElementById('formPublicar').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true; btn.textContent = "Publicando...";
+
+            const { error } = await supabase.from('jobs').insert({
+                title: document.getElementById('titulo').value,
+                category: document.getElementById('categoria').value,
+                location: document.getElementById('ubicacion').value,
+                salary: document.getElementById('salario').value,
+                description: document.getElementById('descripcion').value,
+                company_name: currentUser.user_metadata.full_name,
+                is_active: true
+            });
+
+            if (error) alert('Error: ' + error.message);
+            else {
+                alert('✅ Vacante publicada con éxito.');
+                document.getElementById('formPublicar').reset();
+                cargarMisEmpleos(); // Refrescar lista
+            }
+            btn.disabled = false; btn.textContent = "Publicar Vacante";
+        });
+
+        async function cargarMisEmpleos() {
+            // Trae empleos donde company_name coincida con el usuario actual (o filtrar por ID si guardas company_id)
+            const { data } = await supabase.from('jobs').select('*').eq('company_name', currentUser.user_metadata.full_name).order('created_at', { ascending: false });
+            
+            const container = document.getElementById('listaEmpleosEmpresa');
+            container.innerHTML = data.map(job => `
+                <div class="bg-white p-4 rounded-lg border shadow-sm">
+                    <h4 class="font-bold text-pincha-blue">${job.title}</h4>
+                    <p class="text-xs text-gray-500">${job.created_at.substring(0,10)}</p>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded mt-2 inline-block">Activa</span>
+                </div>
+            `).join('');
+        }
+
+        // 3. FUNCIONES DE CANDIDATO
+        async function cargarEmpleos() {
+            const search = document.getElementById('buscador')?.value || '';
+            const { data } = await supabase.from('jobs').select('*').eq('is_active', true).ilike('title', `%${search}%`).order('created_at', { ascending: false });
+
+            const container = document.getElementById('feedEmpleos');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">No se encontraron vacantes.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(job => `
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-lg text-pincha-blue">${job.title}</h4>
+                    <p class="text-sm text-gray-500 mb-2">${job.category} • ${job.location}</p>
+                    <p class="text-pincha-orange font-bold mb-4">${job.salary || 'A convenir'}</p>
+                    <button onclick="aplicar('${job.id}', this)" class="w-full border border-pincha-blue text-pincha-blue font-bold py-2 rounded-lg hover:bg-pincha-blue hover:text-white transition">
+                        Postularme ahora
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function aplicar(jobId, btnElement) {
+            const { error } = await supabase.from('applications').insert({ job_id: jobId, candidate_id: currentUser.id });
+            if (error && error.code === '23505') { // 23505 es error de "Unique violation"
+                alert('Ya te has postulado a esta vacante.');
+            } else if (error) {
+                alert('Error al postularse.');
+            } else {
+                btnElement.disabled = true;
+                btnElement.textContent = "✅ Postulado";
+                btnElement.classList.add('bg-green-500', 'text-white', 'border-transparent');
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        init();
+    </script>
+</body>
+</html>
