@@ -51,53 +51,36 @@
 
                 <form id="regForm" class="space-y-4">
                     <input type="hidden" id="userType" value="candidate">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo / Razón social</label>
+                    <input type="text" id="regName" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo / Razón social</label>
-                        <input type="text" id="regName" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                        <input type="email" id="regEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Contraseña (mín. 6 caracteres)</label>
+                    <input type="password" id="regPass" required minlength="6" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña (mín. 6 caracteres)</label>
-                        <input type="password" id="regPass" required minlength="6" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
-                        <select id="regLocation" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                            <option value="">Seleccionar municipio</option>
-                            <option value="Playa">Playa</option><option value="Plaza de la Revolución">Plaza de la Revolución</option><option value="Centro Habana">Centro Habana</option><option value="Habana Vieja">Habana Vieja</option><option value="Regla">Regla</option><option value="Habana del Este">Habana del Este</option><option value="Guanabacoa">Guanabacoa</option><option value="San Miguel del Padrón">San Miguel del Padrón</option><option value="10 de Octubre">10 de Octubre</option><option value="Cerro">Cerro</option><option value="Marianao">Marianao</option><option value="La Lisa">La Lisa</option><option value="Arroyo Naranjo">Arroyo Naranjo</option><option value="Boyeros">Boyeros</option><option value="Cotorro">Cotorro</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                    <select id="regLocation" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                        <option value="">Seleccionar municipio</option>
+                        <option value="Playa">Playa</option><option value="Plaza de la Revolución">Plaza de la Revolución</option><option value="Centro Habana">Centro Habana</option><option value="Habana Vieja">Habana Vieja</option><option value="Regla">Regla</option><option value="Habana del Este">Habana del Este</option><option value="Guanabacoa">Guanabacoa</option><option value="San Miguel del Padrón">San Miguel del Padrón</option><option value="10 de Octubre">10 de Octubre</option><option value="Cerro">Cerro</option><option value="Marianao">Marianao</option><option value="La Lisa">La Lisa</option><option value="Arroyo Naranjo">Arroyo Naranjo</option><option value="Boyeros">Boyeros</option><option value="Cotorro">Cotorro</option>
+                    </select></div>
 
                     <div id="candidateFields" class="form-section show space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría profesional</label>
-                            <select id="regCategory" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar categoría</option>
-                                <option value="Tecnología e Informática">Tecnología e Informática</option><option value="Salud y Medicina">Salud y Medicina</option><option value="Educación y Formación">Educación y Formación</option><option value="Administración y Oficina">Administración y Oficina</option><option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option><option value="Legal y Jurídico">Legal y Jurídico</option><option value="Ingeniería y Arquitectura">Ingeniería y Arquitectura</option><option value="Construcción y Oficios">Construcción y Oficios</option><option value="Transporte y Logística">Transporte y Logística</option><option value="Ventas y Comercial">Ventas y Comercial</option><option value="Marketing y Publicidad">Marketing y Publicidad</option><option value="Arte, Cultura y Entretenimiento">Arte, Cultura y Entretenimiento</option><option value="Hostelería y Turismo">Hostelería y Turismo</option><option value="Limpieza y Mantenimiento">Limpieza y Mantenimiento</option><option value="Manufactura y Producción">Manufactura y Producción</option><option value="Agricultura, Ganadería y Pesca">Agricultura, Ganadería y Pesca</option><option value="Seguridad y Defensa">Seguridad y Defensa</option><option value="Recursos Humanos">Recursos Humanos</option><option value="Ciencia e Investigación">Ciencia e Investigación</option><option value="Medios y Comunicación">Medios y Comunicación</option><option value="Deportes y Fitness">Deportes y Fitness</option><option value="Servicios Domésticos">Servicios Domésticos</option><option value="Freelance y Economía Digital">Freelance y Economía Digital</option><option value="Energía y Medio Ambiente">Energía y Medio Ambiente</option><option value="Blockchain, Cripto y Web3">Blockchain, Cripto y Web3</option><option value="Inteligencia Artificial y Automatización">Inteligencia Artificial y Automatización</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Puesto deseado</label>
-                            <input type="text" id="regPosition" placeholder="Ej: Desarrollador Frontend" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Categoría profesional</label>
+                        <select id="regCategory" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                            <option value="">Seleccionar categoría</option>
+                            <option value="Tecnología e Informática">Tecnología e Informática</option><option value="Salud y Medicina">Salud y Medicina</option><option value="Educación y Formación">Educación y Formación</option><option value="Administración y Oficina">Administración y Oficina</option><option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option><option value="Legal y Jurídico">Legal y Jurídico</option><option value="Ingeniería y Arquitectura">Ingeniería y Arquitectura</option><option value="Construcción y Oficios">Construcción y Oficios</option><option value="Transporte y Logística">Transporte y Logística</option><option value="Ventas y Comercial">Ventas y Comercial</option><option value="Marketing y Publicidad">Marketing y Publicidad</option><option value="Arte, Cultura y Entretenimiento">Arte, Cultura y Entretenimiento</option><option value="Hostelería y Turismo">Hostelería y Turismo</option><option value="Limpieza y Mantenimiento">Limpieza y Mantenimiento</option><option value="Manufactura y Producción">Manufactura y Producción</option><option value="Agricultura, Ganadería y Pesca">Agricultura, Ganadería y Pesca</option><option value="Seguridad y Defensa">Seguridad y Defensa</option><option value="Recursos Humanos">Recursos Humanos</option><option value="Ciencia e Investigación">Ciencia e Investigación</option><option value="Medios y Comunicación">Medios y Comunicación</option><option value="Deportes y Fitness">Deportes y Fitness</option><option value="Servicios Domésticos">Servicios Domésticos</option><option value="Freelance y Economía Digital">Freelance y Economía Digital</option><option value="Energía y Medio Ambiente">Energía y Medio Ambiente</option><option value="Blockchain, Cripto y Web3">Blockchain, Cripto y Web3</option><option value="Inteligencia Artificial y Automatización">Inteligencia Artificial y Automatización</option>
+                        </select></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Puesto deseado</label>
+                        <input type="text" id="regPosition" placeholder="Ej: Desarrollador Frontend" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
                     </div>
 
                     <div id="companyFields" class="form-section space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Industria / Sector</label>
-                            <input type="text" id="regIndustry" placeholder="Ej: Tecnología, Turismo, Alimentos" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Sitio web (opcional)</label>
-                            <input type="url" id="regWebsite" placeholder="https://tuempresa.com" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Industria / Sector</label>
+                        <input type="text" id="regIndustry" placeholder="Ej: Tecnología, Turismo, Alimentos" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Sitio web (opcional)</label>
+                        <input type="url" id="regWebsite" placeholder="https://tuempresa.com" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
                     </div>
 
                     <button type="submit" id="btnSubmit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md mt-4">Registrarme</button>
@@ -113,93 +96,118 @@
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
 
-        if (window.supabase) {
-            const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Verificar carga de librería
+        if (!window.supabase) {
+            document.body.innerHTML = '<div class="p-10 text-center text-red-600 font-bold">Error: No se pudo cargar el motor de conexión. Verifica tu internet y recarga.</div>';
+        }
 
-            const btnC = document.getElementById('tabCandidate');
-            const btnE = document.getElementById('tabCompany');
-            const formC = document.getElementById('candidateFields');
-            const formE = document.getElementById('companyFields');
-            const typeInput = document.getElementById('userType');
+        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            function setActive(isCandidate) {
-                typeInput.value = isCandidate ? 'candidate' : 'company';
-                if(isCandidate) {
-                    btnC.classList.add('active'); btnC.classList.remove('inactive');
-                    btnE.classList.add('inactive'); btnE.classList.remove('active');
-                    formC.classList.add('show'); formE.classList.remove('show');
-                } else {
-                    btnE.classList.add('active'); btnE.classList.remove('inactive');
-                    btnC.classList.add('inactive'); btnC.classList.remove('active');
-                    formE.classList.add('show'); formC.classList.remove('show');
-                }
+        // Toggle UI
+        const btnC = document.getElementById('tabCandidate');
+        const btnE = document.getElementById('tabCompany');
+        const formC = document.getElementById('candidateFields');
+        const formE = document.getElementById('companyFields');
+        const typeInput = document.getElementById('userType');
+
+        function setActive(isCandidate) {
+            typeInput.value = isCandidate ? 'candidate' : 'company';
+            if(isCandidate) {
+                btnC.className = 'tab-btn active flex-1 py-2 rounded-md font-bold';
+                btnE.className = 'tab-btn inactive flex-1 py-2 rounded-md font-bold';
+                formC.classList.add('show'); formE.classList.remove('show');
+            } else {
+                btnE.className = 'tab-btn active flex-1 py-2 rounded-md font-bold';
+                btnC.className = 'tab-btn inactive flex-1 py-2 rounded-md font-bold';
+                formE.classList.add('show'); formC.classList.remove('show');
+            }
+        }
+        btnC.onclick = () => setActive(true);
+        btnE.onclick = () => setActive(false);
+
+        // Registro Seguro
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            const msg = document.getElementById('regMsg');
+            
+            // 1. Validar conexión
+            if (!navigator.onLine) {
+                msg.textContent = '⚠️ Sin conexión a Internet. Conéctate y reintenta.';
+                msg.className = 'mt-4 text-center text-sm text-orange-600 font-bold';
+                msg.classList.remove('hidden');
+                return;
             }
 
-            btnC.addEventListener('click', () => setActive(true));
-            btnE.addEventListener('click', () => setActive(false));
+            btn.disabled = true; btn.textContent = 'Conectando...';
+            msg.classList.add('hidden');
 
-            document.getElementById('regForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('btnSubmit');
-                const msg = document.getElementById('regMsg');
-                btn.disabled = true; btn.textContent = 'Registrando...';
-                msg.classList.add('hidden');
+            try {
+                const { data, error: authError } = await sbClient.auth.signUp({
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPass').value,
+                    options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } }
+                });
 
-                try {
-                    const { data, error: authError } = await sbClient.auth.signUp({
-                        email: document.getElementById('regEmail').value,
-                        password: document.getElementById('regPass').value,
-                        options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } }
-                    });
+                // 2. Validación estricta
+                if (authError) throw authError;
+                if (!data || !data.user) throw new Error("El servidor no respondió correctamente. Revisa tu conexión.");
 
-                    if (authError) throw authError;
-                    
-                    // ✅ VALIDACIÓN DEFENSIVA: Evita "Cannot read properties of null"
-                    if (!data?.user) {
-                        throw new Error("El servidor no devolvió el usuario creado. Intenta de nuevo en unos segundos.");
-                    }
+                const userId = data.user.id; // ✅ Seguro
+                btn.textContent = 'Verificando cuenta...';
 
-                    const userId = data.user.id;
-                    
-                    // ⏱️ Margen para que el trigger SQL procese el perfil automáticamente
-                    await new Promise(res => setTimeout(res, 800));
-
-                    const type = typeInput.value;
-                    if(type === 'candidate') {
-                        await sbClient.from('candidates').insert({
-                            profile_id: userId,
-                            category: document.getElementById('regCategory').value,
-                            desired_position: document.getElementById('regPosition').value,
-                            is_active: true
-                        });
-                    } else {
-                        await sbClient.from('companies').insert({
-                            profile_id: userId,
-                            industry: document.getElementById('regIndustry').value,
-                            website: document.getElementById('regWebsite').value,
-                            is_verified: false
-                        });
-                    }
-
-                    // Actualizar ubicación (el trigger ya creó el perfil)
-                    await sbClient.from('profiles').update({ location: document.getElementById('regLocation').value }).eq('id', userId);
-
-                    msg.className = 'mt-4 text-center text-sm text-green-600 font-bold';
-                    msg.textContent = '✅ Registro exitoso. Revisa tu correo para activar la cuenta.';
-                    msg.classList.remove('hidden');
-                    setTimeout(() => window.location.href = 'index.html', 2500);
-
-                } catch(err) {
-                    msg.className = 'mt-4 text-center text-sm text-red-600 font-bold';
-                    msg.textContent = '❌ ' + err.message;
-                    msg.classList.remove('hidden');
-                } finally {
-                    btn.disabled = false; btn.textContent = 'Registrarme';
+                // 3. Polling: Esperar a que el trigger SQL cree el perfil
+                let profileReady = false;
+                for (let i = 0; i < 6; i++) {
+                    const { data: check } = await sbClient.from('profiles').select('id').eq('id', userId).maybeSingle();
+                    if (check) { profileReady = true; break; }
+                    await new Promise(r => setTimeout(r, 600)); // 600ms entre intentos
                 }
-            });
-        } else {
-            alert("Error crítico: No se cargó la librería de conexión. Verifica tu red.");
-        }
+                if (!profileReady) throw new Error("El perfil tardó en crearse. Intenta de nuevo en 1 minuto.");
+
+                btn.textContent = 'Guardando datos...';
+                const type = typeInput.value;
+
+                // 4. Insertar datos específicos
+                if (type === 'candidate') {
+                    const { error: candErr } = await sbClient.from('candidates').insert({
+                        profile_id: userId,
+                        category: document.getElementById('regCategory').value,
+                        desired_position: document.getElementById('regPosition').value,
+                        is_active: true
+                    });
+                    if (candErr) throw candErr;
+                } else {
+                    const { error: compErr } = await sbClient.from('companies').insert({
+                        profile_id: userId,
+                        industry: document.getElementById('regIndustry').value,
+                        website: document.getElementById('regWebsite').value,
+                        is_verified: false
+                    });
+                    if (compErr) throw compErr;
+                }
+
+                // 5. Actualizar ubicación
+                const { error: locErr } = await sbClient.from('profiles').update({
+                    location: document.getElementById('regLocation').value
+                }).eq('id', userId);
+                if (locErr) throw locErr;
+
+                // Éxito
+                msg.textContent = '✅ ¡Cuenta creada! Revisa tu correo para activarla.';
+                msg.className = 'mt-4 text-center text-sm text-green-600 font-bold';
+                msg.classList.remove('hidden');
+                setTimeout(() => window.location.href = 'index.html', 2500);
+
+            } catch (err) {
+                console.error(err);
+                msg.textContent = '❌ ' + (err.message || 'Error durante el registro');
+                msg.className = 'mt-4 text-center text-sm text-red-600 font-bold';
+                msg.classList.remove('hidden');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Registrarme';
+            }
+        });
     </script>
 </body>
 </html>
