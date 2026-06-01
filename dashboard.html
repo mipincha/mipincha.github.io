@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Mi Pincha</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -24,307 +25,127 @@
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
-
-    <!-- AUTH GUARD -->
     <div id="authGuard" class="fixed inset-0 bg-gradient-to-br from-pincha-blue to-gray-900 z-50 flex items-center justify-center">
-        <div class="text-center text-white">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pincha-orange mb-4"></div>
-            <p class="text-lg font-medium">Verificando sesión...</p>
-        </div>
+        <div class="text-center text-white"><div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pincha-orange mb-4"></div><p class="text-lg font-medium">Verificando sesión...</p></div>
     </div>
-
-    <!-- HEADER -->
     <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-40 hidden">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 btn-tactile">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                 <div class="hidden items-center gap-1"><span class="text-xl font-bold text-pincha-blue">M</span><span class="text-xl font-bold text-pincha-orange">P</span></div>
             </a>
             <div class="flex items-center gap-4">
-                <!-- 🔔 NOTIFICACIONES -->
                 <div class="relative cursor-pointer btn-tactile p-2" onclick="switchTab('tab-matches')">
-                    <span class="text-2xl">🔔</span>
-                    <span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                    <span class="text-2xl">🔔</span><span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
                 </div>
-                
                 <span id="userBadge" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full hidden sm:block">Cargando...</span>
                 <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
             </div>
         </div>
     </header>
-
-    <!-- DASHBOARD MAIN -->
     <main id="dashboardContainer" class="hidden max-w-7xl mx-auto px-4 py-6">
-        
-        <!-- STATS GRID -->
         <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
-
-        <!-- TABS NAV -->
         <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
             <button data-tab="tab-overview" class="tab-active px-4 py-2 text-sm whitespace-nowrap">Resumen</button>
             <button data-tab="tab-content" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Mi Contenido</button>
-            <button data-tab="tab-matches" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap flex items-center gap-1">
-                Matches <span id="tabMatchBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
-            </button>
+            <button data-tab="tab-matches" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap flex items-center gap-1">Matches <span id="tabMatchBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
             <button data-tab="tab-profile" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Perfil / Archivos</button>
         </div>
-
-        <!-- TAB CONTENT AREA -->
-        <div id="tabContent" class="bg-white rounded-xl border border-gray-200 p-6 min-h-[400px]">
-            <div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div>
-        </div>
+        <div id="tabContent" class="bg-white rounded-xl border border-gray-200 p-6 min-h-[400px]"><div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div></div>
     </main>
-
     <script>
-        // 🔑 CONFIG SUPABASE (Tus credenciales reales)
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let userType = null, userId = null, userMeta = null, unreadNotifs = 0;
 
-        // 🚀 INICIALIZACIÓN
         async function initDashboard() {
             try {
                 const { data: { session }, error: authError } = await sb.auth.getSession();
                 if (authError || !session) { window.location.href = 'login.html'; return; }
-
-                userType = session.user.user_metadata?.user_type;
-                userId = session.user.id;
-                userMeta = session.user.user_metadata;
-
+                userType = session.user.user_metadata?.user_type; userId = session.user.id; userMeta = session.user.user_metadata;
                 document.getElementById('userBadge').textContent = `${userMeta?.full_name || session.user.email} (${userType === 'company' ? 'Empresa' : 'Candidato'})`;
-                document.getElementById('authGuard').classList.add('hidden');
-                document.getElementById('mainHeader').classList.remove('hidden');
-                document.getElementById('dashboardContainer').classList.remove('hidden');
-
-                await loadStats();
-                checkUnreadNotifications();
-                loadTabContent('tab-overview');
-            } catch (err) {
-                console.error('Auth Init Error:', err);
-                document.getElementById('authGuard').innerHTML = '<p class="text-white text-center">Error de conexión. Recarga la página.</p>';
-            }
+                document.getElementById('authGuard').classList.add('hidden'); document.getElementById('mainHeader').classList.remove('hidden'); document.getElementById('dashboardContainer').classList.remove('hidden');
+                await loadStats(); checkUnreadNotifications(); loadTabContent('tab-overview');
+            } catch (err) { document.getElementById('authGuard').innerHTML = '<p class="text-white text-center">Error de conexión. Recarga la página.</p>'; }
         }
 
-        // 📊 CARGAR MÉTRICAS
         async function loadStats() {
             const container = document.getElementById('statsContainer');
             container.innerHTML = '<div class="col-span-full skeleton h-20 rounded-xl"></div>'.repeat(4);
-            
             try {
                 let stats = [];
                 if (userType === 'company') {
                     const { count: jobs } = await sb.from('jobs').select('*', { count: 'exact', head: true }).eq('company_id', userId);
                     const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('job_id', 'in', `(select id from jobs where company_id='${userId}')`);
-                    stats = [
-                        { label: 'Vacantes Activas', value: jobs || 0, icon: '📋' },
-                        { label: 'Postulaciones Recibidas', value: apps || 0, icon: '📩' },
-                        { label: 'Vistas de Perfil', value: Math.floor(Math.random() * 50) + 10, icon: '👀' },
-                        { label: 'Matches Sugeridos', value: Math.floor(Math.random() * 5), icon: '🔥' }
-                    ];
+                    stats = [{label:'Vacantes Activas',value:jobs||0,icon:'📋'},{label:'Postulaciones Recibidas',value:apps||0,icon:'📩'},{label:'Vistas de Perfil',value:Math.floor(Math.random()*50)+10,icon:'👀'},{label:'Matches Sugeridos',value:Math.floor(Math.random()*5),icon:'🔥'}];
                 } else {
                     const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('candidate_id', userId);
-                    stats = [
-                        { label: 'Postulaciones Enviadas', value: apps || 0, icon: '🚀' },
-                        { label: 'Entrevistas', value: 0, icon: '📅' },
-                        { label: 'Vistas de Perfil', value: Math.floor(Math.random() * 30) + 5, icon: '👁️' },
-                        { label: 'Vacantes Compatibles', value: Math.floor(Math.random() * 12), icon: '🔍' }
-                    ];
+                    stats = [{label:'Postulaciones Enviadas',value:apps||0,icon:'🚀'},{label:'Entrevistas',value:0,icon:'📅'},{label:'Vistas de Perfil',value:Math.floor(Math.random()*30)+5,icon:'👁️'},{label:'Vacantes Compatibles',value:Math.floor(Math.random()*12),icon:'🔍'}];
                 }
-                container.innerHTML = stats.map(s => `
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 hover:shadow-md transition">
-                        <div class="text-2xl">${s.icon}</div>
-                        <div><p class="text-2xl font-bold text-pincha-blue">${s.value}</p><p class="text-xs text-gray-500">${s.label}</p></div>
-                    </div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="col-span-full text-center text-red-500 py-4">Error al cargar métricas</div>';
-            }
+                container.innerHTML = stats.map(s => `<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 hover:shadow-md transition"><div class="text-2xl">${s.icon}</div><div><p class="text-2xl font-bold text-pincha-blue">${s.value}</p><p class="text-xs text-gray-500">${s.label}</p></div></div>`).join('');
+            } catch (err) { container.innerHTML = '<div class="col-span-full text-center text-red-500 py-4">Error al cargar métricas</div>'; }
         }
 
-        // 🔔 NOTIFICACIONES & MATCHES
         async function checkUnreadNotifications() {
             try {
                 const { count, error } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false);
-                if (error) throw error;
-                unreadNotifs = count || 0;
+                if (error) throw error; unreadNotifs = count || 0;
                 const b1 = document.getElementById('notifBadge'), b2 = document.getElementById('tabMatchBadge');
-                if (unreadNotifs > 0) {
-                    b1.textContent = unreadNotifs > 9 ? '9+' : unreadNotifs; b1.classList.remove('hidden');
-                    b2.textContent = unreadNotifs; b2.classList.remove('hidden');
-                } else { b1.classList.add('hidden'); b2.classList.add('hidden'); }
+                if (unreadNotifs > 0) { b1.textContent = unreadNotifs > 9 ? '9+' : unreadNotifs; b1.classList.remove('hidden'); b2.textContent = unreadNotifs; b2.classList.remove('hidden'); }
+                else { b1.classList.add('hidden'); b2.classList.add('hidden'); }
             } catch (e) { console.warn('Notif check failed:', e); }
         }
 
         async function loadMatchesTab() {
-            const container = document.getElementById('tabContent');
-            container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-
+            const container = document.getElementById('tabContent'); container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
             try {
-                const { data: notifs, error } = await sb.from('notifications')
-                    .select('*, jobs(title, location, salary, category, is_active)')
-                    .eq('user_id', userId).order('created_at', { ascending: false });
-                
+                const { data: notifs, error } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active)').eq('user_id', userId).order('created_at', { ascending: false });
                 if (error) throw error;
-
-                // Marcar como leídas
                 await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
                 checkUnreadNotifications();
-
                 let html = '<h3 class="text-lg font-bold text-pincha-blue mb-4">Tus Matches Recomendados (Score ≥ 75)</h3>';
-                if (!notifs?.length) {
-                    html += '<div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Ajusta tu categoría, puesto o municipio para recibir matches precisos.</p></div>';
-                } else {
+                if (!notifs?.length) { html += '<div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Ajusta tu categoría, puesto o municipio para recibir matches precisos.</p></div>'; }
+                else {
                     html += '<div class="space-y-3">';
-                    notifs.forEach(n => {
-                        const scoreClass = n.score >= 90 ? 'match-high' : 'match-med';
-                        html += `
-                        <div class="bg-white p-4 rounded-lg border shadow-sm ${scoreClass} hover:shadow-md transition">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">${n.jobs?.title || 'Vacante desactivada'}</h4>
-                                    <p class="text-sm text-gray-500">${n.jobs?.location || 'Cuba'} • ${n.jobs?.category || ''}</p>
-                                    <p class="text-xs font-bold mt-1 ${n.score >= 90 ? 'text-orange-600' : 'text-blue-600'}">Coincidencia: ${n.score} pts</p>
-                                </div>
-                                <span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleDateString()}</span>
-                            </div>
-                            ${n.jobs?.is_active ? `<div class="mt-3 flex gap-2">
-                                <a href="index.html" class="flex-1 text-center bg-pincha-blue text-white text-sm font-bold py-2 rounded-lg hover:bg-blue-800 transition">Ver Vacante</a>
-                                ${userType === 'candidate' ? `<button onclick="applyFromMatch('${n.job_id}')" class="flex-1 text-center border border-pincha-orange text-pincha-orange text-sm font-bold py-2 rounded-lg hover:bg-orange-50 transition">Postularme</button>` : ''}
-                            </div>` : '<p class="mt-2 text-xs text-gray-400">Esta vacante ya no está activa.</p>'}
-                        </div>`;
-                    });
+                    notifs.forEach(n => { const scoreClass = n.score >= 90 ? 'match-high' : 'match-med'; html += `<div class="bg-white p-4 rounded-lg border shadow-sm ${scoreClass} hover:shadow-md transition"><div class="flex justify-between items-start"><div><h4 class="font-bold text-gray-800">${n.jobs?.title || 'Vacante'}</h4><p class="text-sm text-gray-500">${n.jobs?.location || 'Cuba'} • ${n.jobs?.category || ''}</p><p class="text-xs font-bold mt-1 ${n.score>=90?'text-orange-600':'text-blue-600'}">Coincidencia: ${n.score} pts</p></div><span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleDateString()}</span></div>${n.jobs?.is_active?`<div class="mt-3 flex gap-2"><a href="index.html" class="flex-1 text-center bg-pincha-blue text-white text-sm font-bold py-2 rounded-lg hover:bg-blue-800 transition">Ver Vacante</a>${userType==='candidate'?`<button onclick="applyFromMatch('${n.job_id}')" class="flex-1 text-center border border-pincha-orange text-pincha-orange text-sm font-bold py-2 rounded-lg hover:bg-orange-50 transition">Postularme</button>`:''}</div>`:''}</div>`; });
                     html += '</div>';
                 }
                 container.innerHTML = html;
-            } catch (err) {
-                container.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar matches: ${err.message}</div>`;
-            }
+            } catch (err) { container.innerHTML = `<div class="text-center py-8 text-red-500">Error: ${err.message}</div>`; }
         }
 
         async function applyFromMatch(jobId) {
-            try {
-                const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: userId });
-                if (error && error.code === '23505') { showToast('Ya te postulaste a esta vacante.', 'info'); return; }
-                if (error) throw error;
-                showToast('✅ ¡Postulación enviada con éxito!', 'success');
-                loadMatchesTab();
-            } catch (err) {
-                showToast('❌ Error al postular: ' + err.message, 'error');
-            }
+            try { const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: userId }); if (error && error.code === '23505') { showToast('Ya te postulaste.', 'info'); return; } if (error) throw error; showToast('✅ ¡Postulación enviada!', 'success'); loadMatchesTab(); } catch (err) { showToast('❌ ' + err.message, 'error'); }
         }
 
-        // 🗂️ NAVEGACIÓN TABS
-        function switchTab(tabId) {
-            document.querySelectorAll('[data-tab]').forEach(b => b.classList.replace('tab-active', 'tab-inactive'));
-            document.querySelector(`[data-tab="${tabId}"]`)?.classList.replace('tab-inactive', 'tab-active');
-            loadTabContent(tabId);
-        }
+        function switchTab(tabId) { document.querySelectorAll('[data-tab]').forEach(b => b.classList.replace('tab-active', 'tab-inactive')); document.querySelector(`[data-tab="${tabId}"]`)?.classList.replace('tab-inactive', 'tab-active'); loadTabContent(tabId); }
+        document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.tab)));
 
-        document.querySelectorAll('[data-tab]').forEach(btn => {
-            btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.tab));
-        });
-
-        // 📦 CARGA DINÁMICA POR TAB
         async function loadTabContent(tab) {
-            const container = document.getElementById('tabContent');
-            container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-
+            const container = document.getElementById('tabContent'); container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
             let html = '';
-            if (tab === 'tab-overview') {
-                html = `<div class="text-center py-8"><h3 class="text-xl font-bold text-pincha-blue mb-2">Bienvenido al Dashboard</h3><p class="text-gray-500 mb-6">${userType === 'company' ? 'Gestiona tus vacantes y revisa candidatos.' : 'Controla tus postulaciones y revisa matches.'}</p></div>`;
-            } else if (tab === 'tab-content') {
+            if (tab === 'tab-overview') { html = `<div class="text-center py-8"><h3 class="text-xl font-bold text-pincha-blue mb-2">Bienvenido al Dashboard</h3><p class="text-gray-500 mb-6">${userType==='company'?'Gestiona tus vacantes y revisa candidatos.':'Controla tus postulaciones y revisa matches.'}</p></div>`; }
+            else if (tab === 'tab-content') {
                 if (userType === 'company') {
-                    try {
-                        const { data: jobs, error } = await sb.from('jobs').select('*').eq('company_id', userId).order('created_at', { ascending: false });
-                        if (error) throw error;
-                        html = `
-                        <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-pincha-blue">Mis Vacantes</h3><button onclick="document.getElementById('newJobForm').classList.toggle('hidden')" class="bg-pincha-orange text-white px-4 py-2 rounded-lg text-sm font-bold btn-tactile">+ Nueva Vacante</button></div>
-                        <div id="newJobForm" class="hidden bg-gray-50 p-4 rounded-lg border mb-4">
-                            <form id="publishForm" class="grid md:grid-cols-2 gap-3">
-                                <input type="text" id="jobTitle" placeholder="Título" required class="p-2 border rounded"><select id="jobCat" required class="p-2 border rounded"><option value="">Categoría</option><option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Servicios Domésticos</option></select>
-                                <input type="text" id="jobLoc" placeholder="Municipio" required class="p-2 border rounded"><input type="text" id="jobSal" placeholder="Salario" class="p-2 border rounded">
-                                <textarea id="jobDesc" placeholder="Descripción" rows="2" class="md:col-span-2 p-2 border rounded"></textarea>
-                                <div class="md:col-span-2 flex gap-2"><button type="submit" class="flex-1 bg-pincha-blue text-white py-2 rounded font-bold">Publicar</button><button type="button" onclick="document.getElementById('newJobForm').classList.add('hidden')" class="px-4 py-2 border rounded">Cancelar</button></div>
-                            </form>
-                        </div>
-                        <div class="space-y-2">${jobs?.length ? jobs.map(j => `<div class="p-3 border rounded flex justify-between"><div><h4 class="font-bold text-pincha-blue">${j.title}</h4><p class="text-xs text-gray-500">${j.location} • ${j.salary || 'A convenir'}</p></div><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded h-fit">Activa</span></div>`).join('') : '<p class="text-gray-500 text-center py-6">Sin vacantes publicadas.</p>'}</div>`;
-                    } catch(err) { html = `<p class="text-center text-red-500">Error cargando vacantes: ${err.message}</p>`; }
+                    const { data: jobs } = await sb.from('jobs').select('*').eq('company_id', userId).order('created_at', { ascending: false });
+                    html = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-pincha-blue">Mis Vacantes</h3><button onclick="document.getElementById('newJobForm').classList.toggle('hidden')" class="bg-pincha-orange text-white px-4 py-2 rounded-lg text-sm font-bold btn-tactile">+ Nueva Vacante</button></div><div id="newJobForm" class="hidden bg-gray-50 p-4 rounded-lg border mb-4"><form id="publishForm" class="grid md:grid-cols-2 gap-3"><input type="text" id="jobTitle" placeholder="Título" required class="p-2 border rounded"><select id="jobCat" required class="p-2 border rounded"><option value="">Categoría</option><option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Servicios Domésticos</option></select><input type="text" id="jobLoc" placeholder="Municipio" required class="p-2 border rounded"><input type="text" id="jobSal" placeholder="Salario" class="p-2 border rounded"><textarea id="jobDesc" placeholder="Descripción" rows="2" class="md:col-span-2 p-2 border rounded"></textarea><div class="md:col-span-2 flex gap-2"><button type="submit" class="flex-1 bg-pincha-blue text-white py-2 rounded font-bold">Publicar</button><button type="button" onclick="document.getElementById('newJobForm').classList.add('hidden')" class="px-4 py-2 border rounded">Cancelar</button></div></form></div><div class="space-y-2">${jobs?.length?jobs.map(j=>`<div class="p-3 border rounded flex justify-between"><div><h4 class="font-bold text-pincha-blue">${j.title}</h4><p class="text-xs text-gray-500">${j.location} • ${j.salary||'A convenir'}</p></div><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded h-fit">Activa</span></div>`).join(''):'<p class="text-gray-500 text-center py-6">Sin vacantes publicadas.</p>'}</div>`;
                 } else {
-                    try {
-                        const { data: apps, error } = await sb.from('applications').select('*, jobs(title, location, company_name)').eq('candidate_id', userId).order('created_at', { ascending: false });
-                        if (error) throw error;
-                        html = `<h3 class="text-lg font-bold text-pincha-blue mb-4">Mis Postulaciones</h3><div class="space-y-2">${apps?.length ? apps.map(a => `<div class="p-3 border rounded"><h4 class="font-bold text-pincha-blue">${a.jobs?.title || 'Vacante'}</h4><p class="text-xs text-gray-500">${a.jobs?.location || ''} • ${a.jobs?.company_name || ''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join('') : '<p class="text-gray-500 text-center py-6">Aún no te has postulado.</p>'}</div>`;
-                    } catch(err) { html = `<p class="text-center text-red-500">Error cargando postulaciones: ${err.message}</p>`; }
+                    const { data: apps } = await sb.from('applications').select('*, jobs(title, location, company_name)').eq('candidate_id', userId).order('created_at', { ascending: false });
+                    html = `<h3 class="text-lg font-bold text-pincha-blue mb-4">Mis Postulaciones</h3><div class="space-y-2">${apps?.length?apps.map(a=>`<div class="p-3 border rounded"><h4 class="font-bold text-pincha-blue">${a.jobs?.title||'Vacante'}</h4><p class="text-xs text-gray-500">${a.jobs?.location||''} • ${a.jobs?.company_name||''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join(''):'<p class="text-gray-500 text-center py-6">Aún no te has postulado.</p>'}</div>`;
                 }
-            } else if (tab === 'tab-matches') {
-                await loadMatchesTab(); return;
-            } else if (tab === 'tab-profile') {
-                html = userType === 'candidate' 
-                    ? `<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Tu Currículum</h3><input type="file" id="fileInput" accept=".pdf,.doc,.docx" class="hidden" onchange="handleUpload(this, 'cv-uploads', 'candidates', 'cv_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">📄 Seleccionar CV</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`
-                    : `<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Logo Empresa</h3><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleUpload(this, 'company-logos', 'companies', 'logo_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">🖼️ Subir Logo</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`;
-            }
+            } else if (tab === 'tab-matches') { await loadMatchesTab(); return; }
+            else if (tab === 'tab-profile') { html = userType==='candidate'?`<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Tu Currículum</h3><input type="file" id="fileInput" accept=".pdf,.doc,.docx" class="hidden" onchange="handleUpload(this, 'cv-uploads', 'candidates', 'cv_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">📄 Seleccionar CV</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`:`<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Logo Empresa</h3><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleUpload(this, 'company-logos', 'companies', 'logo_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">🖼️ Subir Logo</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`; }
             container.innerHTML = html;
-
-            // Listeners específicos
             if (tab === 'tab-content' && userType === 'company') document.getElementById('publishForm')?.addEventListener('submit', handlePublishJob);
         }
 
-        // 📝 PUBLICAR VACANTE
-        async function handlePublishJob(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true; btn.textContent = 'Publicando...';
-            try {
-                const { error } = await sb.from('jobs').insert({
-                    title: document.getElementById('jobTitle').value, category: document.getElementById('jobCat').value,
-                    location: document.getElementById('jobLoc').value, salary: document.getElementById('jobSal').value,
-                    description: document.getElementById('jobDesc').value, company_name: userMeta?.full_name || 'Empresa',
-                    company_id: userId, is_active: true
-                });
-                if (error) throw error;
-                showToast('✅ Vacante publicada', 'success');
-                document.getElementById('newJobForm').classList.add('hidden');
-                e.target.reset(); loadTabContent('tab-content'); loadStats();
-            } catch (err) { showToast('❌ ' + err.message, 'error'); }
-            btn.disabled = false; btn.textContent = 'Publicar';
-        }
+        async function handlePublishJob(e) { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Publicando...'; try { const { error } = await sb.from('jobs').insert({ title: document.getElementById('jobTitle').value, category: document.getElementById('jobCat').value, location: document.getElementById('jobLoc').value, salary: document.getElementById('jobSal').value, description: document.getElementById('jobDesc').value, company_name: userMeta?.full_name||'Empresa', company_id: userId, is_active: true }); if (error) throw error; showToast('✅ Vacante publicada', 'success'); document.getElementById('newJobForm').classList.add('hidden'); e.target.reset(); loadTabContent('tab-content'); loadStats(); } catch (err) { showToast('❌ ' + err.message, 'error'); } btn.disabled = false; btn.textContent = 'Publicar'; }
 
-        // 📤 SUBIDA DE ARCHIVOS
-        async function handleUpload(input, bucket, table, column) {
-            const file = input.files[0]; if (!file) return;
-            const msg = document.getElementById('uploadMsg');
-            msg.textContent = '⏳ Subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600';
-            
-            // Ruta estricta para cumplir RLS: userId/timestamp_nombre
-            const fileName = `${userId}/${Date.now()}_${file.name}`;
-            const { data, error } = await sb.storage.from(bucket).upload(fileName, file);
-            
-            if (error) { msg.textContent = '❌ ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; return; }
-            
-            try {
-                const { data: urlData } = sb.storage.from(bucket).getPublicUrl(fileName);
-                const { error: dbErr } = await sb.from(table).update({ [column]: urlData.publicUrl }).eq('profile_id', userId);
-                if (dbErr) throw dbErr;
-                msg.textContent = '✅ Archivo guardado correctamente'; msg.className = 'mt-3 text-sm font-bold text-green-600'; showToast('📎 Archivo actualizado', 'success');
-            } catch (dbErr) {
-                msg.textContent = '❌ Error guardando enlace: ' + dbErr.message; msg.className = 'mt-3 text-sm font-bold text-red-600';
-            }
-        }
+        async function handleUpload(input, bucket, table, column) { const file = input.files[0]; if (!file) return; const msg = document.getElementById('uploadMsg'); msg.textContent = '⏳ Subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600'; const fileName = `${userId}/${Date.now()}_${file.name}`; const { data, error } = await sb.storage.from(bucket).upload(fileName, file); if (error) { msg.textContent = '❌ ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; return; } try { const { data: urlData } = sb.storage.from(bucket).getPublicUrl(fileName); const { error: dbErr } = await sb.from(table).update({ [column]: urlData.publicUrl }).eq('profile_id', userId); if (dbErr) throw dbErr; msg.textContent = '✅ Archivo guardado correctamente'; msg.className = 'mt-3 text-sm font-bold text-green-600'; showToast('📎 Archivo actualizado', 'success'); } catch (dbErr) { msg.textContent = '❌ Error guardando enlace: ' + dbErr.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; } }
 
-        // 🛠️ UTILS
-        function showToast(msg, type = 'info') {
-            const t = document.createElement('div');
-            t.className = `toast fixed bottom-4 right-4 ${type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-pincha-blue'} text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium`;
-            t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => { 
-            try { await sb.auth.signOut(); } catch(e) {}
-            window.location.href = 'index.html'; 
-        });
-
-        // Iniciar
+        function showToast(msg, type = 'info') { const t = document.createElement('div'); t.className = `toast fixed bottom-4 right-4 ${type==='success'?'bg-green-600':type==='error'?'bg-red-600':'bg-pincha-blue'} text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 4000); }
+        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await sb.auth.signOut(); } catch(e) {} window.location.href = 'index.html'; });
         initDashboard();
     </script>
 </body>

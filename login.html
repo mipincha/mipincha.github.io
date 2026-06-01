@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Mi Pincha</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }</script>
     <style>.btn-tactile:active { transform: scale(0.97); }.btn-tactile { transition: all 0.15s ease; }</style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm py-4"><div class="container mx-auto px-6 flex justify-between items-center"><a href="index.html" class="flex items-center gap-2"><img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="hidden items-center gap-1"><span class="text-2xl font-bold text-pincha-blue">M</span><span class="text-2xl font-bold text-pincha-orange">P</span></div></a><a href="index.html" class="text-sm text-pincha-blue hover:text-pincha-orange font-medium">Volver al inicio</a></div></header>
+    <header class="bg-white shadow-sm py-4"><div class="container mx-auto px-6 flex justify-between items-center"><a href="index.html" class="flex items-center gap-2"><img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="hidden items-center gap-1"><span class="text-2xl font-bold text-pincha-blue">M</span><span class="text-2xl font-bold text-pincha-orange">P</span></div></a><a href="index.html" class="text-sm text-pincha-blue hover:text-pincha-orange font-medium">Volver al inicio</a></div></header>
     <main class="flex-grow flex items-center justify-center py-10 px-4">
         <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-2xl font-bold text-center text-pincha-blue mb-6">Iniciar sesión</h2>
@@ -31,9 +32,8 @@
             e.preventDefault();
             const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Entrando...';
             const { error } = await sb.auth.signInWithPassword({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value });
-            if (error) {
-                const msg = document.getElementById('loginMsg'); msg.textContent = '❌ ' + error.message; msg.className = 'mt-4 text-center text-sm text-red-600 font-bold'; msg.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Entrar';
-            } else { window.location.href = 'index.html'; }
+            if (error) { const msg = document.getElementById('loginMsg'); msg.textContent = '❌ ' + error.message; msg.className = 'mt-4 text-center text-sm text-red-600 font-bold'; msg.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Entrar'; }
+            else { window.location.href = 'index.html'; }
         });
     </script>
 </body>

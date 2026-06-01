@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Pincha - Agencia de Empleos</title>
+    <title>Mi Pincha - Agencia de Empleos en La Habana</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <!-- SEO -->
+    <meta name="description" content="Encuentra empleo en La Habana o publica vacantes gratis. Mi Pincha conecta candidatos y empresas en Cuba con búsqueda inteligente y postulación rápida.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://mipincha.github.io">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -12,6 +18,8 @@
     <style>
         .btn-tactile:active { transform: scale(0.97); }
         .btn-tactile { transition: all 0.15s ease; }
+        .skeleton { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
@@ -19,15 +27,10 @@
     <!-- HEADER -->
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-3 btn-tactile">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-10 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <div class="hidden items-center gap-1">
-                    <span class="text-2xl font-black text-pincha-blue">M</span>
-                    <span class="text-2xl font-black text-pincha-orange">P</span>
-                    <span class="text-sm font-semibold text-gray-500 ml-1">Agencia de Empleos</span>
-                </div>
+            <a href="index.html" class="flex items-center gap-2 btn-tactile">
+                <img src="images/logo.png" alt="Mi Pincha" class="h-9 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="hidden items-center gap-1"><span class="text-xl font-bold text-pincha-blue">M</span><span class="text-xl font-bold text-pincha-orange">P</span></div>
             </a>
-            
             <div class="flex items-center gap-3">
                 <div id="authGuest" class="flex items-center gap-3">
                     <a href="login.html" class="text-gray-600 hover:text-pincha-orange font-medium btn-tactile">Iniciar sesión</a>
@@ -44,79 +47,28 @@
 
     <!-- MAIN -->
     <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
-        
         <div class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-extrabold text-pincha-blue mb-3">Conectamos talento con <span class="text-pincha-orange">oportunidades</span></h1>
             <p class="text-gray-600 mb-6">Explora vacantes en La Habana. Regístrate gratis para postular o publicar.</p>
             
-            <!-- BUSCADOR COMPLETO CON LISTAS REALES -->
             <div class="relative max-w-4xl mx-auto">
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col md:flex-row gap-3 items-center">
                     <input id="searchKeyword" type="text" placeholder="Puesto, empresa o palabra clave..." class="flex-grow w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    
-                    <!-- CATEGORÍAS (26) -->
                     <select id="searchCategory" class="w-full md:w-56 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
                         <option value="">Seleccionar categoría</option>
-                        <option value="Tecnología e Informática">Tecnología e Informática</option>
-                        <option value="Salud y Medicina">Salud y Medicina</option>
-                        <option value="Educación y Formación">Educación y Formación</option>
-                        <option value="Administración y Oficina">Administración y Oficina</option>
-                        <option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option>
-                        <option value="Legal y Jurídico">Legal y Jurídico</option>
-                        <option value="Ingeniería y Arquitectura">Ingeniería y Arquitectura</option>
-                        <option value="Construcción y Oficios">Construcción y Oficios</option>
-                        <option value="Transporte y Logística">Transporte y Logística</option>
-                        <option value="Ventas y Comercial">Ventas y Comercial</option>
-                        <option value="Marketing y Publicidad">Marketing y Publicidad</option>
-                        <option value="Arte, Cultura y Entretenimiento">Arte, Cultura y Entretenimiento</option>
-                        <option value="Hostelería y Turismo">Hostelería y Turismo</option>
-                        <option value="Limpieza y Mantenimiento">Limpieza y Mantenimiento</option>
-                        <option value="Manufactura y Producción">Manufactura y Producción</option>
-                        <option value="Agricultura, Ganadería y Pesca">Agricultura, Ganadería y Pesca</option>
-                        <option value="Seguridad y Defensa">Seguridad y Defensa</option>
-                        <option value="Recursos Humanos">Recursos Humanos</option>
-                        <option value="Ciencia e Investigación">Ciencia e Investigación</option>
-                        <option value="Medios y Comunicación">Medios y Comunicación</option>
-                        <option value="Deportes y Fitness">Deportes y Fitness</option>
-                        <option value="Servicios Domésticos">Servicios Domésticos</option>
-                        <option value="Freelance y Economía Digital">Freelance y Economía Digital</option>
-                        <option value="Energía y Medio Ambiente">Energía y Medio Ambiente</option>
-                        <option value="Blockchain, Cripto y Web3">Blockchain, Cripto y Web3</option>
-                        <option value="Inteligencia Artificial y Automatización">Inteligencia Artificial y Automatización</option>
+                        <option value="Tecnología e Informática">Tecnología e Informática</option><option value="Salud y Medicina">Salud y Medicina</option><option value="Educación y Formación">Educación y Formación</option><option value="Administración y Oficina">Administración y Oficina</option><option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option><option value="Legal y Jurídico">Legal y Jurídico</option><option value="Ingeniería y Arquitectura">Ingeniería y Arquitectura</option><option value="Construcción y Oficios">Construcción y Oficios</option><option value="Transporte y Logística">Transporte y Logística</option><option value="Ventas y Comercial">Ventas y Comercial</option><option value="Marketing y Publicidad">Marketing y Publicidad</option><option value="Arte, Cultura y Entretenimiento">Arte, Cultura y Entretenimiento</option><option value="Hostelería y Turismo">Hostelería y Turismo</option><option value="Limpieza y Mantenimiento">Limpieza y Mantenimiento</option><option value="Manufactura y Producción">Manufactura y Producción</option><option value="Agricultura, Ganadería y Pesca">Agricultura, Ganadería y Pesca</option><option value="Seguridad y Defensa">Seguridad y Defensa</option><option value="Recursos Humanos">Recursos Humanos</option><option value="Ciencia e Investigación">Ciencia e Investigación</option><option value="Medios y Comunicación">Medios y Comunicación</option><option value="Deportes y Fitness">Deportes y Fitness</option><option value="Servicios Domésticos">Servicios Domésticos</option><option value="Freelance y Economía Digital">Freelance y Economía Digital</option><option value="Energía y Medio Ambiente">Energía y Medio Ambiente</option><option value="Blockchain, Cripto y Web3">Blockchain, Cripto y Web3</option><option value="Inteligencia Artificial y Automatización">Inteligencia Artificial y Automatización</option>
                     </select>
-
-                    <!-- MUNICIPIOS (15) -->
                     <select id="searchLocation" class="w-full md:w-48 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
                         <option value="">Seleccionar municipio</option>
-                        <option value="Playa">Playa</option>
-                        <option value="Plaza de la Revolución">Plaza de la Revolución</option>
-                        <option value="Centro Habana">Centro Habana</option>
-                        <option value="Habana Vieja">Habana Vieja</option>
-                        <option value="Regla">Regla</option>
-                        <option value="Habana del Este">Habana del Este</option>
-                        <option value="Guanabacoa">Guanabacoa</option>
-                        <option value="San Miguel del Padrón">San Miguel del Padrón</option>
-                        <option value="10 de Octubre">10 de Octubre</option>
-                        <option value="Cerro">Cerro</option>
-                        <option value="Marianao">Marianao</option>
-                        <option value="La Lisa">La Lisa</option>
-                        <option value="Arroyo Naranjo">Arroyo Naranjo</option>
-                        <option value="Boyeros">Boyeros</option>
-                        <option value="Cotorro">Cotorro</option>
+                        <option value="Playa">Playa</option><option value="Plaza de la Revolución">Plaza de la Revolución</option><option value="Centro Habana">Centro Habana</option><option value="Habana Vieja">Habana Vieja</option><option value="Regla">Regla</option><option value="Habana del Este">Habana del Este</option><option value="Guanabacoa">Guanabacoa</option><option value="San Miguel del Padrón">San Miguel del Padrón</option><option value="10 de Octubre">10 de Octubre</option><option value="Cerro">Cerro</option><option value="Marianao">Marianao</option><option value="La Lisa">La Lisa</option><option value="Arroyo Naranjo">Arroyo Naranjo</option><option value="Boyeros">Boyeros</option><option value="Cotorro">Cotorro</option>
                     </select>
-
-                    <button id="searchBtn" class="w-full md:w-auto bg-pincha-orange text-white font-bold px-6 py-2.5 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">
-                        🔍 Buscar
-                    </button>
+                    <button id="searchBtn" class="w-full md:w-auto bg-pincha-orange text-white font-bold px-6 py-2.5 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">🔍 Buscar</button>
                 </div>
             </div>
         </div>
 
-        <!-- JOBS GRID -->
         <div id="jobsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
-            <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
-            <div class="bg-white p-5 rounded-xl border border-gray-200 animate-pulse h-32"></div>
+            <div class="skeleton h-32 rounded-xl"></div><div class="skeleton h-32 rounded-xl"></div><div class="skeleton h-32 rounded-xl"></div>
         </div>
     </main>
 
@@ -125,5 +77,7 @@
     </footer>
 
     <script src="js/app.js"></script>
+    <!-- Schema.org Organization -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"EmploymentAgency","name":"Mi Pincha","url":"https://mipincha.github.io","logo":"https://mipincha.github.io/images/logo.png","address":{"@type":"PostalAddress","addressLocality":"La Habana","addressCountry":"CU"}}</script>
 </body>
 </html>
