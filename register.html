@@ -13,7 +13,6 @@
         .tab-btn { transition: all 0.2s ease; cursor: pointer; }
         .tab-btn.active { background-color: white; color: #FF6B35; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
         .tab-btn.inactive { background-color: transparent; color: #6B7280; box-shadow: none; }
-        .tab-btn:hover:not(.active) { color: #374151; }
         .form-section { display: none; }
         .form-section.show { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -22,15 +21,11 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
-
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2">
                 <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <div class="hidden items-center gap-1">
-                    <span class="text-2xl font-bold text-pincha-blue">M</span>
-                    <span class="text-2xl font-bold text-pincha-orange">P</span>
-                </div>
+                <div class="hidden items-center gap-1"><span class="text-2xl font-bold text-pincha-blue">M</span><span class="text-2xl font-bold text-pincha-orange">P</span></div>
             </a>
             <a href="index.html" class="text-sm text-pincha-blue hover:text-pincha-orange font-medium">Volver al inicio</a>
         </div>
@@ -42,24 +37,19 @@
                 <h2 class="text-2xl font-bold text-white">Crear cuenta</h2>
                 <p class="text-blue-200 text-sm mt-1">Únete a la comunidad laboral más grande</p>
             </div>
-
             <div class="p-6">
                 <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
                     <button type="button" id="tabCandidate" class="tab-btn active flex-1 py-2 rounded-md font-bold">👤 Candidato</button>
                     <button type="button" id="tabCompany" class="tab-btn inactive flex-1 py-2 rounded-md font-bold">🏢 Empresa</button>
                 </div>
-
                 <form id="regForm" class="space-y-4">
                     <input type="hidden" id="userType" value="candidate">
                     <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo / Razón social</label>
                     <input type="text" id="regName" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
-
                     <div><label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
                     <input type="email" id="regEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
-
                     <div><label class="block text-sm font-medium text-gray-700 mb-1">Contraseña (mín. 6 caracteres)</label>
                     <input type="password" id="regPass" required minlength="6" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile"></div>
-
                     <div><label class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
                     <select id="regLocation" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
                         <option value="">Seleccionar municipio</option>
@@ -85,7 +75,6 @@
 
                     <button type="submit" id="btnSubmit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md mt-4">Registrarme</button>
                 </form>
-
                 <div id="regMsg" class="mt-4 text-center text-sm hidden font-bold"></div>
                 <p class="text-center text-sm text-gray-500 mt-6">¿Ya tienes cuenta? <a href="login.html" class="text-pincha-orange font-bold hover:underline">Inicia sesión</a></p>
             </div>
@@ -95,118 +84,57 @@
     <script>
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
+        if (!window.supabase) document.body.innerHTML = '<div class="p-10 text-center text-red-600 font-bold">Error: No se cargó el motor de conexión.</div>';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Verificar carga de librería
-        if (!window.supabase) {
-            document.body.innerHTML = '<div class="p-10 text-center text-red-600 font-bold">Error: No se pudo cargar el motor de conexión. Verifica tu internet y recarga.</div>';
-        }
-
-        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Toggle UI
-        const btnC = document.getElementById('tabCandidate');
-        const btnE = document.getElementById('tabCompany');
-        const formC = document.getElementById('candidateFields');
-        const formE = document.getElementById('companyFields');
+        const btnC = document.getElementById('tabCandidate'), btnE = document.getElementById('tabCompany');
+        const formC = document.getElementById('candidateFields'), formE = document.getElementById('companyFields');
         const typeInput = document.getElementById('userType');
 
         function setActive(isCandidate) {
             typeInput.value = isCandidate ? 'candidate' : 'company';
-            if(isCandidate) {
-                btnC.className = 'tab-btn active flex-1 py-2 rounded-md font-bold';
-                btnE.className = 'tab-btn inactive flex-1 py-2 rounded-md font-bold';
-                formC.classList.add('show'); formE.classList.remove('show');
-            } else {
-                btnE.className = 'tab-btn active flex-1 py-2 rounded-md font-bold';
-                btnC.className = 'tab-btn inactive flex-1 py-2 rounded-md font-bold';
-                formE.classList.add('show'); formC.classList.remove('show');
-            }
+            if(isCandidate) { btnC.className='tab-btn active flex-1 py-2 rounded-md font-bold'; btnE.className='tab-btn inactive flex-1 py-2 rounded-md font-bold'; formC.classList.add('show'); formE.classList.remove('show'); }
+            else { btnE.className='tab-btn active flex-1 py-2 rounded-md font-bold'; btnC.className='tab-btn inactive flex-1 py-2 rounded-md font-bold'; formE.classList.add('show'); formC.classList.remove('show'); }
         }
-        btnC.onclick = () => setActive(true);
-        btnE.onclick = () => setActive(false);
+        btnC.onclick = () => setActive(true); btnE.onclick = () => setActive(false);
 
-        // Registro Seguro
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmit');
-            const msg = document.getElementById('regMsg');
-            
-            // 1. Validar conexión
-            if (!navigator.onLine) {
-                msg.textContent = '⚠️ Sin conexión a Internet. Conéctate y reintenta.';
-                msg.className = 'mt-4 text-center text-sm text-orange-600 font-bold';
-                msg.classList.remove('hidden');
-                return;
-            }
-
-            btn.disabled = true; btn.textContent = 'Conectando...';
-            msg.classList.add('hidden');
+            const btn = document.getElementById('btnSubmit'), msg = document.getElementById('regMsg');
+            btn.disabled = true; btn.textContent = 'Creando cuenta...'; msg.classList.add('hidden');
 
             try {
-                const { data, error: authError } = await sbClient.auth.signUp({
+                const { data, error: authError } = await sb.auth.signUp({
                     email: document.getElementById('regEmail').value,
                     password: document.getElementById('regPass').value,
                     options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } }
                 });
-
-                // 2. Validación estricta
                 if (authError) throw authError;
-                if (!data || !data.user) throw new Error("El servidor no respondió correctamente. Revisa tu conexión.");
+                if (!data?.user) throw new Error("Respuesta inesperada del servidor.");
 
-                const userId = data.user.id; // ✅ Seguro
-                btn.textContent = 'Verificando cuenta...';
+                const userId = data.user.id;
+                btn.textContent = 'Guardando perfil...';
 
-                // 3. Polling: Esperar a que el trigger SQL cree el perfil
-                let profileReady = false;
-                for (let i = 0; i < 6; i++) {
-                    const { data: check } = await sbClient.from('profiles').select('id').eq('id', userId).maybeSingle();
-                    if (check) { profileReady = true; break; }
-                    await new Promise(r => setTimeout(r, 600)); // 600ms entre intentos
-                }
-                if (!profileReady) throw new Error("El perfil tardó en crearse. Intenta de nuevo en 1 minuto.");
-
-                btn.textContent = 'Guardando datos...';
                 const type = typeInput.value;
-
-                // 4. Insertar datos específicos
                 if (type === 'candidate') {
-                    const { error: candErr } = await sbClient.from('candidates').insert({
-                        profile_id: userId,
-                        category: document.getElementById('regCategory').value,
-                        desired_position: document.getElementById('regPosition').value,
-                        is_active: true
-                    });
+                    const { error: candErr } = await sb.from('candidates').insert({ profile_id: userId, category: document.getElementById('regCategory').value, desired_position: document.getElementById('regPosition').value, is_active: true });
                     if (candErr) throw candErr;
                 } else {
-                    const { error: compErr } = await sbClient.from('companies').insert({
-                        profile_id: userId,
-                        industry: document.getElementById('regIndustry').value,
-                        website: document.getElementById('regWebsite').value,
-                        is_verified: false
-                    });
+                    const { error: compErr } = await sb.from('companies').insert({ profile_id: userId, industry: document.getElementById('regIndustry').value, website: document.getElementById('regWebsite').value, is_verified: false });
                     if (compErr) throw compErr;
                 }
 
-                // 5. Actualizar ubicación
-                const { error: locErr } = await sbClient.from('profiles').update({
-                    location: document.getElementById('regLocation').value
-                }).eq('id', userId);
-                if (locErr) throw locErr;
+                await sb.from('profiles').update({ location: document.getElementById('regLocation').value }).eq('id', userId);
 
-                // Éxito
-                msg.textContent = '✅ ¡Cuenta creada! Revisa tu correo para activarla.';
+                msg.textContent = '✅ ¡Cuenta creada! Ya puedes iniciar sesión desde cualquier dispositivo.';
                 msg.className = 'mt-4 text-center text-sm text-green-600 font-bold';
                 msg.classList.remove('hidden');
-                setTimeout(() => window.location.href = 'index.html', 2500);
-
+                setTimeout(() => window.location.href = 'login.html', 2000);
             } catch (err) {
-                console.error(err);
-                msg.textContent = '❌ ' + (err.message || 'Error durante el registro');
+                msg.textContent = '❌ ' + err.message;
                 msg.className = 'mt-4 text-center text-sm text-red-600 font-bold';
                 msg.classList.remove('hidden');
-            } finally {
-                btn.disabled = false; btn.textContent = 'Registrarme';
-            }
+            } finally { btn.disabled = false; btn.textContent = 'Registrarme'; }
         });
     </script>
 </body>

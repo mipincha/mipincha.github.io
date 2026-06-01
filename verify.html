@@ -1,98 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verifica tu correo - Mi Pincha</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación - Mi Pincha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-    <div id="statusIcon" class="text-5xl mb-4">📧</div>
-    <h2 id="statusTitle" class="text-2xl font-bold text-pincha-blue mb-2">Revisa tu correo</h2>
-    <p id="statusMsg" class="text-gray-600 mb-4">Hemos enviado un enlace de confirmación a:</p>
-    <p id="userEmail" class="font-bold text-pincha-orange text-lg mb-6 break-all">cargando...</p>
-    
-    <div class="space-y-3">
-      <button id="btnResend" class="w-full bg-gray-100 text-pincha-blue font-medium py-2 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
-        Reenviar enlace
-      </button>
-      <button onclick="window.location.href='index.html'" class="w-full border border-gray-300 text-gray-600 font-medium py-2 rounded-lg hover:bg-gray-50 transition">
-        Volver al inicio
-      </button>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+        <div id="loadingState">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-pincha-orange mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800">Verificando tu correo...</h2>
+            <p class="text-gray-500 mt-2">Por favor espera un momento.</p>
+        </div>
+
+        <div id="successState" class="hidden">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-2xl font-bold text-green-600">¡Cuenta Verificada!</h2>
+            <p class="text-gray-600 mt-3">Tu correo ha sido confirmado correctamente.</p>
+            <p class="text-sm text-gray-500 mt-2">Ahora puedes iniciar sesión desde tu PC o este dispositivo.</p>
+            <a href="login.html" class="mt-6 inline-block bg-pincha-blue text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-800 transition">
+                Ir a Iniciar Sesión
+            </a>
+        </div>
+
+        <div id="errorState" class="hidden">
+            <div class="text-6xl mb-4">❌</div>
+            <h2 class="text-2xl font-bold text-red-600">Error de Verificación</h2>
+            <p class="text-gray-600 mt-3">El enlace ha expirado o no es válido.</p>
+            <a href="register.html" class="mt-6 inline-block bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+                Volver a Registrarse
+            </a>
+        </div>
     </div>
 
-    <div id="toast" class="mt-4 text-sm hidden p-3 rounded-lg"></div>
-  </div>
+    <script>
+        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
+        
+        // Inicialización automática al cargar la página
+        (async function() {
+            try {
+                const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                
+                // Supabase inyecta el token en la URL (#access_token=...)
+                // getSession() lo lee automáticamente y valida la sesión.
+                const { data, error } = await sb.auth.getSession();
 
-  <script>
-    const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const email = new URLSearchParams(window.location.search).get('email') || localStorage.getItem('pendingEmail') || '';
-    document.getElementById('userEmail').textContent = email || 'tu correo';
-
-    let pollingInterval;
-    let resendCooldown = 0;
-
-    // 1. Verificar estado periódicamente (ligero para conexiones variables)
-    async function checkVerification() {
-      if (!email) return;
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user?.email_confirmed_at) {
-          clearInterval(pollingInterval);
-          showToast('✅ Correo verificado. Redirigiendo...', 'success');
-          setTimeout(() => window.location.href = 'index.html', 1500);
-        }
-      } catch (e) {
-        // Silenciar errores de red transitorios
-      }
-    }
-
-    // Iniciar polling cada 4s (equilibrio entre latencia y consumo de datos)
-    if (email) pollingInterval = setInterval(checkVerification, 4000);
-
-    // 2. Reenvío con cooldown
-    document.getElementById('btnResend').addEventListener('click', async () => {
-      if (resendCooldown > 0) return;
-      const btn = document.getElementById('btnResend');
-      btn.disabled = true;
-      showToast('Enviando...', 'info');
-
-      const { error } = await supabase.auth.resend({ type: 'signup', email });
-      if (error) {
-        showToast('❌ ' + error.message, 'error');
-      } else {
-        showToast('✅ Correo reenviado. Revisa bandeja/spam.', 'success');
-        resendCooldown = 30;
-        const timer = setInterval(() => {
-          resendCooldown--;
-          btn.textContent = resendCooldown > 0 ? `Reenviar (${resendCooldown}s)` : 'Reenviar enlace';
-          if (resendCooldown <= 0) {
-            btn.disabled = false;
-            clearInterval(timer);
-          }
-        }, 1000);
-      }
-    });
-
-    // 3. Toast messages
-    function showToast(msg, type) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = `mt-4 text-sm p-3 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : type === 'error' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 5000);
-    }
-
-    // Fallback offline
-    window.addEventListener('offline', () => showToast('⚠️ Sin conexión. El enlace se procesará al recuperar internet.', 'error'));
-  </script>
+                if (error) throw error;
+                
+                // Si hay sesión y el email está confirmado, mostramos éxito
+                if (data?.session?.user?.email_confirmed_at) {
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('successState').classList.remove('hidden');
+                } else {
+                    // Si no hay confirmación aún (a veces tarda unos ms)
+                    setTimeout(() => {
+                         document.getElementById('loadingState').classList.add('hidden');
+                         document.getElementById('errorState').classList.remove('hidden');
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('errorState').classList.remove('hidden');
+            }
+        })();
+    </script>
 </body>
 </html>
