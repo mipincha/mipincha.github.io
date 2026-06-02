@@ -16,38 +16,51 @@
         .tab-active { border-bottom: 2px solid #FF6B35; color: #1E3A5F; font-weight: 600; }
         .tab-inactive { color: #6B7280; }
         .btn-tactile:active { transform: scale(0.97); }
-        .btn-tactile { transition: all 0.15s ease; }
-        .match-high { border-left: 4px solid #FF6B35; }
-        .match-med { border-left: 4px solid #3B82F6; }
         .toast { animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 3.7s forwards; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
+        #mobileMenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        #mobileMenu.open { max-height: 500px; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
     <div id="authGuard" class="fixed inset-0 bg-gradient-to-br from-pincha-blue to-gray-900 z-50 flex items-center justify-center">
         <div class="text-center text-white"><div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pincha-orange mb-4"></div><p class="text-lg font-medium">Verificando sesión...</p></div>
     </div>
-    <header id="mainHeader" class="bg-white shadow-sm sticky top-0 z-40 hidden">
+    
+    <!-- HEADER DASHBOARD -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 btn-tactile">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <div class="hidden items-center gap-1"><span class="text-xl font-bold text-pincha-blue">M</span><span class="text-xl font-bold text-pincha-orange">P</span></div>
+                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain">
+                <span class="font-bold text-pincha-blue hidden sm:block">Dashboard</span>
             </a>
             <div class="flex items-center gap-4">
-                <div class="relative cursor-pointer btn-tactile p-2" onclick="switchTab('tab-matches')"><span class="text-2xl">🔔</span><span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span></div>
-                <span id="userBadge" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full hidden sm:block">Cargando...</span>
-                <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
+                <div class="relative cursor-pointer btn-tactile p-2" onclick="switchTab('tab-matches')">
+                    <span class="text-2xl">🔔</span>
+                    <span id="notifDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </div>
+                <button id="hamburgerBtn" class="md:hidden p-2 text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+                <nav id="desktopNav" class="hidden md:flex items-center gap-3">
+                    <span id="userBadge" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Cargando...</span>
+                    <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
+                </nav>
             </div>
         </div>
+        <div id="mobileMenu" class="md:hidden bg-white border-t border-gray-100 px-4 py-2 space-y-2">
+            <a href="index.html" class="block py-2 text-gray-700 font-medium">← Volver al inicio</a>
+            <button onclick="switchTab('tab-archivos')" class="block w-full py-2 text-left text-gray-700 font-medium">📁 Archivos</button>
+            <button id="mobileLogoutBtn" class="block w-full py-2 text-left text-red-500 font-medium">Salir</button>
+        </div>
     </header>
+
     <main id="dashboardContainer" class="hidden max-w-7xl mx-auto px-4 py-6">
         <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
         <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
             <button data-tab="tab-overview" class="tab-active px-4 py-2 text-sm whitespace-nowrap">Resumen</button>
             <button data-tab="tab-content" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Mi Contenido</button>
-            <button data-tab="tab-matches" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap flex items-center gap-1">Matches <span id="tabMatchBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
-            <button data-tab="tab-profile" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Perfil / Archivos</button>
+            <button data-tab="tab-matches" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap flex items-center gap-1">Matches</button>
+            <button data-tab="tab-archivos" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Archivos</button>
         </div>
         <div id="tabContent" class="bg-white rounded-xl border border-gray-200 p-6 min-h-[400px]"><div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div></div>
     </main>
@@ -56,129 +69,103 @@
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let userType = null, userId = null, userMeta = null, unreadNotifs = 0;
+        let userType = null, userId = null, userMeta = null, unreadCount = 0;
 
         async function initDashboard() {
-            try {
-                const { data: { session }, error: authError } = await sb.auth.getSession();
-                if (authError || !session) { window.location.href = 'login.html'; return; }
-                userType = session.user.user_metadata?.user_type; userId = session.user.id; userMeta = session.user.user_metadata;
-                document.getElementById('userBadge').textContent = `${userMeta?.full_name || session.user.email} (${userType === 'company' ? 'Empresa' : 'Candidato'})`;
-                document.getElementById('authGuard').classList.add('hidden'); document.getElementById('mainHeader').classList.remove('hidden'); document.getElementById('dashboardContainer').classList.remove('hidden');
-                await loadStats(); checkUnreadNotifications(); loadTabContent('tab-overview');
-            } catch (err) { document.getElementById('authGuard').innerHTML = '<p class="text-white text-center">Error de conexión. Recarga la página.</p>'; }
+            const { data: { session } } = await sb.auth.getSession();
+            if(!session) { window.location.href = 'login.html'; return; }
+            userType = session.user.user_metadata?.user_type; userId = session.user.id; userMeta = session.user.user_metadata;
+            document.getElementById('userBadge').textContent = `${userMeta?.full_name || session.user.email}`;
+            document.getElementById('authGuard').classList.add('hidden'); document.getElementById('dashboardContainer').classList.remove('hidden');
+            
+            setupHamburger();
+            await loadStats(); checkUnreadNotifications();
+            loadTabContent('tab-overview');
         }
 
+        function setupHamburger() {
+            document.getElementById('hamburgerBtn').onclick = () => document.getElementById('mobileMenu').classList.toggle('open');
+            document.getElementById('logoutBtn').onclick = document.getElementById('mobileLogoutBtn').onclick = async () => { await sb.auth.signOut(); window.location.href = 'index.html'; };
+        }
+
+        // 📊 KPIs REALES
         async function loadStats() {
             const container = document.getElementById('statsContainer');
             container.innerHTML = '<div class="col-span-full skeleton h-20 rounded-xl"></div>'.repeat(4);
             try {
                 let stats = [];
-                if (userType === 'company') {
+                if(userType === 'company') {
                     const { count: jobs } = await sb.from('jobs').select('*', { count: 'exact', head: true }).eq('company_id', userId);
                     const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('job_id', 'in', `(select id from jobs where company_id='${userId}')`);
-                    stats = [{label:'Vacantes Activas',value:jobs||0,icon:'📋'},{label:'Postulaciones Recibidas',value:apps||0,icon:'📩'},{label:'Vistas de Perfil',value:Math.floor(Math.random()*50)+10,icon:'👀'},{label:'Matches Sugeridos',value:Math.floor(Math.random()*5),icon:'🔥'}];
+                    stats = [{l:'Vacantes Activas',v:jobs||0,i:'📋'},{l:'Postulaciones',v:apps||0,i:'📩'},{l:'Matches',v:0,i:'🔥'},{l:'Archivos',v:0,i:'📁'}];
                 } else {
                     const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('candidate_id', userId);
-                    stats = [{label:'Postulaciones Enviadas',value:apps||0,icon:'🚀'},{label:'Entrevistas',value:0,icon:'📅'},{label:'Vistas de Perfil',value:Math.floor(Math.random()*30)+5,icon:'👁️'},{label:'Vacantes Compatibles',value:Math.floor(Math.random()*12),icon:'🔍'}];
+                    const { count: notifs } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+                    stats = [{l:'Postulaciones',v:apps||0,i:'🚀'},{l:'Matches',v:notifs||0,i:'🔥'},{l:'Archivos',v:0,i:'📁'},{l:'Entrevistas',v:0,i:'📅'}];
                 }
-                container.innerHTML = stats.map(s => `<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 hover:shadow-md transition"><div class="text-2xl">${s.icon}</div><div><p class="text-2xl font-bold text-pincha-blue">${s.value}</p><p class="text-xs text-gray-500">${s.label}</p></div></div>`).join('');
-            } catch (err) { container.innerHTML = '<div class="col-span-full text-center text-red-500 py-4">Error al cargar métricas</div>'; }
+                container.innerHTML = stats.map(s => `<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><div class="text-2xl">${s.i}</div><div><p class="text-2xl font-bold text-pincha-blue">${s.v}</p><p class="text-xs text-gray-500">${s.l}</p></div></div>`).join('');
+            } catch(e) { container.innerHTML = '<div class="col-span-full text-center text-red-500 py-4">Error KPIs</div>'; }
         }
 
         async function checkUnreadNotifications() {
-            try {
-                const { count, error } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false);
-                if (error) throw error; unreadNotifs = count || 0;
-                const b1 = document.getElementById('notifBadge'), b2 = document.getElementById('tabMatchBadge');
-                if (unreadNotifs > 0) { b1.textContent = unreadNotifs > 9 ? '9+' : unreadNotifs; b1.classList.remove('hidden'); b2.textContent = unreadNotifs; b2.classList.remove('hidden'); }
-                else { b1.classList.add('hidden'); b2.classList.add('hidden'); }
-            } catch (e) { console.warn('Notif check failed:', e); }
+            const { count } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false);
+            unreadCount = count || 0;
+            document.getElementById('notifDot').classList.toggle('hidden', unreadCount === 0);
         }
 
         async function loadMatchesTab() {
             const container = document.getElementById('tabContent'); container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-            try {
-                const { data: notifs, error } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active)').eq('user_id', userId).order('created_at', { ascending: false });
-                if (error) throw error;
-                await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
-                checkUnreadNotifications();
-                let html = '<h3 class="text-lg font-bold text-pincha-blue mb-4">Tus Matches Recomendados (Score ≥ 75)</h3>';
-                if (!notifs?.length) { html += '<div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Ajusta tu categoría, puesto o municipio para recibir matches precisos.</p></div>'; }
-                else {
-                    html += '<div class="space-y-3">';
-                    notifs.forEach(n => { const scoreClass = n.score >= 90 ? 'match-high' : 'match-med'; html += `<div class="bg-white p-4 rounded-lg border shadow-sm ${scoreClass} hover:shadow-md transition"><div class="flex justify-between items-start"><div><h4 class="font-bold text-gray-800">${n.jobs?.title || 'Vacante'}</h4><p class="text-sm text-gray-500">${n.jobs?.location || 'Cuba'} • ${n.jobs?.category || ''}</p><p class="text-xs font-bold mt-1 ${n.score>=90?'text-orange-600':'text-blue-600'}">Coincidencia: ${n.score} pts</p></div><span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleDateString()}</span></div>${n.jobs?.is_active?`<div class="mt-3 flex gap-2"><a href="index.html" class="flex-1 text-center bg-pincha-blue text-white text-sm font-bold py-2 rounded-lg hover:bg-blue-800 transition">Ver Vacante</a>${userType==='candidate'?`<button onclick="applyFromMatch('${n.job_id}')" class="flex-1 text-center border border-pincha-orange text-pincha-orange text-sm font-bold py-2 rounded-lg hover:bg-orange-50 transition">Postularme</button>`:''}</div>`:''}</div>`; });
-                    html += '</div>';
-                }
-                container.innerHTML = html;
-            } catch (err) { container.innerHTML = `<div class="text-center py-8 text-red-500">Error: ${err.message}</div>`; }
+            const { data: notifs } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active)').eq('user_id', userId).order('created_at', { ascending: false });
+            await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
+            checkUnreadNotifications();
+            container.innerHTML = `<h3 class="text-lg font-bold mb-4">Matches (Score ≥ 75)</h3><div class="space-y-3">${notifs?.length ? notifs.map(n=>`<div class="p-3 border rounded"><h4 class="font-bold">${n.jobs?.title||'Vacante'}</h4><p class="text-sm text-gray-500">${n.jobs?.location||''} • Score: ${n.score}</p><a href="index.html" class="text-pincha-blue text-sm font-bold">Ver vacante →</a></div>`).join('') : '<p class="text-gray-500">Sin coincidencias.</p>'}</div>`;
         }
 
-        async function applyFromMatch(jobId) {
-            try { const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: userId }); if (error && error.code === '23505') { showToast('Ya te postulaste.', 'info'); return; } if (error) throw error; showToast('✅ ¡Postulación enviada!', 'success'); loadMatchesTab(); } catch (err) { showToast('❌ ' + err.message, 'error'); }
-        }
-
-        function switchTab(tabId) { document.querySelectorAll('[data-tab]').forEach(b => b.classList.replace('tab-active', 'tab-inactive')); document.querySelector(`[data-tab="${tabId}"]`)?.classList.replace('tab-inactive', 'tab-active'); loadTabContent(tabId); }
-        document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.tab)));
+        function switchTab(tabId) { document.querySelectorAll('[data-tab]').forEach(b=>b.classList.replace('tab-active','tab-inactive')); document.querySelector(`[data-tab="${tabId}"]`)?.classList.replace('tab-inactive','tab-active'); loadTabContent(tabId); }
+        document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',e=>switchTab(e.currentTarget.dataset.tab)));
 
         async function loadTabContent(tab) {
-            const container = document.getElementById('tabContent'); container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
+            const c = document.getElementById('tabContent'); c.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
             let html = '';
-            if (tab === 'tab-overview') { html = `<div class="text-center py-8"><h3 class="text-xl font-bold text-pincha-blue mb-2">Bienvenido al Dashboard</h3><p class="text-gray-500 mb-6">${userType==='company'?'Gestiona tus vacantes y revisa candidatos.':'Controla tus postulaciones y revisa matches.'}</p></div>`; }
-            else if (tab === 'tab-content') {
-                if (userType === 'company') {
-                    const { data: jobs } = await sb.from('jobs').select('*').eq('company_id', userId).order('created_at', { ascending: false });
-                    html = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-pincha-blue">Mis Vacantes</h3><button onclick="document.getElementById('newJobForm').classList.toggle('hidden')" class="bg-pincha-orange text-white px-4 py-2 rounded-lg text-sm font-bold btn-tactile">+ Nueva Vacante</button></div><div id="newJobForm" class="hidden bg-gray-50 p-4 rounded-lg border mb-4"><form id="publishForm" class="grid md:grid-cols-2 gap-3"><input type="text" id="jobTitle" placeholder="Título" required class="p-2 border rounded"><select id="jobCat" required class="p-2 border rounded"><option value="">Categoría</option><option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Servicios Domésticos</option></select><input type="text" id="jobLoc" placeholder="Municipio" required class="p-2 border rounded"><input type="text" id="jobSal" placeholder="Salario" class="p-2 border rounded"><textarea id="jobDesc" placeholder="Descripción" rows="2" class="md:col-span-2 p-2 border rounded"></textarea><div class="md:col-span-2 flex gap-2"><button type="submit" class="flex-1 bg-pincha-blue text-white py-2 rounded font-bold">Publicar</button><button type="button" onclick="document.getElementById('newJobForm').classList.add('hidden')" class="px-4 py-2 border rounded">Cancelar</button></div></form></div><div class="space-y-2">${jobs?.length?jobs.map(j=>`<div class="p-3 border rounded flex justify-between"><div><h4 class="font-bold text-pincha-blue">${j.title}</h4><p class="text-xs text-gray-500">${j.location} • ${j.salary||'A convenir'}</p></div><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded h-fit">Activa</span></div>`).join(''):'<p class="text-gray-500 text-center py-6">Sin vacantes publicadas.</p>'}</div>`;
+            if(tab==='tab-overview') html = `<div class="text-center py-8"><h3 class="text-xl font-bold">Bienvenido</h3><p class="text-gray-500">${userType==='company'?'Gestiona vacantes y revisa postulaciones.':'Revisa tus postulaciones y matches.'}</p></div>`;
+            else if(tab==='tab-content') {
+                if(userType==='company') {
+                    const { data: jobs } = await sb.from('jobs').select('*').eq('company_id', userId).order('created_at',{ascending:false});
+                    html = `<div class="space-y-2">${jobs?.length?jobs.map(j=>`<div class="p-3 border rounded"><h4 class="font-bold">${j.title}</h4><p class="text-xs text-gray-500">${j.location} • ${j.salary||'A convenir'}</p></div>`).join(''):'<p class="text-center text-gray-500">Sin vacantes.</p>'}</div>`;
                 } else {
-                    const { data: apps } = await sb.from('applications').select('*, jobs(title, location, company_name)').eq('candidate_id', userId).order('created_at', { ascending: false });
-                    html = `<h3 class="text-lg font-bold text-pincha-blue mb-4">Mis Postulaciones</h3><div class="space-y-2">${apps?.length?apps.map(a=>`<div class="p-3 border rounded"><h4 class="font-bold text-pincha-blue">${a.jobs?.title||'Vacante'}</h4><p class="text-xs text-gray-500">${a.jobs?.location||''} • ${a.jobs?.company_name||''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join(''):'<p class="text-gray-500 text-center py-6">Aún no te has postulado.</p>'}</div>`;
+                    const { data: apps } = await sb.from('applications').select('*, jobs(title, location, company_name)').eq('candidate_id', userId).order('created_at',{ascending:false});
+                    html = `<div class="space-y-2">${apps?.length?apps.map(a=>`<div class="p-3 border rounded"><h4 class="font-bold">${a.jobs?.title||'Vacante'}</h4><p class="text-xs text-gray-500">${a.jobs?.location||''} • ${a.jobs?.company_name||''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join(''):'<p class="text-center text-gray-500">Sin postulaciones.</p>'}</div>`;
                 }
-            } else if (tab === 'tab-matches') { await loadMatchesTab(); return; }
-            else if (tab === 'tab-profile') {
-                const profileTable = userType === 'candidate' ? 'candidates' : 'companies';
-                const urlCol = userType === 'candidate' ? 'cv_url' : 'logo_url';
-                const nameCol = userType === 'candidate' ? 'cv_original_name' : 'logo_original_name';
-                const { data: profile } = await sb.from(profileTable).select(`${urlCol}, ${nameCol}`).eq('profile_id', userId).single();
-                
-                const hasFile = profile?.[urlCol];
-                const displayName = profile?.[nameCol] || 'Archivo no disponible';
-                
-                html = `<div class="max-w-md mx-auto text-center">
-                    <h3 class="text-lg font-bold mb-4">${userType==='candidate'?'Tu Currículum':'Logo Empresa'}</h3>
-                    ${hasFile ? `<div class="bg-green-50 p-4 rounded-lg border border-green-200 mb-4"><p class="text-sm text-green-700 mb-1">📄 Archivo actual:</p><p class="font-medium text-gray-800 truncate">${displayName}</p><a href="${profile[urlCol]}" target="_blank" class="mt-2 inline-block text-sm text-pincha-blue hover:underline font-medium">Ver / Descargar →</a></div>` : '<p class="text-gray-500 mb-4">No has subido ningún archivo aún.</p>'}
-                    <input type="file" id="fileInput" accept="${userType==='candidate'?'.pdf,.doc,.docx':'image/*'}" class="hidden" onchange="handleUpload(this, '${userType==='candidate'?'cv-uploads':'company-logos'}', '${profileTable}', '${urlCol}', '${nameCol}')">
-                    <button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">${userType==='candidate'?'📄 Subir/Actualizar CV':'🖼️ Subir/Actualizar Logo'}</button>
-                    <div id="uploadMsg" class="mt-3 text-sm font-bold"></div>
-                </div>`;
+            } else if(tab==='tab-matches') { await loadMatchesTab(); return; }
+            else if(tab==='tab-archivos') {
+                const { data: prof } = await sb.from(userType==='candidate'?'candidates':'companies').select('cv_url, cv_original_name, logo_url, logo_original_name').eq('id', userId).single();
+                const isCand = userType==='candidate';
+                const url = prof?.[isCand?'cv_url':'logo_url'];
+                const name = prof?.[isCand?'cv_original_name':'logo_original_name'] || (isCand?'CV':'Logo');
+                html = `<div class="text-center"><h3 class="text-lg font-bold mb-4">Gestión de Archivos</h3><p class="text-gray-500 mb-4">Sube tu ${isCand?'currículum y certificados digitales':'logo corporativo'}.</p>
+                    ${url?`<div class="bg-green-50 p-4 rounded border mb-4"><p class="text-sm">📄 ${name}</p><a href="${url}" target="_blank" class="text-pincha-blue text-sm font-bold">Ver/Descargar →</a></div>`:''}
+                    <input type="file" id="fileInput" class="hidden" accept="${isCand?'.pdf,.doc,.docx,.jpg,.png':'image/*'}" onchange="handleUpload(this)"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-2 rounded font-bold btn-tactile">📤 Subir Archivo</button><div id="upMsg" class="mt-2 text-sm font-bold"></div></div>`;
             }
-            container.innerHTML = html;
-            if (tab === 'tab-content' && userType === 'company') document.getElementById('publishForm')?.addEventListener('submit', handlePublishJob);
+            c.innerHTML = html;
         }
 
-        async function handlePublishJob(e) { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Publicando...'; try { const { error } = await sb.from('jobs').insert({ title: document.getElementById('jobTitle').value, category: document.getElementById('jobCat').value, location: document.getElementById('jobLoc').value, salary: document.getElementById('jobSal').value, description: document.getElementById('jobDesc').value, company_name: userMeta?.full_name||'Empresa', company_id: userId, is_active: true }); if (error) throw error; showToast('✅ Vacante publicada', 'success'); document.getElementById('newJobForm').classList.add('hidden'); e.target.reset(); loadTabContent('tab-content'); loadStats(); } catch (err) { showToast('❌ ' + err.message, 'error'); } btn.disabled = false; btn.textContent = 'Publicar'; }
-
-        // ✅ SUBIDA CON NOMBRE ORIGINAL PRESERVADO
-        async function handleUpload(input, bucket, table, urlColumn, nameColumn) { 
-            const file = input.files[0]; if (!file) return; 
-            const msg = document.getElementById('uploadMsg'); msg.textContent = '⏳ Subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600';
-            const originalName = file.name;
-            const sanitizedName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_").replace(/_{2,}/g, "_");
-            const fileName = `${userId}/${Date.now()}_${sanitizedName}`;
-            
-            const { data, error } = await sb.storage.from(bucket).upload(fileName, file);
-            if (error) { msg.textContent = '❌ ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; return; }
-            try { 
-                const { data: urlData } = sb.storage.from(bucket).getPublicUrl(fileName); 
-                const { error: dbErr } = await sb.from(table).update({ [urlColumn]: urlData.publicUrl, [nameColumn]: originalName }).eq('profile_id', userId); 
-                if (dbErr) throw dbErr; 
-                msg.textContent = '✅ Archivo guardado correctamente'; msg.className = 'mt-3 text-sm font-bold text-green-600'; 
-                showToast('📎 Archivo actualizado', 'success');
-                loadTabContent('tab-profile'); // Refrescar UI con nombre original
-            } catch (dbErr) { msg.textContent = '❌ Error guardando enlace: ' + dbErr.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; } 
+        async function handleUpload(input) {
+            const f = input.files[0]; if(!f) return;
+            const msg = document.getElementById('upMsg'); msg.textContent = '⏳ Subiendo...'; msg.className = 'text-blue-600';
+            const isCand = userType==='candidate';
+            const bucket = isCand?'cv-uploads':'company-logos';
+            const table = isCand?'candidates':'companies';
+            const colUrl = isCand?'cv_url':'logo_url';
+            const colName = isCand?'cv_original_name':'logo_original_name';
+            const cleanName = f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9._-]/g,"_");
+            const path = `${userId}/${Date.now()}_${cleanName}`;
+            const { error } = await sb.storage.from(bucket).upload(path, f);
+            if(error) { msg.textContent='❌ '+error.message; msg.className='text-red-600'; return; }
+            const { data: u } = sb.storage.from(bucket).getPublicUrl(path);
+            await sb.from(table).update({[colUrl]:u.publicUrl, [colName]:f.name}).eq('id', userId);
+            msg.textContent='✅ Guardado'; msg.className='text-green-600'; loadStats(); loadTabContent('tab-archivos');
         }
-
-        function showToast(msg, type = 'info') { const t = document.createElement('div'); t.className = `toast fixed bottom-4 right-4 ${type==='success'?'bg-green-600':type==='error'?'bg-red-600':'bg-pincha-blue'} text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 4000); }
-        document.getElementById('logoutBtn').addEventListener('click', async () => { try { await sb.auth.signOut(); } catch(e) {} window.location.href = 'index.html'; });
+        window.switchTab = switchTab; window.handleUpload = handleUpload;
         initDashboard();
     </script>
 </body>
