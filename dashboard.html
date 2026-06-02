@@ -35,9 +35,7 @@
                 <div class="hidden items-center gap-1"><span class="text-xl font-bold text-pincha-blue">M</span><span class="text-xl font-bold text-pincha-orange">P</span></div>
             </a>
             <div class="flex items-center gap-4">
-                <div class="relative cursor-pointer btn-tactile p-2" onclick="switchTab('tab-matches')">
-                    <span class="text-2xl">🔔</span><span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </div>
+                <div class="relative cursor-pointer btn-tactile p-2" onclick="switchTab('tab-matches')"><span class="text-2xl">🔔</span><span id="notifBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span></div>
                 <span id="userBadge" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full hidden sm:block">Cargando...</span>
                 <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
             </div>
@@ -53,6 +51,7 @@
         </div>
         <div id="tabContent" class="bg-white rounded-xl border border-gray-200 p-6 min-h-[400px]"><div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div></div>
     </main>
+
     <script>
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
@@ -135,14 +134,48 @@
                     html = `<h3 class="text-lg font-bold text-pincha-blue mb-4">Mis Postulaciones</h3><div class="space-y-2">${apps?.length?apps.map(a=>`<div class="p-3 border rounded"><h4 class="font-bold text-pincha-blue">${a.jobs?.title||'Vacante'}</h4><p class="text-xs text-gray-500">${a.jobs?.location||''} • ${a.jobs?.company_name||''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join(''):'<p class="text-gray-500 text-center py-6">Aún no te has postulado.</p>'}</div>`;
                 }
             } else if (tab === 'tab-matches') { await loadMatchesTab(); return; }
-            else if (tab === 'tab-profile') { html = userType==='candidate'?`<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Tu Currículum</h3><input type="file" id="fileInput" accept=".pdf,.doc,.docx" class="hidden" onchange="handleUpload(this, 'cv-uploads', 'candidates', 'cv_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">📄 Seleccionar CV</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`:`<div class="max-w-md mx-auto text-center"><h3 class="text-lg font-bold mb-4">Logo Empresa</h3><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleUpload(this, 'company-logos', 'companies', 'logo_url')"><button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">🖼️ Subir Logo</button><div id="uploadMsg" class="mt-3 text-sm font-bold"></div></div>`; }
+            else if (tab === 'tab-profile') {
+                const profileTable = userType === 'candidate' ? 'candidates' : 'companies';
+                const urlCol = userType === 'candidate' ? 'cv_url' : 'logo_url';
+                const nameCol = userType === 'candidate' ? 'cv_original_name' : 'logo_original_name';
+                const { data: profile } = await sb.from(profileTable).select(`${urlCol}, ${nameCol}`).eq('profile_id', userId).single();
+                
+                const hasFile = profile?.[urlCol];
+                const displayName = profile?.[nameCol] || 'Archivo no disponible';
+                
+                html = `<div class="max-w-md mx-auto text-center">
+                    <h3 class="text-lg font-bold mb-4">${userType==='candidate'?'Tu Currículum':'Logo Empresa'}</h3>
+                    ${hasFile ? `<div class="bg-green-50 p-4 rounded-lg border border-green-200 mb-4"><p class="text-sm text-green-700 mb-1">📄 Archivo actual:</p><p class="font-medium text-gray-800 truncate">${displayName}</p><a href="${profile[urlCol]}" target="_blank" class="mt-2 inline-block text-sm text-pincha-blue hover:underline font-medium">Ver / Descargar →</a></div>` : '<p class="text-gray-500 mb-4">No has subido ningún archivo aún.</p>'}
+                    <input type="file" id="fileInput" accept="${userType==='candidate'?'.pdf,.doc,.docx':'image/*'}" class="hidden" onchange="handleUpload(this, '${userType==='candidate'?'cv-uploads':'company-logos'}', '${profileTable}', '${urlCol}', '${nameCol}')">
+                    <button onclick="document.getElementById('fileInput').click()" class="bg-gray-200 px-6 py-3 rounded-lg font-bold btn-tactile w-full">${userType==='candidate'?'📄 Subir/Actualizar CV':'🖼️ Subir/Actualizar Logo'}</button>
+                    <div id="uploadMsg" class="mt-3 text-sm font-bold"></div>
+                </div>`;
+            }
             container.innerHTML = html;
             if (tab === 'tab-content' && userType === 'company') document.getElementById('publishForm')?.addEventListener('submit', handlePublishJob);
         }
 
         async function handlePublishJob(e) { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Publicando...'; try { const { error } = await sb.from('jobs').insert({ title: document.getElementById('jobTitle').value, category: document.getElementById('jobCat').value, location: document.getElementById('jobLoc').value, salary: document.getElementById('jobSal').value, description: document.getElementById('jobDesc').value, company_name: userMeta?.full_name||'Empresa', company_id: userId, is_active: true }); if (error) throw error; showToast('✅ Vacante publicada', 'success'); document.getElementById('newJobForm').classList.add('hidden'); e.target.reset(); loadTabContent('tab-content'); loadStats(); } catch (err) { showToast('❌ ' + err.message, 'error'); } btn.disabled = false; btn.textContent = 'Publicar'; }
 
-        async function handleUpload(input, bucket, table, column) { const file = input.files[0]; if (!file) return; const msg = document.getElementById('uploadMsg'); msg.textContent = '⏳ Subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600'; const fileName = `${userId}/${Date.now()}_${file.name}`; const { data, error } = await sb.storage.from(bucket).upload(fileName, file); if (error) { msg.textContent = '❌ ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; return; } try { const { data: urlData } = sb.storage.from(bucket).getPublicUrl(fileName); const { error: dbErr } = await sb.from(table).update({ [column]: urlData.publicUrl }).eq('profile_id', userId); if (dbErr) throw dbErr; msg.textContent = '✅ Archivo guardado correctamente'; msg.className = 'mt-3 text-sm font-bold text-green-600'; showToast('📎 Archivo actualizado', 'success'); } catch (dbErr) { msg.textContent = '❌ Error guardando enlace: ' + dbErr.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; } }
+        // ✅ SUBIDA CON NOMBRE ORIGINAL PRESERVADO
+        async function handleUpload(input, bucket, table, urlColumn, nameColumn) { 
+            const file = input.files[0]; if (!file) return; 
+            const msg = document.getElementById('uploadMsg'); msg.textContent = '⏳ Subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600';
+            const originalName = file.name;
+            const sanitizedName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_").replace(/_{2,}/g, "_");
+            const fileName = `${userId}/${Date.now()}_${sanitizedName}`;
+            
+            const { data, error } = await sb.storage.from(bucket).upload(fileName, file);
+            if (error) { msg.textContent = '❌ ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; return; }
+            try { 
+                const { data: urlData } = sb.storage.from(bucket).getPublicUrl(fileName); 
+                const { error: dbErr } = await sb.from(table).update({ [urlColumn]: urlData.publicUrl, [nameColumn]: originalName }).eq('profile_id', userId); 
+                if (dbErr) throw dbErr; 
+                msg.textContent = '✅ Archivo guardado correctamente'; msg.className = 'mt-3 text-sm font-bold text-green-600'; 
+                showToast('📎 Archivo actualizado', 'success');
+                loadTabContent('tab-profile'); // Refrescar UI con nombre original
+            } catch (dbErr) { msg.textContent = '❌ Error guardando enlace: ' + dbErr.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; } 
+        }
 
         function showToast(msg, type = 'info') { const t = document.createElement('div'); t.className = `toast fixed bottom-4 right-4 ${type==='success'?'bg-green-600':type==='error'?'bg-red-600':'bg-pincha-blue'} text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 4000); }
         document.getElementById('logoutBtn').addEventListener('click', async () => { try { await sb.auth.signOut(); } catch(e) {} window.location.href = 'index.html'; });
