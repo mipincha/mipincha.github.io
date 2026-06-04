@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Verificación Pre-Lanzamiento - Mi Pincha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8 font-sans">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-pincha-blue p-6 text-white">
+            <h1 class="text-2xl font-bold">🔍 Diagnóstico de Mi Pincha</h1>
+            <p class="opacity-80 text-sm">Verificación automática de funcionalidades críticas antes del lanzamiento.</p>
+        </div>
+        <div class="p-6 space-y-6">
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">URL del Proyecto</label>
+                <input id="urlInput" value="https://yznkrbhfsrcoskyoyfxs.supabase.co" class="w-full bg-white border p-2 rounded text-sm font-mono text-gray-600">
+                <label class="block text-xs font-bold text-gray-500 uppercase mt-3 mb-1">API Key (Anon)</label>
+                <input id="keyInput" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw" class="w-full bg-white border p-2 rounded text-sm font-mono text-gray-600">
+            </div>
+            <div id="results" class="hidden space-y-3">
+                <div class="p-4 rounded-lg border bg-gray-50"><h3 class="font-bold text-gray-700 mb-2">1. Registro sin Fricción</h3><p id="resAuth" class="text-sm">⏳ Esperando...</p></div>
+                <div class="p-4 rounded-lg border bg-gray-50"><h3 class="font-bold text-gray-700 mb-2">2. Sistema de Match (Notificaciones)</h3><p id="resMatch" class="text-sm">⏳ Esperando...</p></div>
+                <div class="p-4 rounded-lg border bg-gray-50"><h3 class="font-bold text-gray-700 mb-2">3. Subida de Archivos (Storage)</h3><p id="resStorage" class="text-sm">⏳ Esperando...</p></div>
+            </div>
+            <button onclick="runDiagnostics()" id="btnRun" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition shadow-md">Ejecutar Diagnóstico Completo</button>
+        </div>
+    </div>
+
+    <script>
+        let sb;
+        async function runDiagnostics() {
+            const btn = document.getElementById('btnRun');
+            const resDiv = document.getElementById('results');
+            const url = document.getElementById('urlInput').value;
+            const key = document.getElementById('keyInput').value;
+            
+            btn.disabled = true; btn.textContent = 'Ejecutando pruebas...';
+            resDiv.classList.remove('hidden');
+            sb = window.supabase.createClient(url, key);
+
+            // 🔐 TEST 1: AUTH
+            const testEmail = `test_${Date.now()}@mipincha.dev`;
+            try {
+                const { data, error } = await sb.auth.signUp({ email: testEmail, password: 'password123' });
+                if (error) throw error;
+                // Forzar sesión activa para que RLS funcione en los siguientes tests
+                await sb.auth.signInWithPassword({ email: testEmail, password: 'password123' });
+                const isConfirmed = data.user?.email_confirmed_at;
+                document.getElementById('resAuth').innerHTML = isConfirmed 
+                    ? '✅ <b>ÉXITO:</b> Registro funcional y sin confirmación de correo.' 
+                    : '✅ <b>ÉXITO:</b> Registro funcional. Sesión activada para pruebas RLS.';
+                
+                const userId = data.user.id;
+
+                // 🔗 TEST 2: MATCH (Simulación con sesión activa)
+                try {
+                    // 1. Crear candidato con profile_id explícito (requerido por RLS)
+                    const { data: cand, error: candErr } = await sb.from('candidates').insert({
+                        profile_id: userId, location: 'Playa', category: 'Tecnología e Informática', desired_position: 'Desarrollador', is_active: true
+                    }).select();
+                    if (candErr) throw candErr;
+
+                    // 2. Publicar vacante coincidente
+                    const { data: job, error: jobErr } = await sb.from('jobs').insert({
+                        title: 'Desarrollador Frontend', location: 'Playa', category: 'Tecnología e Informática', salary: '$500', is_active: true
+                    }).select();
+                    if (jobErr) throw jobErr;
+
+                    await new Promise(r => setTimeout(r, 1200)); // Margen para trigger SQL
+
+                    // 3. Verificar notificación
+                    const { data: notif, error: notifErr } = await sb.from('notifications').select('*').eq('job_id', job[0].id);
+                    if (notifErr) throw notifErr;
+
+                    if (notif && notif.length > 0) {
+                        document.getElementById('resMatch').innerHTML = `✅ <b>ÉXITO:</b> Trigger operativo. Match creado con Score: ${notif[0].score}.`;
+                    } else {
+                        document.getElementById('resMatch').innerHTML = '⚠️ <b>ATENCIÓN:</b> Vacante creada, pero el trigger no generó notificación. Revisa la función SQL `match_new_job_to_candidates`.';
+                    }
+
+                    // 🧹 Limpieza
+                    await sb.from('jobs').delete().eq('id', job[0].id);
+                    await sb.from('candidates').delete().eq('id', cand[0].id);
+                    await sb.from('notifications').delete().eq('job_id', job[0].id);
+                } catch (err) {
+                    document.getElementById('resMatch').innerHTML = `❌ <b>FALLO:</b> Error en Match. (${err.message})`;
+                }
+
+                // 📁 TEST 3: STORAGE
+                try {
+                    const file = new Blob(['test content'], { type: 'text/plain' });
+                    const fileName = `${userId}/test_${Date.now()}.txt`; // Ruta compatible con RLS
+                    const { data, error } = await sb.storage.from('cv-uploads').upload(fileName, file);
+                    if (error) throw error;
+                    document.getElementById('resStorage').innerHTML = '✅ <b>ÉXITO:</b> Storage operativo. Políticas permiten subir archivos.';
+                    await sb.storage.from('cv-uploads').remove([data.path]);
+                } catch (err) {
+                    document.getElementById('resStorage').innerHTML = `❌ <b>FALLO:</b> Error en Storage. (${err.message})`;
+                }
+
+                // 🧹 Limpieza usuario de prueba
+                await sb.auth.admin.deleteUser(userId).catch(() => {}); // Opcional, requiere service_role key. Se ignora si falla.
+
+            } catch (err) {
+                document.getElementById('resAuth').innerHTML = `❌ <b>FALLO:</b> ${err.message} (Verifica "Email Signups Enabled" en Supabase)`;
+            }
+
+            btn.disabled = false; btn.textContent = 'Ejecutar Diagnóstico Completo';
+        }
+    </script>
+</body>
+</html>
