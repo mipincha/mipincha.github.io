@@ -122,7 +122,6 @@ function setupSearch() {
     const keywordInput = document.getElementById('searchKeyword');
     const autocompleteList = document.getElementById('autocompleteList');
     
-    // Autocomplete en keyword
     keywordInput?.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         const val = e.target.value.trim().toLowerCase();
@@ -141,17 +140,13 @@ function setupSearch() {
         }, 200);
     });
     
-    // Cerrar autocomplete al hacer clic fuera
     document.addEventListener('click', (e) => {
         if (!e.target.closest('#searchKeyword') && !e.target.closest('#autocompleteList')) {
             autocompleteList?.classList.add('hidden');
         }
     });
     
-    // Filtro por categoría → actualizar puestos
     document.getElementById('searchCategory')?.addEventListener('change', populatePositionsByCategory);
-    
-    // Búsqueda principal
     document.getElementById('searchBtn')?.addEventListener('click', loadJobs);
     ['searchKeyword', 'searchPosition', 'searchCategory', 'searchLocation'].forEach(id => {
         document.getElementById(id)?.addEventListener('input', debounceSearch);
@@ -270,13 +265,11 @@ async function openJobDetail(jobId) {
             applyBtn.disabled = false; 
             applyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             
-            // ✅ FIX FK: Verificar y asegurar que el perfil de candidato existe antes de insertar
             applyBtn.onclick = async () => {
                 applyBtn.textContent = 'Verificando perfil...';
                 applyBtn.disabled = true;
                 
                 try {
-                    // 1. Verificar si el usuario ya tiene registro en la tabla 'candidates'
                     const { data: candidate, error: candError } = await sb
                         .from('candidates')
                         .select('profile_id')
@@ -285,7 +278,6 @@ async function openJobDetail(jobId) {
                     
                     if (candError) throw candError;
                     
-                    // 2. Si no existe, crearlo para satisfacer la restricción de clave foránea
                     if (!candidate) {
                         const { error: createError } = await sb
                             .from('candidates')
@@ -296,7 +288,6 @@ async function openJobDetail(jobId) {
                         if (createError) throw createError;
                     }
                     
-                    // 3. Ahora sí, insertar la postulación de forma segura
                     applyBtn.textContent = 'Enviando postulación...';
                     const { error: appError } = await sb
                         .from('applications')
@@ -358,7 +349,6 @@ function setupPublishModal() {
         msg.textContent = '⏳ Guardando perfil...'; msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
         
         try {
-            // Actualizamos o insertamos en la tabla candidates para que el usuario sea visible
             const { error } = await sb.from('candidates').upsert({
                 profile_id: session.user.id,
                 desired_position: document.getElementById('pubPosition').value,
@@ -386,10 +376,31 @@ function setupPublishModal() {
         if (!session) return alert('Debes iniciar sesión para publicar');
         
         const msg = document.getElementById('pubMsg');
-        msg.textContent = '⏳ Publicando vacante...'; msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
+        msg.textContent = '⏳ Preparando perfil de empresa...'; 
+        msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
         
         try {
-            const { error } = await sb.from('jobs').insert({
+            const { data: company, error: compCheckError } = await sb
+                .from('companies')
+                .select('profile_id')
+                .eq('profile_id', session.user.id)
+                .maybeSingle();
+            
+            if (compCheckError) throw compCheckError;
+            
+            if (!company) {
+                const { error: createCompError } = await sb
+                    .from('companies')
+                    .insert({ 
+                        profile_id: session.user.id,
+                        industry: 'General',
+                        is_verified: false 
+                    });
+                if (createCompError) throw createCompError;
+            }
+            
+            msg.textContent = '⏳ Publicando vacante...';
+            const { error: jobError } = await sb.from('jobs').insert({
                 title: document.getElementById('jobTitle').value,
                 category: document.getElementById('jobCategory').value,
                 location: document.getElementById('jobLocation').value,
@@ -399,11 +410,13 @@ function setupPublishModal() {
                 company_id: session.user.id,
                 is_active: true
             });
-            if (error) throw error;
+            
+            if (jobError) throw jobError;
             
             msg.textContent = '✅ Vacante publicada exitosamente.'; 
             msg.className = 'mt-4 text-center text-sm font-bold text-green-600 block';
             setTimeout(() => { closePublishModal(); loadJobs(); }, 2000);
+            
         } catch (err) { 
             msg.textContent = '❌ ' + err.message; 
             msg.className = 'mt-4 text-center text-sm font-bold text-red-600 block'; 
