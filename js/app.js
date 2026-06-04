@@ -270,6 +270,9 @@ async function openJobDetail(jobId) {
                 applyBtn.disabled = true;
                 
                 try {
+                    // 1. Garantizar que existe el perfil base
+                    await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
+
                     const { data: candidate, error: candError } = await sb
                         .from('candidates')
                         .select('profile_id')
@@ -320,7 +323,7 @@ async function openJobDetail(jobId) {
     }
 }
 
-// 📢 MODAL PUBLICAR DUAL
+// 📢 MODAL PUBLICAR DUAL (CON FIX DE FK EN PROFILES)
 function setupPublishModal() {
     const pubCandidate = document.getElementById('pubCandidate');
     const pubCompany = document.getElementById('pubCompany');
@@ -346,9 +349,18 @@ function setupPublishModal() {
         if (!session) return alert('Debes iniciar sesión para publicar');
         
         const msg = document.getElementById('pubMsg');
-        msg.textContent = '⏳ Guardando perfil...'; msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
+        msg.textContent = '⏳ Preparando perfil...'; msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
         
         try {
+            // ✅ FIX CRÍTICO: Garantizar que la fila en 'profiles' existe antes de insertar en 'candidates'
+            const { error: profileError } = await sb.from('profiles').upsert({
+                id: session.user.id,
+                location: document.getElementById('pubLocation').value
+            }, { onConflict: 'id' });
+            
+            if (profileError) throw profileError;
+
+            // Ahora sí, upsert en candidates es seguro
             const { error } = await sb.from('candidates').upsert({
                 profile_id: session.user.id,
                 desired_position: document.getElementById('pubPosition').value,
@@ -380,6 +392,13 @@ function setupPublishModal() {
         msg.className = 'mt-4 text-center text-sm font-bold text-blue-600 block';
         
         try {
+            // ✅ FIX CRÍTICO: Garantizar que la fila en 'profiles' existe antes de insertar en 'companies'
+            const { error: profileError } = await sb.from('profiles').upsert({
+                id: session.user.id
+            }, { onConflict: 'id' });
+            
+            if (profileError) throw profileError;
+
             const { data: company, error: compCheckError } = await sb
                 .from('companies')
                 .select('profile_id')
