@@ -1,259 +1,39 @@
 <!DOCTYPE html>
-<html lang="es" class="light">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Mi Pincha</title>
-    <link rel="icon" type="image/png" href="images/favicon.png">
+    <title>Prueba de Registro - Mi Pincha</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = { 
-            darkMode: 'class',
-            theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
-    </script>
-    <style>
-        .tab-btn { transition: all 0.2s ease; cursor: pointer; }
-        .tab-btn.active { background-color: white; color: #FF6B35; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
-        .dark .tab-btn.active { background-color: #374151; color: #FF6B35; }
-        .tab-btn.inactive { background-color: transparent; color: #6B7280; box-shadow: none; }
-        .form-section { display: none; }
-        .form-section.show { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-tactile:active { transform: scale(0.97); }
-        .btn-tactile { transition: all 0.15s ease; }
-    </style>
-    <script>
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col transition-colors duration-200">
-    <header class="bg-white dark:bg-gray-800 shadow-sm py-4">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-2">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain dark:brightness-0 dark:invert">
-                <span class="text-xl font-bold text-pincha-blue dark:text-white">Mi Pincha</span>
-            </a>
-            <a href="index.html" class="text-sm text-pincha-blue dark:text-pincha-orange hover:underline font-medium">Volver al inicio</a>
-        </div>
-    </header>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-4">Prueba de Diagnóstico</h2>
+        <p class="text-gray-600 mb-6">Si este botón funciona, el problema era el código anterior. Si no hace nada, tu navegador está bloqueando o cacheando el archivo.</p>
+        
+        <div id="debugBox" class="hidden mb-4 p-3 bg-yellow-100 text-yellow-800 text-sm rounded border border-yellow-300 font-mono"></div>
 
-    <main class="flex-grow flex items-center justify-center py-10 px-4">
-        <div class="w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border dark:border-gray-700">
-            <div class="bg-pincha-blue p-6 text-center">
-                <h2 class="text-2xl font-bold text-white">Crear cuenta</h2>
-                <p class="text-blue-200 text-sm mt-1">Únete a la comunidad laboral más grande de Cuba</p>
-            </div>
-            <div class="p-6">
-                <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                    <button type="button" id="tabCandidate" class="tab-btn active flex-1 py-2 rounded-md font-bold text-sm">👤 Candidato</button>
-                    <button type="button" id="tabCompany" class="tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm">🏢 Empresa</button>
-                </div>
-                
-                <!-- Mensaje de depuración global -->
-                <div id="debugMsg" class="hidden mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs rounded border border-yellow-300 dark:border-yellow-700 font-mono"></div>
-
-                <form id="regForm" class="space-y-4" novalidate> <!-- novalidate permite que nuestro JS maneje los errores -->
-                    <input type="hidden" id="userType" value="candidate">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre completo / Razón social</label>
-                        <input type="text" id="regName" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Correo electrónico</label>
-                        <input type="email" id="regEmail" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contraseña (mín. 6 caracteres)</label>
-                        <input type="password" id="regPass" required minlength="6" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-
-                    <!-- CAMPOS CANDIDATO -->
-                    <div id="candidateFields" class="form-section show space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría profesional</label>
-                            <select id="regCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar categoría</option>
-                                <option value="Tecnología e Informática">Tecnología e Informática</option>
-                                <option value="Salud y Medicina">Salud y Medicina</option>
-                                <option value="Educación y Formación">Educación y Formación</option>
-                                <option value="Administración y Oficina">Administración y Oficina</option>
-                                <option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option>
-                                <option value="Construcción y Oficios">Construcción y Oficios</option>
-                                <option value="Ventas y Comercial">Ventas y Comercial</option>
-                                <option value="Hostelería y Turismo">Hostelería y Turismo</option>
-                                <option value="Servicios Domésticos">Servicios Domésticos</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto deseado</label>
-                            <input type="text" id="regPosition" placeholder="Ej: Desarrollador Frontend" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label>
-                            <input type="text" id="regLocations" placeholder="Ej: Playa, Marianao" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto directo</label>
-                            <input type="text" id="regContact" placeholder="Ej: Telegram: @usuario" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                    </div>
-
-                    <!-- CAMPOS EMPRESA -->
-                    <div id="companyFields" class="form-section space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Industria / Sector</label>
-                            <select id="regIndustry" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar sector</option>
-                                <option value="Tecnología y Desarrollo de Software">Tecnología y Desarrollo de Software</option>
-                                <option value="Gastronomía y Alimentación">Gastronomía y Alimentación</option>
-                                <option value="Turismo y Hotelería">Turismo y Hotelería</option>
-                                <option value="Comercio Minorista (MIPYME)">Comercio Minorista (MIPYME)</option>
-                                <option value="Servicios Profesionales y Consultoría">Servicios Profesionales y Consultoría</option>
-                                <option value="Construcción y Mantenimiento">Construcción y Mantenimiento</option>
-                                <option value="Salud y Bienestar">Salud y Bienestar</option>
-                                <option value="Educación y Capacitación">Educación y Capacitación</option>
-                                <option value="Transporte y Logística">Transporte y Logística</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp de la empresa</label>
-                            <input type="text" id="regContactComp" placeholder="Ej: +53 5123 4567" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btnSubmit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md mt-4">Registrarme</button>
-                </form>
-                <div id="regMsg" class="mt-4 text-center text-sm hidden font-bold"></div>
-                <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">¿Ya tienes cuenta? <a href="login.html" class="text-pincha-orange font-bold hover:underline">Inicia sesión</a></p>
-            </div>
-        </div>
-    </main>
+        <form id="testForm">
+            <input type="email" id="testEmail" placeholder="correo@ejemplo.com" required class="w-full px-4 py-2 border rounded mb-4">
+            <button type="submit" id="testBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700">
+                HAZ CLIC AQUÍ PARA PROBAR
+            </button>
+        </form>
+    </div>
 
     <script>
-        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const btnC = document.getElementById('tabCandidate'), btnE = document.getElementById('tabCompany');
-        const formC = document.getElementById('candidateFields'), formE = document.getElementById('companyFields');
-        const typeInput = document.getElementById('userType');
-        const debugMsg = document.getElementById('debugMsg');
-
-        function showDebug(msg) {
-            debugMsg.textContent = "🔍 DEBUG: " + msg;
-            debugMsg.classList.remove('hidden');
-            console.log("DEBUG:", msg);
-        }
-
-        function setActive(isCandidate) {
-            typeInput.value = isCandidate ? 'candidate' : 'company';
-            if(isCandidate) { 
-                btnC.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                btnE.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                formC.classList.add('show'); formE.classList.remove('show'); 
-            } else { 
-                btnE.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                btnC.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                formE.classList.add('show'); formC.classList.remove('show'); 
-            }
-        }
-        btnC.onclick = () => setActive(true); btnE.onclick = () => setActive(false);
-
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            // 1. Esto se ejecutará INMEDIATAMENTE al hacer clic, sin importar la validación HTML
-            showDebug("¡Evento de clic detectado! Iniciando validación...");
+        console.log("✅ El script se ha cargado correctamente.");
+        
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue
             
-            // Validación manual para mostrar errores claros en pantalla
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pass = document.getElementById('regPass').value;
+            const debugBox = document.getElementById('debugBox');
+            debugBox.textContent = "🟢 ¡ÉXITO! El evento de clic fue detectado. El JavaScript está funcionando.";
+            debugBox.classList.remove('hidden');
             
-            if (!name || !email || !pass) {
-                showDebug("ERROR: Nombre, correo o contraseña están vacíos.");
-                alert("Por favor, completa Nombre, Correo y Contraseña.");
-                return;
-            }
-            if (!email.includes('@') || !email.includes('.')) {
-                showDebug("ERROR: Formato de correo inválido: " + email);
-                alert("El formato del correo electrónico no es válido.");
-                return;
-            }
-            if (pass.length < 6) {
-                showDebug("ERROR: La contraseña tiene menos de 6 caracteres.");
-                alert("La contraseña debe tener al menos 6 caracteres.");
-                return;
-            }
-
-            // Si pasa la validación, procedemos
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmit');
-            const msg = document.getElementById('regMsg');
+            alert("¡El botón funciona! El problema no es tu navegador, era el código anterior.");
             
-            btn.disabled = true; 
-            btn.textContent = 'Conectando...'; 
-            msg.classList.add('hidden');
-            
-            try {
-                showDebug("Enviando datos a Supabase Auth...");
-                const { data, error: authError } = await sb.auth.signUp({ 
-                    email: email, 
-                    password: pass, 
-                    options: { data: { full_name: name, user_type: typeInput.value } } 
-                });
-                
-                if (authError) throw new Error("Auth: " + authError.message);
-                if (!data?.user) throw new Error("No se recibió el usuario del servidor.");
-                
-                showDebug("Usuario creado en Auth. ID: " + data.user.id);
-                const userId = data.user.id;
-                const type = typeInput.value;
-
-                showDebug("Creando perfil base...");
-                const { error: profileError } = await sb.from('profiles').upsert({ id: userId, full_name: name }, { onConflict: 'id' });
-                if (profileError) throw new Error("Perfil: " + profileError.message);
-
-                if (type === 'candidate') {
-                    showDebug("Registrando como CANDIDATO...");
-                    const locationsArray = document.getElementById('regLocations').value.split(',').map(s => s.trim());
-                    const { error: candErr } = await sb.from('candidates').insert({ 
-                        profile_id: userId, 
-                        category: document.getElementById('regCategory').value, 
-                        desired_position: document.getElementById('regPosition').value, 
-                        preferred_locations: locationsArray,
-                        contact_info: document.getElementById('regContact').value,
-                        is_active: true 
-                    });
-                    if (candErr) throw new Error("Candidato: " + candErr.message);
-                } else {
-                    showDebug("Registrando como EMPRESA...");
-                    const { error: compErr } = await sb.from('companies').insert({ 
-                        profile_id: userId, 
-                        industry: document.getElementById('regIndustry').value, 
-                        contact_info: document.getElementById('regContactComp').value,
-                        is_active: true,
-                        is_verified: false 
-                    });
-                    if (compErr) throw new Error("Empresa: " + compErr.message);
-                }
-                
-                showDebug("¡REGISTRO EXITOSO! Redirigiendo...");
-                msg.textContent = '✅ ¡Cuenta creada! Redirigiendo al login...';
-                msg.className = 'mt-4 text-center text-sm text-green-600 font-bold block';
-                
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                
-            } catch (err) { 
-                showDebug("ERROR FATAL: " + err.message);
-                console.error("ERROR DETALLADO:", err);
-                msg.textContent = '❌ ' + err.message; 
-                msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block'; 
-                btn.disabled = false; 
-                btn.textContent = 'Registrarme'; 
-            }
+            console.log("✅ Evento submit ejecutado con éxito.");
         });
     </script>
 </body>
