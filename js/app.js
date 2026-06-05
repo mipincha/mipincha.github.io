@@ -51,24 +51,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function setupThemeToggle() {
     const toggle = document.getElementById('themeToggle');
-    const darkToggle = document.getElementById('darkModeToggle');
     const isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark) document.documentElement.classList.add('dark');
-    if (darkToggle) {
-        const span = darkToggle.querySelector('span');
-        if (isDark) { span.classList.remove('translate-x-1'); span.classList.add('translate-x-6'); }
-    }
+    
     const setTheme = (dark) => {
         document.documentElement.classList.toggle('dark', dark);
         localStorage.setItem('theme', dark ? 'dark' : 'light');
-        if (darkToggle) {
-            const span = darkToggle.querySelector('span');
-            span.classList.toggle('translate-x-1', !dark);
-            span.classList.toggle('translate-x-6', dark);
-        }
     };
     toggle?.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
-    darkToggle?.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
 }
 
 async function checkAuthState() {
@@ -167,14 +157,14 @@ async function loadJobs() {
         ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         if (!allPosts.length) { 
-            grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-dark-card rounded-xl border">📭 No se encontraron resultados.</div>'; 
+            grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700">📭 No se encontraron resultados.</div>'; 
             return; 
         }
 
         grid.innerHTML = allPosts.map(post => {
             if (post.type === 'job') {
                 return `
-                <div class="bg-white dark:bg-dark-card border-l-4 border-pincha-blue dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 group cursor-pointer" onclick="openJobDetail('${post.id}')">
+                <div class="bg-white dark:bg-gray-800 border-l-4 border-pincha-blue dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 group cursor-pointer" onclick="openJobDetail('${post.id}')">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">🏢 VACANTE</span>
                         <span class="text-xs text-gray-400 dark:text-gray-500">${new Date(post.created_at).toLocaleDateString('es-CU')}</span>
@@ -192,7 +182,7 @@ async function loadJobs() {
                 const candidateName = post.profiles?.full_name || 'Candidato';
                 const locations = Array.isArray(post.preferred_locations) ? post.preferred_locations.join(', ') : (post.location || 'La Habana');
                 return `
-                <div class="bg-white dark:bg-dark-card border-l-4 border-green-500 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
+                <div class="bg-white dark:bg-gray-800 border-l-4 border-green-500 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">👤 TALENTO DISPONIBLE</span>
                         <span class="text-xs text-gray-400 dark:text-gray-500">${new Date(post.created_at).toLocaleDateString('es-CU')}</span>

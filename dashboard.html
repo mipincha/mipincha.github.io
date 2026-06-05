@@ -28,6 +28,7 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
         #mobileMenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         #mobileMenu.open { max-height: 500px; }
+        
         .dark body { background: #0f172a; color: #f1f5f9; }
         .dark .bg-white, .dark .bg-gray-50 { background: #1e293b !important; }
         .dark .text-gray-800 { color: #f1f5f9 !important; }
@@ -108,7 +109,7 @@
         </div>
     </div>
 
-    <!-- FOOTER CON WHATSAPP FUNCIONAL -->
+    <!-- FOOTER -->
     <footer class="bg-pincha-blue dark:bg-gray-800 text-white pt-8 pb-4 mt-12 border-t dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-sm opacity-80 mb-2">¿Necesitas ayuda? <a href="https://wa.me/5351283542?text=Hola,%20tengo%20una%20consulta%20sobre%20Mi%20Pincha" target="_blank" rel="noopener noreferrer" class="text-green-400 font-bold hover:underline">📱 Escríbenos por WhatsApp</a></p>
@@ -178,10 +179,15 @@
             const container = document.getElementById('tabContent'); 
             container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
             try {
-                const { data: notifs, error } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active, company_name, contact_info)').eq('user_id', userId).order('created_at', { ascending: false });
+                // ✅ CORRECCIÓN: Ahora incluye contact_info (requiere el ALTER TABLE del Paso 1)
+                const { data: notifs, error } = await sb.from('notifications')
+                    .select('*, jobs(title, location, salary, category, is_active, company_name, contact_info)')
+                    .eq('user_id', userId).order('created_at', { ascending: false });
                 if (error) throw error;
+                
                 await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
                 checkUnreadNotifications();
+                
                 let html = '<h3 class="text-lg font-bold text-pincha-blue dark:text-white mb-4">Tus Oportunidades</h3>';
                 if (!notifs?.length) { 
                     html += '<div class="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Añade más municipios a tu perfil para recibir más alertas.</p></div>'; 
@@ -243,7 +249,13 @@
             } else if(tab==='tab-matches') { await loadMatchesTab(); return; }
             else if(tab==='tab-archivos') {
                 const table = userType === 'candidate' ? 'candidates' : 'companies';
-                const { data: prof, error } = await sb.from(table).select('cv_url, cv_original_name, logo_url, logo_original_name').eq('id', userId).single();
+                
+                // ✅ CORRECCIÓN CRÍTICA: Usar 'profile_id' en lugar de 'id'
+                const { data: prof, error } = await sb.from(table)
+                    .select('cv_url, cv_original_name, logo_url, logo_original_name')
+                    .eq('profile_id', userId) 
+                    .single();
+
                 if (error) console.error("Error al cargar datos del perfil:", error);
 
                 const isCand = userType === 'candidate';
@@ -277,6 +289,7 @@
             const f = input.files[0]; 
             if(!f) return;
             
+            // ✅ VALIDACIÓN DE TAMAÑO (Máximo 5 MB)
             const maxSize = 5 * 1024 * 1024; 
             if (f.size > maxSize) {
                 const msg = document.getElementById('upMsg');
@@ -305,14 +318,17 @@
 
                 const { data: urlData } = sb.storage.from(bucket).getPublicUrl(path);
 
+                // ✅ CORRECCIÓN CRÍTICA: Actualizar la BD usando 'profile_id'
                 const { error: dbError } = await sb.from(table)
                     .update({ [colUrl]: urlData.publicUrl, [colName]: f.name })
-                    .eq('id', userId); 
+                    .eq('profile_id', userId); 
 
                 if(dbError) throw new Error("Fallo en Base de Datos: " + dbError.message);
 
                 msg.textContent = '✅ Guardado correctamente y visible en tu perfil.';
                 msg.className = 'mt-2 text-sm font-bold text-green-600';
+                
+                // Forzamos la recarga de la pestaña para garantizar consistencia visual
                 setTimeout(() => loadTabContent('tab-archivos'), 1000);
 
             } catch (err) {
@@ -322,6 +338,7 @@
             }
         }
 
+        // 🗑️ DESACTIVACIÓN DE CUENTA (SOFT DELETE)
         async function deactivateAccount() {
             const confirmMsg = userType === 'company' 
                 ? '⚠️ ¿Estás seguro? Esto ocultará tu perfil de empresa y TODAS tus vacantes activas. Tus datos se preservarán por si deseas volver.'
@@ -356,6 +373,7 @@
         
         window.switchTab = switchTab; window.handleUpload = handleUpload; window.applyFromMatch = applyFromMatch;
         window.deactivateAccount = deactivateAccount; window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
+        
         initDashboard();
     </script>
 </body>

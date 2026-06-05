@@ -113,6 +113,94 @@
         </div>
     </main>
 
+    <!-- MODAL DETALLES VACANTE -->
+    <div id="jobModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-start">
+                <div>
+                    <h2 id="modalTitle" class="text-2xl font-bold text-pincha-blue dark:text-white"></h2>
+                    <p id="modalCompany" class="text-gray-600 dark:text-gray-400 mt-1"></p>
+                </div>
+                <button onclick="closeJobModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📍 Ubicación</span><p id="modalLocation" class="font-medium dark:text-white"></p></div>
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📂 Categoría</span><p id="modalCategory" class="font-medium dark:text-white"></p></div>
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">💰 Salario</span><p id="modalSalary" class="font-medium dark:text-white"></p></div>
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📅 Publicado</span><p id="modalDate" class="font-medium dark:text-white"></p></div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                    <h3 class="font-bold text-gray-800 dark:text-white mb-2">📝 Descripción</h3>
+                    <p id="modalDesc" class="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed"></p>
+                </div>
+            </div>
+            <div class="p-6 border-t dark:border-gray-700 flex gap-3">
+                <button id="modalApplyBtn" class="flex-1 bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">Postularme a esta vacante</button>
+                <button onclick="closeJobModal()" class="px-4 py-3 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 btn-tactile">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ MODAL PUBLICAR (DUAL: CANDIDATO / EMPRESA) -->
+    <div id="publishModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">📢 Publicar</h2>
+                <button onclick="closePublishModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6">
+                <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                    <button type="button" id="pubCandidate" class="pub-tab active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white">👤 Soy Candidato</button>
+                    <button type="button" id="pubCompany" class="pub-tab inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400">🏢 Soy Empresa</button>
+                </div>
+                
+                <!-- Formulario Candidato -->
+                <form id="pubCandidateForm" class="pub-form space-y-4">
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto que buscas</label>
+                    <input type="text" id="pubPosition" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label>
+                    <select id="pubCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                        <option value="">Seleccionar</option>
+                        <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
+                    </select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label>
+                    <input type="text" id="pubLocation" required placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia / Habilidades</label>
+                    <textarea id="pubExperience" rows="3" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe tu experiencia, habilidades clave..."></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario esperado (opcional)</label>
+                    <input type="text" id="pubSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $300 USD/mes"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto directo</label>
+                    <input type="text" id="pubContact" required placeholder="Ej: Telegram: @usuario o +53 5xxx xxxx" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
+                    <button type="submit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile">Publicar búsqueda</button>
+                </form>
+                
+                <!-- Formulario Empresa -->
+                <form id="pubCompanyForm" class="pub-form hidden space-y-4">
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Título de la vacante</label>
+                    <input type="text" id="jobTitle" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label>
+                    <select id="jobCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                        <option value="">Seleccionar</option>
+                        <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
+                    </select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipio</label>
+                    <select id="jobLocation" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                        <option value="">Seleccionar</option><option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>Habana Vieja</option><option>Regla</option><option>Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>10 de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Arroyo Naranjo</option><option>Boyeros</option><option>Cotorro</option>
+                    </select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario ofrecido</label>
+                    <input type="text" id="jobSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $400 USD/mes o A convenir"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Descripción de la vacante</label>
+                    <textarea id="jobDesc" rows="4" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe responsabilidades, requisitos, beneficios..."></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp de la empresa</label>
+                    <input type="text" id="jobContact" required placeholder="Ej: +53 5123 4567" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
+                    <button type="submit" class="w-full bg-pincha-blue dark:bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-blue-800 dark:hover:bg-orange-600 btn-tactile">Publicar vacante</button>
+                </form>
+                <div id="pubMsg" class="mt-4 text-center text-sm font-bold hidden"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER CON WHATSAPP FUNCIONAL -->
     <footer class="bg-pincha-blue dark:bg-gray-800 text-white pt-10 pb-6 mt-auto border-t dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8 mb-8">
@@ -137,7 +225,6 @@
                         </a>
                     </li>
                     <li>
-                        <!-- ENLACE DE WHATSAPP FUNCIONAL -->
                         <a href="https://wa.me/5351283542?text=Hola,%20tengo%20una%20consulta%20sobre%20Mi%20Pincha" 
                            target="_blank" 
                            rel="noopener noreferrer" 
