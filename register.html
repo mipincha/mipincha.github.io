@@ -155,26 +155,52 @@
 
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmit'), msg = document.getElementById('regMsg');
-            btn.disabled = true; btn.textContent = 'Creando cuenta...'; msg.classList.add('hidden');
+            const btn = document.getElementById('btnSubmit');
+            const msg = document.getElementById('regMsg');
+            
+            btn.disabled = true; 
+            btn.textContent = 'Procesando...'; 
+            msg.classList.add('hidden');
+            msg.className = 'mt-4 text-center text-sm font-bold block'; // Reset clases
             
             try {
+                console.log("1. Iniciando registro en Supabase Auth...");
                 const { data, error: authError } = await sb.auth.signUp({ 
                     email: document.getElementById('regEmail').value, 
                     password: document.getElementById('regPass').value, 
-                    options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } } 
+                    options: { 
+                        data: { 
+                            full_name: document.getElementById('regName').value, 
+                            user_type: typeInput.value 
+                        } 
+                    } 
                 });
-                if (authError) throw authError;
-                if (!data?.user) throw new Error("Respuesta inesperada del servidor.");
                 
+                if (authError) {
+                    console.error("2. Error en Auth:", authError);
+                    throw new Error("Error de autenticación: " + authError.message);
+                }
+                if (!data?.user) throw new Error("No se recibió el usuario del servidor.");
+                
+                console.log("3. Usuario creado en Auth. ID:", data.user.id);
                 const userId = data.user.id;
                 const type = typeInput.value;
                 const name = document.getElementById('regName').value;
 
                 // 1. Garantizar perfil base (Fix FK)
-                await sb.from('profiles').upsert({ id: userId, full_name: name }, { onConflict: 'id' });
+                console.log("4. Creando/Actualizando perfil base...");
+                const { error: profileError } = await sb.from('profiles').upsert({ 
+                    id: userId, 
+                    full_name: name 
+                }, { onConflict: 'id' });
+                
+                if (profileError) {
+                    console.error("Error en perfil base:", profileError);
+                    throw new Error("Error al crear perfil: " + profileError.message);
+                }
 
                 if (type === 'candidate') {
+                    console.log("5. Registrando como CANDIDATO...");
                     const locationsArray = document.getElementById('regLocations').value.split(',').map(s => s.trim());
                     const { error: candErr } = await sb.from('candidates').insert({ 
                         profile_id: userId, 
@@ -184,37 +210,46 @@
                         contact_info: document.getElementById('regContact').value,
                         is_active: true 
                     });
-                    if (candErr) throw candErr;
+                    if (candErr) {
+                        console.error("Error en candidato:", candErr);
+                        throw new Error("Error al registrar candidato: " + candErr.message);
+                    }
                 } else {
-                    console.log("Intentando registrar empresa...", {
-                        profile_id: userId,
-                        industry: document.getElementById('regIndustry').value,
-                        contact_info: document.getElementById('regContactComp').value
-                    });
+                    console.log("5. Registrando como EMPRESA...");
+                    const industryVal = document.getElementById('regIndustry').value || 'General';
+                    const contactVal = document.getElementById('regContactComp').value || 'No especificado';
+                    
+                    console.log("Datos de empresa a enviar:", { profile_id: userId, industry: industryVal, contact_info: contactVal });
 
-                    const { error: compErr } = await sb.from('companies').insert({ 
+                    const { data: compData, error: compErr } = await sb.from('companies').insert({ 
                         profile_id: userId, 
-                        industry: document.getElementById('regIndustry').value, 
-                        contact_info: document.getElementById('regContactComp').value,
+                        industry: industryVal, 
+                        contact_info: contactVal,
                         is_active: true,
                         is_verified: false 
-                    });
+                    }).select(); // .select() ayuda a devolver la fila insertada y captura mejor los errores
                     
                     if (compErr) {
-                        console.error("Error detallado al crear empresa:", compErr);
-                        throw compErr;
+                        console.error("ERROR DETALLADO DE SUPABASE AL CREAR EMPRESA:", compErr);
+                        throw new Error("Error al registrar empresa: " + compErr.message + " (Revisa la consola F12 para más detalles)");
                     }
+                    console.log("Empresa creada exitosamente:", compData);
                 }
                 
-                msg.textContent = '✅ ¡Cuenta creada! Ya puedes iniciar sesión.';
-                msg.className = 'mt-4 text-center text-sm text-green-600 font-bold block';
+                console.log("6. Registro completado con éxito.");
+                msg.textContent = '✅ ¡Cuenta creada! Redirigiendo...';
+                msg.classList.remove('hidden');
+                msg.classList.add('text-green-600');
+                
                 setTimeout(() => window.location.href = 'login.html', 2000);
+                
             } catch (err) { 
-                console.error("Error general de registro:", err);
+                console.error("ERROR GENERAL DE REGISTRO:", err);
                 msg.textContent = '❌ ' + err.message; 
-                msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block'; 
-            } finally { 
-                btn.disabled = false; btn.textContent = 'Registrarme'; 
+                msg.classList.remove('hidden');
+                msg.classList.add('text-red-600');
+                btn.disabled = false; 
+                btn.textContent = 'Registrarme'; 
             }
         });
     </script>
