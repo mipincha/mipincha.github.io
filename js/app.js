@@ -144,7 +144,7 @@ async function loadJobs() {
         const { data: jobs, error: jobsError } = await jobsQuery.order('created_at', { ascending: false });
         if (jobsError) throw jobsError;
 
-        let candQuery = sb.from('candidates').select('profile_id, desired_position, category, preferred_locations, experience, salary_expected, contact_info, created_at, profiles(full_name)').eq('is_active', true);
+        let candQuery = sb.from('candidates').select('profile_id, desired_position, category, preferred_locations, experience, experience_level, salary_expected, contact_info, created_at, profiles(full_name)').eq('is_active', true);
         if (currentFilter.keyword) candQuery = candQuery.or(`desired_position.ilike.%${currentFilter.keyword}%,experience.ilike.%${currentFilter.keyword}%`);
         if (currentFilter.position) candQuery = candQuery.ilike('desired_position', `%${currentFilter.position}%`);
         if (currentFilter.category) candQuery = candQuery.ilike('category', `%${currentFilter.category}%`);
@@ -210,6 +210,62 @@ function setupModal() {
 }
 function closeJobModal() { document.getElementById('jobModal')?.classList.add('hidden'); }
 
+// ✅ FUNCIÓN CENTRALIZADA DE POSTULACIÓN POR WHATSAPP
+async function postularPorWhatsapp(jobId, jobTitle, contactInfo) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        // 1. Obtener datos del candidato para personalizar el mensaje
+        const { data: candidate } = await sb.from('candidates')
+            .select('gender')
+            .eq('profile_id', session.user.id)
+            .maybeSingle();
+
+        let generoTexto = "interesado/a";
+        if (candidate?.gender === 'masculino') generoTexto = "interesado";
+        else if (candidate?.gender === 'femenino') generoTexto = "interesada";
+
+        const candidateName = session.user.user_metadata?.full_name || "Candidato";
+        
+        // Limpiar el número de teléfono (dejar solo dígitos)
+        const cleanPhone = contactInfo ? contactInfo.replace(/\D/g, '') : '';
+        
+        // Asegurar que tenga el código de país de Cuba (53)
+        const finalPhone = cleanPhone.startsWith('53') ? cleanPhone : '53' + cleanPhone;
+
+        if (!cleanPhone || cleanPhone.length < 8) {
+            alert("⚠️ Esta publicación no tiene un número de WhatsApp válido para contactar.");
+            return;
+        }
+
+        // 2. Guardar en la Base de Datos (Registro interno)
+        try {
+            await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
+            const { data: candCheck } = await sb.from('candidates').select('profile_id').eq('profile_id', session.user.id).maybeSingle();
+            if (!candCheck) {
+                await sb.from('candidates').insert({ profile_id: session.user.id, is_active: true });
+            }
+            await sb.from('applications').insert({ job_id: jobId, candidate_id: session.user.id });
+        } catch (dbErr) {
+            console.warn("No se pudo guardar la postulación en BD, pero se abrirá WhatsApp:", dbErr);
+        }
+
+        // 3. Construir y abrir el enlace de WhatsApp
+        const message = `Hola, mi nombre es ${candidateName}, estoy ${generoTexto} en la vacante de "${jobTitle}" publicada en Mi Pincha. Me gustaría obtener más información.`;
+        const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
+        
+        window.open(whatsappUrl, '_blank');
+        
+    } catch (err) {
+        console.error("Error en postulación:", err);
+        alert("Error al procesar la postulación: " + err.message);
+    }
+}
+
 async function openJobDetail(jobId) {
     const modal = document.getElementById('jobModal');
     modal?.classList.remove('hidden');
@@ -227,6 +283,7 @@ async function openJobDetail(jobId) {
         
         const applyBtn = document.getElementById('modalApplyBtn');
         const { data: { session } } = await sb.auth.getSession();
+        
         if (!session) {
             applyBtn.textContent = 'Inicia sesión para postular';
             applyBtn.onclick = () => window.location.href = 'login.html';
@@ -234,25 +291,16 @@ async function openJobDetail(jobId) {
             applyBtn.textContent = 'Solo candidatos pueden postularse';
             applyBtn.disabled = true; applyBtn.classList.add('opacity-50', 'cursor-not-allowed');
         } else {
-            applyBtn.textContent = 'Postularme a esta vacante';
+            applyBtn.textContent = 'Postularme por WhatsApp';
             applyBtn.disabled = false; applyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
             applyBtn.onclick = async () => {
-                applyBtn.textContent = 'Verificando perfil...'; applyBtn.disabled = true;
-                try {
-                    await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
-                    const { data: candidate } = await sb.from('candidates').select('profile_id').eq('profile_id', session.user.id).maybeSingle();
-                    if (!candidate) await sb.from('candidates').insert({ profile_id: session.user.id, is_active: true });
-                    
-                    applyBtn.textContent = 'Enviando...';
-                    const { error: appError } = await sb.from('applications').insert({ job_id: job.id, candidate_id: session.user.id });
-                    if (appError?.code === '23505') alert('✅ Ya te postulaste a esta vacante.');
-                    else if (appError) throw appError;
-                    else { alert('✅ ¡Postulación enviada!'); applyBtn.textContent = '✅ Postulado'; applyBtn.disabled = true; }
-                } catch (err) { 
-                    console.error("Error al postular:", err);
-                    alert('Error: ' + err.message); 
-                    applyBtn.textContent = 'Postularme'; applyBtn.disabled = false; 
-                }
+                applyBtn.textContent = 'Abriendo WhatsApp...';
+                applyBtn.disabled = true;
+                await postularPorWhatsapp(job.id, job.title, job.contact_info);
+                setTimeout(() => {
+                    applyBtn.textContent = '✅ Mensaje preparado';
+                }, 1000);
             };
         }
     } catch (e) { document.getElementById('modalTitle').textContent = 'Error'; document.getElementById('modalDesc').textContent = e.message; }
@@ -284,6 +332,7 @@ function setupPublishModal() {
         try {
             const locationsArray = document.getElementById('pubLocation').value.split(',').map(s => s.trim());
             await sb.from('profiles').upsert({ id: session.user.id, location: document.getElementById('pubLocation').value }, { onConflict: 'id' });
+            
             const { error } = await sb.from('candidates').upsert({
                 profile_id: session.user.id,
                 desired_position: document.getElementById('pubPosition').value,
@@ -291,9 +340,11 @@ function setupPublishModal() {
                 preferred_locations: locationsArray,
                 contact_info: document.getElementById('pubContact').value,
                 experience: document.getElementById('pubExperience').value,
+                experience_level: document.getElementById('pubExperienceLevel').value, // ✅ NUEVO
                 salary_expected: document.getElementById('pubSalary').value,
                 is_active: true
             }, { onConflict: 'profile_id' });
+            
             if (error) throw error;
             msg.textContent = '✅ Perfil actualizado. Las empresas te encontrarán.'; msg.className = 'mt-4 text-center text-sm font-bold text-green-600 block';
             setTimeout(closePublishModal, 2000);
@@ -322,6 +373,7 @@ function setupPublishModal() {
             }
             
             msg.textContent = '⏳ Publicando vacante...';
+            
             const { error: jobError } = await sb.from('jobs').insert({
                 title: document.getElementById('jobTitle').value,
                 category: document.getElementById('jobCategory').value,
@@ -329,10 +381,13 @@ function setupPublishModal() {
                 salary: document.getElementById('jobSalary').value,
                 description: document.getElementById('jobDesc').value,
                 contact_info: document.getElementById('jobContact').value,
+                preferred_gender: document.getElementById('jobGender').value, // ✅ NUEVO
+                required_experience: document.getElementById('jobExperience').value, // ✅ NUEVO
                 company_name: session.user.user_metadata?.full_name || 'Empresa',
                 company_id: session.user.id,
                 is_active: true
             });
+            
             if (jobError) throw jobError;
             msg.textContent = '✅ Vacante publicada.'; msg.className = 'mt-4 text-center text-sm font-bold text-green-600 block';
             setTimeout(() => { closePublishModal(); loadJobs(); }, 2000);
@@ -353,3 +408,4 @@ window.openJobDetail = openJobDetail; window.closeJobModal = closeJobModal;
 window.openPublishModal = openPublishModal; window.closePublishModal = closePublishModal;
 window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
 window.selectAutocomplete = selectAutocomplete;
+window.postularPorWhatsapp = postularPorWhatsapp;

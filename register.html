@@ -47,14 +47,10 @@
                 <p class="text-blue-200 text-sm mt-1">Únete a la comunidad laboral más grande de Cuba</p>
             </div>
             <div class="p-6">
-                <!-- CAJA DE DIAGNÓSTICO VISIBLE -->
-                <div id="debugBox" class="hidden mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs rounded border border-yellow-300 dark:border-yellow-700 font-mono break-words"></div>
-
                 <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
                     <button type="button" id="tabCandidate" class="tab-btn active flex-1 py-2 rounded-md font-bold text-sm">👤 Candidato</button>
                     <button type="button" id="tabCompany" class="tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm">🏢 Empresa</button>
                 </div>
-                
                 <form id="regForm" class="space-y-4" novalidate>
                     <input type="hidden" id="userType" value="candidate">
                     <div>
@@ -72,6 +68,15 @@
 
                     <!-- CAMPOS CANDIDATO -->
                     <div id="candidateFields" class="form-section show space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Género (para personalizar tu mensaje de postulación)</label>
+                            <select id="regGender" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                                <option value="">Seleccionar</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro / Prefiero no decirlo</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría profesional</label>
                             <select id="regCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
@@ -97,7 +102,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto directo</label>
-                            <input type="text" id="regContact" placeholder="Ej: Telegram: @usuario" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                            <input type="text" id="regContact" placeholder="Ej: Telegram: @usuario o +53 5xxx xxxx" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
                         </div>
                     </div>
 
@@ -122,6 +127,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp de la empresa</label>
                             <input type="text" id="regContactComp" placeholder="Ej: +53 5123 4567" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este número será visible para los candidatos que se postulen.</p>
                         </div>
                     </div>
 
@@ -134,158 +140,78 @@
     </main>
 
     <script>
-        // FUNCIÓN DE DIAGNÓSTICO VISUAL
-        function showDebug(msg, isError = false) {
-            const debugBox = document.getElementById('debugBox');
-            debugBox.textContent = (isError ? "❌ ERROR: " : "🟢 ") + msg;
-            debugBox.classList.remove('hidden');
-            if (isError) {
-                debugBox.classList.replace('bg-yellow-100', 'bg-red-100');
-                debugBox.classList.replace('text-yellow-800', 'text-red-800');
-                debugBox.classList.replace('dark:bg-yellow-900/30', 'dark:bg-red-900/30');
-                debugBox.classList.replace('dark:text-yellow-200', 'dark:text-red-200');
+        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const btnC = document.getElementById('tabCandidate'), btnE = document.getElementById('tabCompany');
+        const formC = document.getElementById('candidateFields'), formE = document.getElementById('companyFields');
+        const typeInput = document.getElementById('userType');
+
+        function setActive(isCandidate) {
+            typeInput.value = isCandidate ? 'candidate' : 'company';
+            if(isCandidate) { 
+                btnC.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
+                btnE.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
+                formC.classList.add('show'); formE.classList.remove('show'); 
+            } else { 
+                btnE.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
+                btnC.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
+                formE.classList.add('show'); formC.classList.remove('show'); 
             }
-            console.log(isError ? "ERROR:" : "DEBUG:", msg);
         }
+        btnC.onclick = () => setActive(true); btnE.onclick = () => setActive(false);
 
-        // ESPERAR A QUE TODA LA PÁGINA CARGUE ANTES DE EJECUTAR NADA
-        document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit'), msg = document.getElementById('regMsg');
+            btn.disabled = true; btn.textContent = 'Procesando...'; msg.classList.add('hidden');
+            
             try {
-                showDebug("1. Página cargada. Buscando elementos...");
-                
-                const form = document.getElementById('regForm');
-                if (!form) throw new Error("No se encontró el formulario (id='regForm').");
-                
-                const btnC = document.getElementById('tabCandidate');
-                const btnE = document.getElementById('tabCompany');
-                const formC = document.getElementById('candidateFields');
-                const formE = document.getElementById('companyFields');
-                const typeInput = document.getElementById('userType');
-
-                showDebug("2. Elementos encontrados. Configurando pestañas...");
-
-                function setActive(isCandidate) {
-                    typeInput.value = isCandidate ? 'candidate' : 'company';
-                    if(isCandidate) { 
-                        btnC.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                        btnE.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                        formC.classList.add('show'); formE.classList.remove('show'); 
-                    } else { 
-                        btnE.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                        btnC.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                        formE.classList.add('show'); formC.classList.remove('show'); 
-                    }
-                }
-                btnC.onclick = () => setActive(true); 
-                btnE.onclick = () => setActive(false);
-
-                showDebug("3. Pestañas configuradas. Inicializando Supabase...");
-
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error("La librería de Supabase no se cargó desde internet.");
-                }
-
-                const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
-                const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-                showDebug("4. Supabase listo. Esperando que hagas clic en 'Registrarme'...");
-
-                // AQUÍ ESTÁ LA MAGIA: EL EVENTO DE CLIC
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault(); // Detener recarga de página
-                    showDebug("5. ¡CLIC DETECTADO! Validando campos...");
-                    
-                    const btn = document.getElementById('btnSubmit');
-                    const msg = document.getElementById('regMsg');
-                    
-                    const name = document.getElementById('regName').value.trim();
-                    const email = document.getElementById('regEmail').value.trim();
-                    const pass = document.getElementById('regPass').value;
-                    
-                    if (!name || !email || !pass) {
-                        showDebug("Faltan campos obligatorios (Nombre, Correo o Contraseña).", true);
-                        alert("Por favor, completa Nombre, Correo y Contraseña.");
-                        return;
-                    }
-                    if (!email.includes('@') || !email.includes('.')) {
-                        showDebug("Formato de correo inválido: " + email, true);
-                        alert("El formato del correo electrónico no es válido.");
-                        return;
-                    }
-                    if (pass.length < 6) {
-                        showDebug("La contraseña debe tener al menos 6 caracteres.", true);
-                        alert("La contraseña debe tener al menos 6 caracteres.");
-                        return;
-                    }
-
-                    showDebug("6. Campos válidos. Enviando datos a Supabase Auth...");
-                    btn.disabled = true; 
-                    btn.textContent = 'Conectando...'; 
-                    msg.classList.add('hidden');
-
-                    try {
-                        const { data, error: authError } = await sb.auth.signUp({ 
-                            email: email, 
-                            password: pass, 
-                            options: { data: { full_name: name, user_type: typeInput.value } } 
-                        });
-                        
-                        if (authError) throw new Error("Auth: " + authError.message);
-                        if (!data?.user) throw new Error("No se recibió el usuario del servidor.");
-                        
-                        showDebug("7. Usuario creado en Auth. ID: " + data.user.id);
-                        const userId = data.user.id;
-                        const type = typeInput.value;
-
-                        showDebug("8. Creando perfil base...");
-                        const { error: profileError } = await sb.from('profiles').upsert({ id: userId, full_name: name }, { onConflict: 'id' });
-                        if (profileError) throw new Error("Perfil: " + profileError.message);
-
-                        if (type === 'candidate') {
-                            showDebug("9. Registrando como CANDIDATO...");
-                            const locationsArray = document.getElementById('regLocations').value.split(',').map(s => s.trim());
-                            const { error: candErr } = await sb.from('candidates').insert({ 
-                                profile_id: userId, 
-                                category: document.getElementById('regCategory').value, 
-                                desired_position: document.getElementById('regPosition').value, 
-                                preferred_locations: locationsArray,
-                                contact_info: document.getElementById('regContact').value,
-                                is_active: true 
-                            });
-                            if (candErr) throw new Error("Candidato: " + candErr.message);
-                        } else {
-                            showDebug("9. Registrando como EMPRESA...");
-                            const { error: compErr } = await sb.from('companies').insert({ 
-                                profile_id: userId, 
-                                industry: document.getElementById('regIndustry').value, 
-                                contact_info: document.getElementById('regContactComp').value,
-                                is_active: true,
-                                is_verified: false 
-                            });
-                            if (compErr) throw new Error("Empresa: " + compErr.message);
-                        }
-                        
-                        showDebug("10. ¡REGISTRO EXITOSO! Redirigiendo...", false);
-                        msg.textContent = '✅ ¡Cuenta creada! Redirigiendo al login...';
-                        msg.className = 'mt-4 text-center text-sm text-green-600 font-bold block';
-                        
-                        setTimeout(() => window.location.href = 'login.html', 2000);
-                        
-                    } catch (err) { 
-                        showDebug("Fallo en el proceso: " + err.message, true);
-                        console.error("ERROR DETALLADO:", err);
-                        msg.textContent = '❌ ' + err.message; 
-                        msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block'; 
-                        btn.disabled = false; 
-                        btn.textContent = 'Registrarme'; 
-                    }
+                const { data, error: authError } = await sb.auth.signUp({ 
+                    email: document.getElementById('regEmail').value, 
+                    password: document.getElementById('regPass').value, 
+                    options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } } 
                 });
+                if (authError) throw authError;
+                if (!data?.user) throw new Error("No se recibió el usuario del servidor.");
+                
+                const userId = data.user.id;
+                const type = typeInput.value;
+                const name = document.getElementById('regName').value;
 
-            } catch (fatalError) {
-                // Esto captura errores de sintaxis o de carga inicial
-                showDebug("ERROR FATAL AL CARGAR EL SCRIPT: " + fatalError.message, true);
-                console.error("FATAL ERROR:", fatalError);
+                await sb.from('profiles').upsert({ id: userId, full_name: name }, { onConflict: 'id' });
+
+                if (type === 'candidate') {
+                    const locationsArray = document.getElementById('regLocations').value.split(',').map(s => s.trim());
+                    const { error: candErr } = await sb.from('candidates').insert({ 
+                        profile_id: userId, 
+                        gender: document.getElementById('regGender').value, // ✅ NUEVO: Género
+                        category: document.getElementById('regCategory').value, 
+                        desired_position: document.getElementById('regPosition').value, 
+                        preferred_locations: locationsArray,
+                        contact_info: document.getElementById('regContact').value,
+                        is_active: true 
+                    });
+                    if (candErr) throw new Error("Candidato: " + candErr.message);
+                } else {
+                    const { error: compErr } = await sb.from('companies').insert({ 
+                        profile_id: userId, 
+                        industry: document.getElementById('regIndustry').value, 
+                        contact_info: document.getElementById('regContactComp').value,
+                        is_active: true,
+                        is_verified: false 
+                    });
+                    if (compErr) throw new Error("Empresa: " + compErr.message);
+                }
+                
+                msg.textContent = '✅ ¡Cuenta creada! Redirigiendo...';
+                msg.className = 'mt-4 text-center text-sm text-green-600 font-bold block';
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            } catch (err) { 
+                msg.textContent = '❌ ' + err.message; 
+                msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block'; 
+                btn.disabled = false; btn.textContent = 'Registrarme'; 
             }
         });
     </script>
