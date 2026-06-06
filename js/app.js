@@ -48,18 +48,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupModal();
     populatePositionsByCategory();
     
-    // Inicializar listener del formulario de editar perfil si existe en la página
     const editForm = document.getElementById('editProfileForm');
-    if (editForm) {
-        editForm.addEventListener('submit', handleEditProfileSubmit);
-    }
+    if (editForm) editForm.addEventListener('submit', handleEditProfileSubmit);
 });
 
 function setupThemeToggle() {
     const toggle = document.getElementById('themeToggle');
     const isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark) document.documentElement.classList.add('dark');
-    
     const setTheme = (dark) => {
         document.documentElement.classList.toggle('dark', dark);
         localStorage.setItem('theme', dark ? 'dark' : 'light');
@@ -70,23 +66,17 @@ function setupThemeToggle() {
 async function checkAuthState() {
     const { data: { session } } = await sb.auth.getSession();
     const isAuth = !!session;
-    
     document.getElementById('navGuest')?.classList.toggle('hidden', isAuth);
     document.getElementById('navUser')?.classList.toggle('hidden', !isAuth);
     document.getElementById('navUser')?.classList.toggle('flex', isAuth);
     document.getElementById('menuGuest')?.classList.toggle('hidden', isAuth);
     document.getElementById('menuUser')?.classList.toggle('hidden', !isAuth);
-    
     if (isAuth) {
         const name = session.user.user_metadata?.full_name || session.user.email;
-        
-        // Actualizar nombre en headers (index.html y dashboard.html)
         const headerUserName = document.getElementById('headerUserName');
         if (headerUserName) headerUserName.textContent = name;
-        
         const mobileUserName = document.getElementById('mobileUserName');
         if (mobileUserName) mobileUserName.textContent = name;
-
         const badge = document.getElementById('userBadge');
         if (badge) badge.textContent = name;
     }
@@ -96,43 +86,28 @@ function setupHamburger() {
     const btn = document.getElementById('hamburgerBtn');
     const menu = document.getElementById('mobileMenu');
     btn?.addEventListener('click', () => menu?.classList.toggle('open'));
-    
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => { 
-        await sb.auth.signOut(); window.location.reload(); 
-    });
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', async () => { 
-        await sb.auth.signOut(); window.location.reload(); 
-    });
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
 }
 
 function setupSearch() {
     const keywordInput = document.getElementById('searchKeyword');
     const autocompleteList = document.getElementById('autocompleteList');
-    
     keywordInput?.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         const val = e.target.value.trim().toLowerCase();
         if (val.length < 2) { autocompleteList?.classList.add('hidden'); return; }
-        
         debounceTimer = setTimeout(() => {
             const allTerms = [...searchData.categories, ...Object.values(searchData.positions).flat()];
             const matches = allTerms.filter(t => t.toLowerCase().includes(val)).slice(0, 8);
-            
             if (!matches.length) { autocompleteList?.classList.add('hidden'); return; }
-            
-            autocompleteList.innerHTML = matches.map(m => 
-                `<div class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm dark:text-white" onclick="selectAutocomplete('${m}')">${m}</div>`
-            ).join('');
+            autocompleteList.innerHTML = matches.map(m => `<div class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm dark:text-white" onclick="selectAutocomplete('${m}')">${m}</div>`).join('');
             autocompleteList.classList.remove('hidden');
         }, 200);
     });
-    
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('#searchKeyword') && !e.target.closest('#autocompleteList')) {
-            autocompleteList?.classList.add('hidden');
-        }
+        if (!e.target.closest('#searchKeyword') && !e.target.closest('#autocompleteList')) autocompleteList?.classList.add('hidden');
     });
-    
     document.getElementById('searchCategory')?.addEventListener('change', populatePositionsByCategory);
     document.getElementById('searchBtn')?.addEventListener('click', loadJobs);
     ['searchKeyword', 'searchPosition', 'searchCategory', 'searchLocation'].forEach(id => {
@@ -150,24 +125,17 @@ function populatePositionsByCategory() {
     const category = document.getElementById('searchCategory')?.value;
     const positionSelect = document.getElementById('searchPosition');
     if (!positionSelect) return;
-    
     positionSelect.innerHTML = '<option value="">💼 Todos los puestos</option>';
     if (category && searchData.positions[category]) {
-        searchData.positions[category].forEach(p => { 
-            positionSelect.innerHTML += `<option value="${p}">${p}</option>`; 
-        });
+        searchData.positions[category].forEach(p => { positionSelect.innerHTML += `<option value="${p}">${p}</option>`; });
     }
 }
 
-function debounceSearch() { 
-    clearTimeout(debounceTimer); 
-    debounceTimer = setTimeout(loadJobs, 400); 
-}
+function debounceSearch() { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadJobs, 400); }
 
 async function loadJobs() {
     const grid = document.getElementById('jobsGrid');
     grid.innerHTML = '<div class="col-span-full text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-    
     currentFilter.keyword = document.getElementById('searchKeyword')?.value || '';
     currentFilter.position = document.getElementById('searchPosition')?.value || '';
     currentFilter.category = document.getElementById('searchCategory')?.value || '';
@@ -219,6 +187,14 @@ async function loadJobs() {
             } else {
                 const candidateName = post.profiles?.full_name || 'Candidato';
                 const locations = Array.isArray(post.preferred_locations) ? post.preferred_locations.join(', ') : (post.location || 'La Habana');
+                
+                // ✅ FIX: Lógica inteligente para el botón de contactar
+                const contactInfo = post.contact_info || '';
+                const cleanContact = contactInfo.replace(/\D/g, '');
+                const isPhone = cleanContact.length >= 8;
+                const waLink = isPhone ? `https://wa.me/${cleanContact.startsWith('53') ? cleanContact : '53' + cleanContact}?text=Hola,%20vi%20tu%20perfil%20en%20Mi%20Pincha%20y%20me%20interesa%20contactarte.` : '#';
+                const onClickAttr = isPhone ? `window.open('${waLink}', '_blank')` : `alert('Información de contacto:\\n${contactInfo.replace(/'/g, "\\'")}')`;
+
                 return `
                 <div class="bg-white dark:bg-gray-800 border-l-4 border-green-500 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
                     <div class="flex justify-between items-start mb-2">
@@ -232,7 +208,7 @@ async function loadJobs() {
                     ${post.contact_info ? `<p class="text-xs text-green-600 dark:text-green-400 font-medium mb-2">📞 Contacto: ${post.contact_info}</p>` : ''}
                     <div class="flex justify-between items-center mt-3 pt-3 border-t dark:border-gray-700">
                         <span class="font-bold text-gray-700 dark:text-gray-300">${post.salary_expected || 'Salario a convenir'}</span>
-                        <button class="text-sm font-bold text-green-600 hover:underline" onclick="alert('Funcionalidad de contacto directo en desarrollo')">Contactar →</button>
+                        <button class="text-sm font-bold text-green-600 hover:underline" onclick="${onClickAttr}">Contactar →</button>
                     </div>
                 </div>`;
             }
@@ -248,21 +224,11 @@ function setupModal() {
 }
 function closeJobModal() { document.getElementById('jobModal')?.classList.add('hidden'); }
 
-// ✅ FUNCIÓN CENTRALIZADA DE POSTULACIÓN POR WHATSAPP
 async function postularPorWhatsapp(jobId, jobTitle, contactInfo) {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-        window.location.href = 'login.html';
-        return;
-    }
-
+    if (!session) { window.location.href = 'login.html'; return; }
     try {
-        // 1. Obtener datos del candidato para personalizar el mensaje
-        const { data: candidate } = await sb.from('candidates')
-            .select('gender')
-            .eq('profile_id', session.user.id)
-            .maybeSingle();
-
+        const { data: candidate } = await sb.from('candidates').select('gender').eq('profile_id', session.user.id).maybeSingle();
         let generoTexto = "interesado/a";
         if (candidate?.gender === 'masculino') generoTexto = "interesado";
         else if (candidate?.gender === 'femenino') generoTexto = "interesada";
@@ -276,24 +242,15 @@ async function postularPorWhatsapp(jobId, jobTitle, contactInfo) {
             return;
         }
 
-        // 2. Guardar en la Base de Datos (Registro interno)
         try {
             await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
             const { data: candCheck } = await sb.from('candidates').select('profile_id').eq('profile_id', session.user.id).maybeSingle();
-            if (!candCheck) {
-                await sb.from('candidates').insert({ profile_id: session.user.id, is_active: true });
-            }
+            if (!candCheck) await sb.from('candidates').insert({ profile_id: session.user.id, is_active: true });
             await sb.from('applications').insert({ job_id: jobId, candidate_id: session.user.id });
-        } catch (dbErr) {
-            console.warn("No se pudo guardar la postulación en BD, pero se abrirá WhatsApp:", dbErr);
-        }
+        } catch (dbErr) { console.warn("No se pudo guardar la postulación en BD:", dbErr); }
 
-        // 3. Construir y abrir el enlace de WhatsApp
         const message = `Hola, mi nombre es ${candidateName}, estoy ${generoTexto} en la vacante de "${jobTitle}" publicada en Mi Pincha. Me gustaría obtener más información.`;
-        const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
-        
-        window.open(whatsappUrl, '_blank');
-        
+        window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
     } catch (err) {
         console.error("Error en postulación:", err);
         alert("Error al procesar la postulación: " + err.message);
@@ -307,7 +264,6 @@ async function openJobDetail(jobId) {
     try {
         const { data: job } = await sb.from('jobs').select('*').eq('id', jobId).single();
         if (!job) throw new Error('Vacante no encontrada');
-        
         document.getElementById('modalTitle').textContent = job.title;
         document.getElementById('modalCompany').textContent = `🏢 ${job.company_name || 'Empresa'}`;
         document.getElementById('modalLocation').textContent = job.location || 'No especificada';
@@ -318,7 +274,6 @@ async function openJobDetail(jobId) {
         
         const applyBtn = document.getElementById('modalApplyBtn');
         const { data: { session } } = await sb.auth.getSession();
-        
         if (!session) {
             applyBtn.textContent = 'Inicia sesión para postular';
             applyBtn.onclick = () => window.location.href = 'login.html';
@@ -328,20 +283,14 @@ async function openJobDetail(jobId) {
         } else {
             applyBtn.textContent = 'Postularme por WhatsApp';
             applyBtn.disabled = false; applyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            
             applyBtn.onclick = async () => {
                 applyBtn.textContent = 'Abriendo WhatsApp...';
                 applyBtn.disabled = true;
                 await postularPorWhatsapp(job.id, job.title, job.contact_info);
-                setTimeout(() => {
-                    applyBtn.textContent = '✅ Mensaje preparado';
-                }, 1000);
+                setTimeout(() => { applyBtn.textContent = '✅ Mensaje preparado'; }, 1000);
             };
         }
-    } catch (e) { 
-        document.getElementById('modalTitle').textContent = 'Error'; 
-        document.getElementById('modalDesc').textContent = e.message; 
-    }
+    } catch (e) { document.getElementById('modalTitle').textContent = 'Error'; document.getElementById('modalDesc').textContent = e.message; }
 }
 
 function setupPublishModal() {
@@ -370,26 +319,16 @@ function setupPublishModal() {
         try {
             const locationsArray = document.getElementById('pubLocation').value.split(',').map(s => s.trim());
             await sb.from('profiles').upsert({ id: session.user.id, location: document.getElementById('pubLocation').value }, { onConflict: 'id' });
-            
             const { error } = await sb.from('candidates').upsert({
-                profile_id: session.user.id,
-                desired_position: document.getElementById('pubPosition').value,
-                category: document.getElementById('pubCategory').value,
-                preferred_locations: locationsArray,
-                contact_info: document.getElementById('pubContact').value,
-                experience: document.getElementById('pubExperience').value,
-                experience_level: document.getElementById('pubExperienceLevel').value,
-                salary_expected: document.getElementById('pubSalary').value,
-                is_active: true
+                profile_id: session.user.id, desired_position: document.getElementById('pubPosition').value,
+                category: document.getElementById('pubCategory').value, preferred_locations: locationsArray,
+                contact_info: document.getElementById('pubContact').value, experience: document.getElementById('pubExperience').value,
+                experience_level: document.getElementById('pubExperienceLevel').value, salary_expected: document.getElementById('pubSalary').value, is_active: true
             }, { onConflict: 'profile_id' });
-            
             if (error) throw error;
             msg.textContent = '✅ Perfil actualizado. Las empresas te encontrarán.'; msg.className = 'mt-4 text-center text-sm font-bold text-green-600 block';
             setTimeout(closePublishModal, 2000);
-        } catch (err) { 
-            console.error("Error publicando candidato:", err);
-            msg.textContent = '❌ ' + err.message; msg.className = 'mt-4 text-center text-sm font-bold text-red-600 block'; 
-        }
+        } catch (err) { msg.textContent = '❌ ' + err.message; msg.className = 'mt-4 text-center text-sm font-bold text-red-600 block'; }
     });
     
     document.getElementById('pubCompanyForm')?.addEventListener('submit', async (e) => {
@@ -401,41 +340,23 @@ function setupPublishModal() {
         try {
             await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
             const { data: company } = await sb.from('companies').select('profile_id').eq('profile_id', session.user.id).maybeSingle();
-            if (!company) {
-                await sb.from('companies').insert({ 
-                    profile_id: session.user.id, 
-                    industry: 'General', 
-                    is_active: true,
-                    is_verified: false 
-                });
-            }
+            if (!company) await sb.from('companies').insert({ profile_id: session.user.id, industry: 'General', is_active: true, is_verified: false });
             
             msg.textContent = '⏳ Publicando vacante...';
             const { error: jobError } = await sb.from('jobs').insert({
-                title: document.getElementById('jobTitle').value,
-                category: document.getElementById('jobCategory').value,
-                location: document.getElementById('jobLocation').value,
-                salary: document.getElementById('jobSalary').value,
-                description: document.getElementById('jobDesc').value,
-                contact_info: document.getElementById('jobContact').value,
-                preferred_gender: document.getElementById('jobGender').value,
-                required_experience: document.getElementById('jobExperience').value,
-                company_name: session.user.user_metadata?.full_name || 'Empresa',
-                company_id: session.user.id,
-                is_active: true
+                title: document.getElementById('jobTitle').value, category: document.getElementById('jobCategory').value,
+                location: document.getElementById('jobLocation').value, salary: document.getElementById('jobSalary').value,
+                description: document.getElementById('jobDesc').value, contact_info: document.getElementById('jobContact').value,
+                preferred_gender: document.getElementById('jobGender').value, required_experience: document.getElementById('jobExperience').value,
+                company_name: session.user.user_metadata?.full_name || 'Empresa', company_id: session.user.id, is_active: true
             });
-            
             if (jobError) throw jobError;
             msg.textContent = '✅ Vacante publicada.'; msg.className = 'mt-4 text-center text-sm font-bold text-green-600 block';
             setTimeout(() => { closePublishModal(); loadJobs(); }, 2000);
-        } catch (err) { 
-            console.error("Error publicando empresa:", err);
-            msg.textContent = '❌ ' + err.message; msg.className = 'mt-4 text-center text-sm font-bold text-red-600 block'; 
-        }
+        } catch (err) { msg.textContent = '❌ ' + err.message; msg.className = 'mt-4 text-center text-sm font-bold text-red-600 block'; }
     });
 }
 
-// ✅ LÓGICA DE EDICIÓN DE PERFIL (Funciona en index.html y dashboard.html)
 async function openEditProfileModal() {
     closeSettingsModal();
     const modal = document.getElementById('editProfileModal');
@@ -443,23 +364,18 @@ async function openEditProfileModal() {
     modal.classList.remove('hidden');
     const msg = document.getElementById('editProfileMsg');
     if (msg) msg.classList.add('hidden');
-
     try {
         const { data: { session } } = await sb.auth.getSession();
         if (!session) return;
         const userId = session.user.id;
         const userType = session.user.user_metadata?.user_type;
-
         const { data: profile } = await sb.from('profiles').select('full_name').eq('id', userId).single();
         const editName = document.getElementById('editName');
         if (editName) editName.value = profile?.full_name || '';
-
         const table = userType === 'candidate' ? 'candidates' : 'companies';
         const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
-        
         const editContact = document.getElementById('editContact');
         if (editContact) editContact.value = userData?.contact_info || '';
-        
         if (userType === 'candidate') {
             const editCandidateFields = document.getElementById('editCandidateFields');
             if (editCandidateFields) editCandidateFields.classList.remove('hidden');
@@ -475,9 +391,7 @@ async function openEditProfileModal() {
             const editIndustry = document.getElementById('editIndustry');
             if (editIndustry) editIndustry.value = userData?.industry || '';
         }
-    } catch (err) {
-        console.error("Error cargando perfil:", err);
-    }
+    } catch (err) { console.error("Error cargando perfil:", err); }
 }
 
 function closeEditProfileModal() {
@@ -488,73 +402,44 @@ function closeEditProfileModal() {
 async function handleEditProfileSubmit(e) {
     e.preventDefault();
     const msg = document.getElementById('editProfileMsg');
-    if (msg) {
-        msg.textContent = '⏳ Guardando cambios...';
-        msg.className = 'text-center text-sm font-bold text-blue-600 block';
-    }
-
+    if (msg) { msg.textContent = '⏳ Guardando cambios...'; msg.className = 'text-center text-sm font-bold text-blue-600 block'; }
     try {
         const { data: { session } } = await sb.auth.getSession();
         if (!session) throw new Error("No hay sesión activa");
-        
         const userId = session.user.id;
         const userType = session.user.user_metadata?.user_type;
         const newName = document.getElementById('editName').value;
         const newContact = document.getElementById('editContact').value;
         const table = userType === 'candidate' ? 'candidates' : 'companies';
-
         await sb.from('profiles').update({ full_name: newName }).eq('id', userId);
-
         const updateData = { contact_info: newContact };
-        if (userType === 'candidate') {
-            updateData.desired_position = document.getElementById('editPosition')?.value || '';
-        } else {
-            updateData.industry = document.getElementById('editIndustry')?.value || '';
-        }
-
+        if (userType === 'candidate') updateData.desired_position = document.getElementById('editPosition')?.value || '';
+        else updateData.industry = document.getElementById('editIndustry')?.value || '';
         const { error } = await sb.from(table).update(updateData).eq('profile_id', userId);
         if (error) throw error;
-
-        // Actualizar UI en tiempo real
         const headerUserName = document.getElementById('headerUserName');
         if (headerUserName) headerUserName.textContent = newName;
         const mobileUserName = document.getElementById('mobileUserName');
         if (mobileUserName) mobileUserName.textContent = newName;
         const userBadge = document.getElementById('userBadge');
         if (userBadge) userBadge.textContent = newName;
-
-        if (msg) {
-            msg.textContent = '✅ Perfil actualizado correctamente.';
-            msg.className = 'text-center text-sm font-bold text-green-600 block';
-        }
+        if (msg) { msg.textContent = '✅ Perfil actualizado correctamente.'; msg.className = 'text-center text-sm font-bold text-green-600 block'; }
         setTimeout(closeEditProfileModal, 1500);
     } catch (err) {
         console.error("Error guardando perfil:", err);
         const msg = document.getElementById('editProfileMsg');
-        if (msg) {
-            msg.textContent = '❌ Error: ' + err.message;
-            msg.className = 'text-center text-sm font-bold text-red-600 block';
-        }
+        if (msg) { msg.textContent = '❌ Error: ' + err.message; msg.className = 'text-center text-sm font-bold text-red-600 block'; }
     }
 }
 
 function openPublishModal() { document.getElementById('publishModal')?.classList.remove('hidden'); }
-function closePublishModal() { 
-    document.getElementById('publishModal')?.classList.add('hidden'); 
-    document.getElementById('pubMsg')?.classList.add('hidden'); 
-}
+function closePublishModal() { document.getElementById('publishModal')?.classList.add('hidden'); document.getElementById('pubMsg')?.classList.add('hidden'); }
 function openSettingsModal() { document.getElementById('settingsModal')?.classList.remove('hidden'); }
 function closeSettingsModal() { document.getElementById('settingsModal')?.classList.add('hidden'); }
 function setupSettingsModal() {}
 
-// 🌍 EXPOSICIÓN GLOBAL PARA HTML ONCLICK
-window.openJobDetail = openJobDetail; 
-window.closeJobModal = closeJobModal;
-window.openPublishModal = openPublishModal; 
-window.closePublishModal = closePublishModal;
-window.openSettingsModal = openSettingsModal; 
-window.closeSettingsModal = closeSettingsModal;
-window.openEditProfileModal = openEditProfileModal; 
-window.closeEditProfileModal = closeEditProfileModal;
-window.selectAutocomplete = selectAutocomplete;
-window.postularPorWhatsapp = postularPorWhatsapp;
+window.openJobDetail = openJobDetail; window.closeJobModal = closeJobModal;
+window.openPublishModal = openPublishModal; window.closePublishModal = closePublishModal;
+window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
+window.openEditProfileModal = openEditProfileModal; window.closeEditProfileModal = closeEditProfileModal;
+window.selectAutocomplete = selectAutocomplete; window.postularPorWhatsapp = postularPorWhatsapp;

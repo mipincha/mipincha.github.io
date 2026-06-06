@@ -58,7 +58,6 @@
                         <a href="login.html" class="text-gray-600 dark:text-gray-300 hover:text-pincha-orange font-medium btn-tactile">Iniciar sesión</a>
                         <a href="register.html" class="bg-pincha-orange text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-600 btn-tactile shadow-sm">Crear cuenta</a>
                     </div>
-                    <!-- ✅ NOMBRE DE USUARIO VISIBLE EN EL HEADER -->
                     <div id="navUser" class="hidden items-center gap-4">
                         <span id="headerUserName" class="text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full"></span>
                         <a href="dashboard.html" class="text-pincha-blue dark:text-pincha-orange font-medium hover:underline btn-tactile">Dashboard</a>
@@ -74,7 +73,8 @@
             </div>
             <div id="menuUser" class="hidden flex flex-col gap-2">
                 <span id="mobileUserName" class="block py-2 text-sm font-bold text-pincha-blue dark:text-pincha-orange"></span>
-                <a href="dashboard.html" class="block py-2 text-gray-700 dark:text-gray-200 font-medium">Dashboard</a>
+                <!-- ✅ CAMBIO: "Dashboard" ahora es "Perfil" -->
+                <a href="dashboard.html" class="block py-2 text-pincha-blue dark:text-pincha-orange font-medium">Perfil</a>
                 <button onclick="openPublishModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">📢 Publicar</button>
                 <button onclick="openSettingsModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">⚙️ Configuración</button>
                 <button id="mobileLogoutBtn" class="block w-full py-2 text-left text-red-500 font-medium">Salir</button>
@@ -222,7 +222,7 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIGURACIÓN (Añadido a index.html para acceso desde el menú hamburguesa) -->
+    <!-- MODAL CONFIGURACIÓN -->
     <div id="settingsModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
