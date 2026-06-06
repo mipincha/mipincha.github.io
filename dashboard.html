@@ -28,7 +28,6 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
         #mobileMenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         #mobileMenu.open { max-height: 500px; }
-        
         .dark body { background: #0f172a; color: #f1f5f9; }
         .dark .bg-white, .dark .bg-gray-50 { background: #1e293b !important; }
         .dark .text-gray-800 { color: #f1f5f9 !important; }
@@ -60,14 +59,16 @@
                     <span class="text-2xl">🔔</span>
                     <span id="notifDot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-dark-card"></span>
                 </div>
+                <!-- ✅ NOMBRE DE USUARIO VISIBLE EN EL HEADER DEL DASHBOARD -->
+                <span id="headerUserName" class="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full"></span>
                 <button id="hamburgerBtn" class="md:hidden p-2 text-gray-600 dark:text-gray-300"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
                 <nav id="desktopNav" class="hidden md:flex items-center gap-3">
-                    <span id="userBadge" class="text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">Cargando...</span>
                     <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
                 </nav>
             </div>
         </div>
         <div id="mobileMenu" class="md:hidden bg-white dark:bg-dark-card border-t dark:border-gray-700 px-4 py-2 space-y-2">
+            <span id="mobileUserName" class="block py-2 text-sm font-bold text-pincha-blue dark:text-pincha-orange"></span>
             <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 font-medium">← Volver al inicio</a>
             <button onclick="switchTab('tab-archivos')" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">📁 Archivos</button>
             <button onclick="openSettingsModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">⚙️ Configuración</button>
@@ -94,6 +95,11 @@
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-4">
+                <!-- ✅ BOTÓN EDITAR PERFIL AÑADIDO -->
+                <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="font-medium dark:text-white">✏️ Editar perfil</span>
+                    <span class="text-gray-400">→</span>
+                </button>
                 <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
                     <span class="font-medium dark:text-white">Modo oscuro</span>
                     <button id="darkModeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-600 transition">
@@ -102,15 +108,51 @@
                 </div>
                 <div class="pt-4 border-t dark:border-gray-700 mt-4">
                     <h4 class="text-sm font-bold text-red-600 mb-2">Zona de Peligro</h4>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Al desactivar tu cuenta, tu perfil y publicaciones dejarán de ser visibles inmediatamente, pero no se borrarán de la base de datos (evita errores de sistema).</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Al desactivar tu cuenta, tu perfil y publicaciones dejarán de ser visibles inmediatamente, pero no se borrarán de la base de datos.</p>
                     <button id="deactivateBtn" onclick="deactivateAccount()" class="w-full border-2 border-red-500 text-red-500 font-bold py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 btn-tactile transition">🗑️ Desactivar mi cuenta</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-pincha-blue dark:bg-gray-800 text-white pt-8 pb-4 mt-12 border-t dark:border-gray-700">
+    <!-- MODAL EDITAR PERFIL -->
+    <div id="editProfileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">✏️ Editar Perfil</h2>
+                <button onclick="closeEditProfileModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
+            </div>
+            <form id="editProfileForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre completo / Razón social</label>
+                    <input type="text" id="editName" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto</label>
+                    <input type="text" id="editContact" required placeholder="Ej: +53 5xxx xxxx o @usuario" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                </div>
+                <div id="editCandidateFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto deseado</label>
+                        <input type="text" id="editPosition" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                    </div>
+                </div>
+                <div id="editCompanyFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Industria / Sector</label>
+                        <input type="text" id="editIndustry" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                    </div>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeEditProfileModal()" class="flex-1 py-2.5 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-bg btn-tactile">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-pincha-orange text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 btn-tactile">Guardar cambios</button>
+                </div>
+                <div id="editProfileMsg" class="text-center text-sm font-bold hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-pincha-blue dark:bg-dark-card text-white pt-8 pb-4 mt-12 border-t dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-sm opacity-80 mb-2">¿Necesitas ayuda? <a href="https://wa.me/5351283542?text=Hola,%20tengo%20una%20consulta%20sobre%20Mi%20Pincha" target="_blank" rel="noopener noreferrer" class="text-green-400 font-bold hover:underline">📱 Escríbenos por WhatsApp</a></p>
             <p class="text-xs opacity-60">© 2026 Mi Pincha. Todos los derechos reservados. Desarrollado por STIKMANIA.</p>
@@ -127,7 +169,12 @@
             const { data: { session } } = await sb.auth.getSession();
             if(!session) { window.location.href = 'login.html'; return; }
             userType = session.user.user_metadata?.user_type; userId = session.user.id; userMeta = session.user.user_metadata;
-            document.getElementById('userBadge').textContent = userMeta?.full_name || session.user.email;
+            
+            // ✅ ACTUALIZAR NOMBRE EN EL HEADER
+            const userName = userMeta?.full_name || session.user.email;
+            document.getElementById('headerUserName').textContent = userName;
+            document.getElementById('mobileUserName').textContent = userName;
+            
             document.getElementById('authGuard').classList.add('hidden'); document.getElementById('dashboardContainer').classList.remove('hidden');
             
             document.getElementById('hamburgerBtn').onclick = () => document.getElementById('mobileMenu').classList.toggle('open');
@@ -179,15 +226,10 @@
             const container = document.getElementById('tabContent'); 
             container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
             try {
-                // ✅ CORRECCIÓN: Ahora incluye contact_info (requiere el ALTER TABLE del Paso 1)
-                const { data: notifs, error } = await sb.from('notifications')
-                    .select('*, jobs(title, location, salary, category, is_active, company_name, contact_info)')
-                    .eq('user_id', userId).order('created_at', { ascending: false });
+                const { data: notifs, error } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active, company_name, contact_info)').eq('user_id', userId).order('created_at', { ascending: false });
                 if (error) throw error;
-                
                 await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
                 checkUnreadNotifications();
-                
                 let html = '<h3 class="text-lg font-bold text-pincha-blue dark:text-white mb-4">Tus Oportunidades</h3>';
                 if (!notifs?.length) { 
                     html += '<div class="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Añade más municipios a tu perfil para recibir más alertas.</p></div>'; 
@@ -249,13 +291,7 @@
             } else if(tab==='tab-matches') { await loadMatchesTab(); return; }
             else if(tab==='tab-archivos') {
                 const table = userType === 'candidate' ? 'candidates' : 'companies';
-                
-                // ✅ CORRECCIÓN CRÍTICA: Usar 'profile_id' en lugar de 'id'
-                const { data: prof, error } = await sb.from(table)
-                    .select('cv_url, cv_original_name, logo_url, logo_original_name')
-                    .eq('profile_id', userId) 
-                    .single();
-
+                const { data: prof, error } = await sb.from(table).select('cv_url, cv_original_name, logo_url, logo_original_name').eq('profile_id', userId).single();
                 if (error) console.error("Error al cargar datos del perfil:", error);
 
                 const isCand = userType === 'candidate';
@@ -288,8 +324,6 @@
         async function handleUpload(input) {
             const f = input.files[0]; 
             if(!f) return;
-            
-            // ✅ VALIDACIÓN DE TAMAÑO (Máximo 5 MB)
             const maxSize = 5 * 1024 * 1024; 
             if (f.size > maxSize) {
                 const msg = document.getElementById('upMsg');
@@ -298,39 +332,25 @@
                 input.value = ''; 
                 return;
             }
-
             const msg = document.getElementById('upMsg'); 
             msg.textContent = '⏳ Subiendo y guardando en perfil...'; 
             msg.className = 'mt-2 text-sm font-bold text-blue-600';
-            
             const isCand = userType === 'candidate';
             const bucket = isCand ? 'cv-uploads' : 'company-logos';
             const table = isCand ? 'candidates' : 'companies';
             const colUrl = isCand ? 'cv_url' : 'logo_url';
             const colName = isCand ? 'cv_original_name' : 'logo_original_name';
-            
             const cleanName = f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9._-]/g,"_").replace(/_{2,}/g,"_");
             const path = `${userId}/${Date.now()}_${cleanName}`;
-            
             try {
                 const { error: uploadError } = await sb.storage.from(bucket).upload(path, f);
                 if(uploadError) throw new Error("Fallo en Storage: " + uploadError.message);
-
                 const { data: urlData } = sb.storage.from(bucket).getPublicUrl(path);
-
-                // ✅ CORRECCIÓN CRÍTICA: Actualizar la BD usando 'profile_id'
-                const { error: dbError } = await sb.from(table)
-                    .update({ [colUrl]: urlData.publicUrl, [colName]: f.name })
-                    .eq('profile_id', userId); 
-
+                const { error: dbError } = await sb.from(table).update({ [colUrl]: urlData.publicUrl, [colName]: f.name }).eq('profile_id', userId); 
                 if(dbError) throw new Error("Fallo en Base de Datos: " + dbError.message);
-
                 msg.textContent = '✅ Guardado correctamente y visible en tu perfil.';
                 msg.className = 'mt-2 text-sm font-bold text-green-600';
-                
-                // Forzamos la recarga de la pestaña para garantizar consistencia visual
                 setTimeout(() => loadTabContent('tab-archivos'), 1000);
-
             } catch (err) {
                 console.error("Error detallado de subida:", err);
                 msg.textContent = '❌ Error: ' + err.message; 
@@ -338,18 +358,15 @@
             }
         }
 
-        // 🗑️ DESACTIVACIÓN DE CUENTA (SOFT DELETE)
         async function deactivateAccount() {
             const confirmMsg = userType === 'company' 
                 ? '⚠️ ¿Estás seguro? Esto ocultará tu perfil de empresa y TODAS tus vacantes activas. Tus datos se preservarán por si deseas volver.'
                 : '⚠️ ¿Estás seguro? Esto ocultará tu perfil y dejarás de aparecer en las búsquedas. Tus datos se preservarán por si deseas volver.';
             if (!confirm(confirmMsg)) return;
-
             const btn = document.getElementById('deactivateBtn');
             const originalText = btn.textContent;
             btn.textContent = 'Procesando...';
             btn.disabled = true;
-
             try {
                 if (userType === 'company') {
                     await sb.from('companies').update({ is_active: false }).eq('profile_id', userId);
@@ -368,11 +385,90 @@
             }
         }
 
+        // ✅ FUNCIONES PARA EDITAR PERFIL
+        async function openEditProfileModal() {
+            closeSettingsModal();
+            const modal = document.getElementById('editProfileModal');
+            modal.classList.remove('hidden');
+            const msg = document.getElementById('editProfileMsg');
+            msg.classList.add('hidden');
+
+            try {
+                // Cargar datos de profiles
+                const { data: profile } = await sb.from('profiles').select('full_name').eq('id', userId).single();
+                document.getElementById('editName').value = profile?.full_name || '';
+
+                // Cargar datos específicos del rol
+                const table = userType === 'candidate' ? 'candidates' : 'companies';
+                const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
+                
+                document.getElementById('editContact').value = userData?.contact_info || '';
+                
+                if (userType === 'candidate') {
+                    document.getElementById('editCandidateFields').classList.remove('hidden');
+                    document.getElementById('editCompanyFields').classList.add('hidden');
+                    document.getElementById('editPosition').value = userData?.desired_position || '';
+                } else {
+                    document.getElementById('editCompanyFields').classList.remove('hidden');
+                    document.getElementById('editCandidateFields').classList.add('hidden');
+                    document.getElementById('editIndustry').value = userData?.industry || '';
+                }
+            } catch (err) {
+                console.error("Error cargando perfil:", err);
+            }
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').classList.add('hidden');
+        }
+
+        document.getElementById('editProfileForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('editProfileMsg');
+            msg.textContent = '⏳ Guardando cambios...';
+            msg.className = 'text-center text-sm font-bold text-blue-600 block';
+
+            try {
+                const newName = document.getElementById('editName').value;
+                const newContact = document.getElementById('editContact').value;
+                const table = userType === 'candidate' ? 'candidates' : 'companies';
+
+                // 1. Actualizar nombre en profiles y auth metadata (opcional, pero profiles es suficiente para la UI)
+                await sb.from('profiles').update({ full_name: newName }).eq('id', userId);
+
+                // 2. Actualizar datos específicos del rol
+                const updateData = { contact_info: newContact };
+                if (userType === 'candidate') {
+                    updateData.desired_position = document.getElementById('editPosition').value;
+                } else {
+                    updateData.industry = document.getElementById('editIndustry').value;
+                }
+
+                const { error } = await sb.from(table).update(updateData).eq('profile_id', userId);
+                if (error) throw error;
+
+                // 3. Actualizar UI
+                userMeta.full_name = newName;
+                document.getElementById('headerUserName').textContent = newName;
+                document.getElementById('mobileUserName').textContent = newName;
+
+                msg.textContent = '✅ Perfil actualizado correctamente.';
+                msg.className = 'text-center text-sm font-bold text-green-600 block';
+                setTimeout(closeEditProfileModal, 1500);
+            } catch (err) {
+                console.error("Error guardando perfil:", err);
+                msg.textContent = '❌ Error: ' + err.message;
+                msg.className = 'text-center text-sm font-bold text-red-600 block';
+            }
+        });
+
         function openSettingsModal() { document.getElementById('settingsModal')?.classList.remove('hidden'); }
         function closeSettingsModal() { document.getElementById('settingsModal')?.classList.add('hidden'); }
         
         window.switchTab = switchTab; window.handleUpload = handleUpload; window.applyFromMatch = applyFromMatch;
-        window.deactivateAccount = deactivateAccount; window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
+        window.deactivateAccount = deactivateAccount; 
+        window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
+        window.openEditProfileModal = openEditProfileModal; window.closeEditProfileModal = closeEditProfileModal;
         
         initDashboard();
     </script>

@@ -47,6 +47,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadJobs();
     setupModal();
     populatePositionsByCategory();
+    
+    // Inicializar listener del formulario de editar perfil si existe en la página
+    const editForm = document.getElementById('editProfileForm');
+    if (editForm) {
+        editForm.addEventListener('submit', handleEditProfileSubmit);
+    }
 });
 
 function setupThemeToggle() {
@@ -64,13 +70,23 @@ function setupThemeToggle() {
 async function checkAuthState() {
     const { data: { session } } = await sb.auth.getSession();
     const isAuth = !!session;
+    
     document.getElementById('navGuest')?.classList.toggle('hidden', isAuth);
     document.getElementById('navUser')?.classList.toggle('hidden', !isAuth);
     document.getElementById('navUser')?.classList.toggle('flex', isAuth);
     document.getElementById('menuGuest')?.classList.toggle('hidden', isAuth);
     document.getElementById('menuUser')?.classList.toggle('hidden', !isAuth);
+    
     if (isAuth) {
         const name = session.user.user_metadata?.full_name || session.user.email;
+        
+        // Actualizar nombre en headers (index.html y dashboard.html)
+        const headerUserName = document.getElementById('headerUserName');
+        if (headerUserName) headerUserName.textContent = name;
+        
+        const mobileUserName = document.getElementById('mobileUserName');
+        if (mobileUserName) mobileUserName.textContent = name;
+
         const badge = document.getElementById('userBadge');
         if (badge) badge.textContent = name;
     }
@@ -80,28 +96,43 @@ function setupHamburger() {
     const btn = document.getElementById('hamburgerBtn');
     const menu = document.getElementById('mobileMenu');
     btn?.addEventListener('click', () => menu?.classList.toggle('open'));
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', async () => { await sb.auth.signOut(); window.location.reload(); });
+    
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => { 
+        await sb.auth.signOut(); window.location.reload(); 
+    });
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', async () => { 
+        await sb.auth.signOut(); window.location.reload(); 
+    });
 }
 
 function setupSearch() {
     const keywordInput = document.getElementById('searchKeyword');
     const autocompleteList = document.getElementById('autocompleteList');
+    
     keywordInput?.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         const val = e.target.value.trim().toLowerCase();
         if (val.length < 2) { autocompleteList?.classList.add('hidden'); return; }
+        
         debounceTimer = setTimeout(() => {
             const allTerms = [...searchData.categories, ...Object.values(searchData.positions).flat()];
             const matches = allTerms.filter(t => t.toLowerCase().includes(val)).slice(0, 8);
+            
             if (!matches.length) { autocompleteList?.classList.add('hidden'); return; }
-            autocompleteList.innerHTML = matches.map(m => `<div class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm dark:text-white" onclick="selectAutocomplete('${m}')">${m}</div>`).join('');
+            
+            autocompleteList.innerHTML = matches.map(m => 
+                `<div class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm dark:text-white" onclick="selectAutocomplete('${m}')">${m}</div>`
+            ).join('');
             autocompleteList.classList.remove('hidden');
         }, 200);
     });
+    
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('#searchKeyword') && !e.target.closest('#autocompleteList')) autocompleteList?.classList.add('hidden');
+        if (!e.target.closest('#searchKeyword') && !e.target.closest('#autocompleteList')) {
+            autocompleteList?.classList.add('hidden');
+        }
     });
+    
     document.getElementById('searchCategory')?.addEventListener('change', populatePositionsByCategory);
     document.getElementById('searchBtn')?.addEventListener('click', loadJobs);
     ['searchKeyword', 'searchPosition', 'searchCategory', 'searchLocation'].forEach(id => {
@@ -119,17 +150,24 @@ function populatePositionsByCategory() {
     const category = document.getElementById('searchCategory')?.value;
     const positionSelect = document.getElementById('searchPosition');
     if (!positionSelect) return;
+    
     positionSelect.innerHTML = '<option value="">💼 Todos los puestos</option>';
     if (category && searchData.positions[category]) {
-        searchData.positions[category].forEach(p => { positionSelect.innerHTML += `<option value="${p}">${p}</option>`; });
+        searchData.positions[category].forEach(p => { 
+            positionSelect.innerHTML += `<option value="${p}">${p}</option>`; 
+        });
     }
 }
 
-function debounceSearch() { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadJobs, 400); }
+function debounceSearch() { 
+    clearTimeout(debounceTimer); 
+    debounceTimer = setTimeout(loadJobs, 400); 
+}
 
 async function loadJobs() {
     const grid = document.getElementById('jobsGrid');
     grid.innerHTML = '<div class="col-span-full text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
+    
     currentFilter.keyword = document.getElementById('searchKeyword')?.value || '';
     currentFilter.position = document.getElementById('searchPosition')?.value || '';
     currentFilter.category = document.getElementById('searchCategory')?.value || '';
@@ -230,11 +268,7 @@ async function postularPorWhatsapp(jobId, jobTitle, contactInfo) {
         else if (candidate?.gender === 'femenino') generoTexto = "interesada";
 
         const candidateName = session.user.user_metadata?.full_name || "Candidato";
-        
-        // Limpiar el número de teléfono (dejar solo dígitos)
         const cleanPhone = contactInfo ? contactInfo.replace(/\D/g, '') : '';
-        
-        // Asegurar que tenga el código de país de Cuba (53)
         const finalPhone = cleanPhone.startsWith('53') ? cleanPhone : '53' + cleanPhone;
 
         if (!cleanPhone || cleanPhone.length < 8) {
@@ -273,6 +307,7 @@ async function openJobDetail(jobId) {
     try {
         const { data: job } = await sb.from('jobs').select('*').eq('id', jobId).single();
         if (!job) throw new Error('Vacante no encontrada');
+        
         document.getElementById('modalTitle').textContent = job.title;
         document.getElementById('modalCompany').textContent = `🏢 ${job.company_name || 'Empresa'}`;
         document.getElementById('modalLocation').textContent = job.location || 'No especificada';
@@ -303,7 +338,10 @@ async function openJobDetail(jobId) {
                 }, 1000);
             };
         }
-    } catch (e) { document.getElementById('modalTitle').textContent = 'Error'; document.getElementById('modalDesc').textContent = e.message; }
+    } catch (e) { 
+        document.getElementById('modalTitle').textContent = 'Error'; 
+        document.getElementById('modalDesc').textContent = e.message; 
+    }
 }
 
 function setupPublishModal() {
@@ -340,7 +378,7 @@ function setupPublishModal() {
                 preferred_locations: locationsArray,
                 contact_info: document.getElementById('pubContact').value,
                 experience: document.getElementById('pubExperience').value,
-                experience_level: document.getElementById('pubExperienceLevel').value, // ✅ NUEVO
+                experience_level: document.getElementById('pubExperienceLevel').value,
                 salary_expected: document.getElementById('pubSalary').value,
                 is_active: true
             }, { onConflict: 'profile_id' });
@@ -373,7 +411,6 @@ function setupPublishModal() {
             }
             
             msg.textContent = '⏳ Publicando vacante...';
-            
             const { error: jobError } = await sb.from('jobs').insert({
                 title: document.getElementById('jobTitle').value,
                 category: document.getElementById('jobCategory').value,
@@ -381,8 +418,8 @@ function setupPublishModal() {
                 salary: document.getElementById('jobSalary').value,
                 description: document.getElementById('jobDesc').value,
                 contact_info: document.getElementById('jobContact').value,
-                preferred_gender: document.getElementById('jobGender').value, // ✅ NUEVO
-                required_experience: document.getElementById('jobExperience').value, // ✅ NUEVO
+                preferred_gender: document.getElementById('jobGender').value,
+                required_experience: document.getElementById('jobExperience').value,
                 company_name: session.user.user_metadata?.full_name || 'Empresa',
                 company_id: session.user.id,
                 is_active: true
@@ -398,14 +435,126 @@ function setupPublishModal() {
     });
 }
 
+// ✅ LÓGICA DE EDICIÓN DE PERFIL (Funciona en index.html y dashboard.html)
+async function openEditProfileModal() {
+    closeSettingsModal();
+    const modal = document.getElementById('editProfileModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const msg = document.getElementById('editProfileMsg');
+    if (msg) msg.classList.add('hidden');
+
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        const userId = session.user.id;
+        const userType = session.user.user_metadata?.user_type;
+
+        const { data: profile } = await sb.from('profiles').select('full_name').eq('id', userId).single();
+        const editName = document.getElementById('editName');
+        if (editName) editName.value = profile?.full_name || '';
+
+        const table = userType === 'candidate' ? 'candidates' : 'companies';
+        const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
+        
+        const editContact = document.getElementById('editContact');
+        if (editContact) editContact.value = userData?.contact_info || '';
+        
+        if (userType === 'candidate') {
+            const editCandidateFields = document.getElementById('editCandidateFields');
+            if (editCandidateFields) editCandidateFields.classList.remove('hidden');
+            const editCompanyFields = document.getElementById('editCompanyFields');
+            if (editCompanyFields) editCompanyFields.classList.add('hidden');
+            const editPosition = document.getElementById('editPosition');
+            if (editPosition) editPosition.value = userData?.desired_position || '';
+        } else {
+            const editCompanyFields = document.getElementById('editCompanyFields');
+            if (editCompanyFields) editCompanyFields.classList.remove('hidden');
+            const editCandidateFields = document.getElementById('editCandidateFields');
+            if (editCandidateFields) editCandidateFields.classList.add('hidden');
+            const editIndustry = document.getElementById('editIndustry');
+            if (editIndustry) editIndustry.value = userData?.industry || '';
+        }
+    } catch (err) {
+        console.error("Error cargando perfil:", err);
+    }
+}
+
+function closeEditProfileModal() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function handleEditProfileSubmit(e) {
+    e.preventDefault();
+    const msg = document.getElementById('editProfileMsg');
+    if (msg) {
+        msg.textContent = '⏳ Guardando cambios...';
+        msg.className = 'text-center text-sm font-bold text-blue-600 block';
+    }
+
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) throw new Error("No hay sesión activa");
+        
+        const userId = session.user.id;
+        const userType = session.user.user_metadata?.user_type;
+        const newName = document.getElementById('editName').value;
+        const newContact = document.getElementById('editContact').value;
+        const table = userType === 'candidate' ? 'candidates' : 'companies';
+
+        await sb.from('profiles').update({ full_name: newName }).eq('id', userId);
+
+        const updateData = { contact_info: newContact };
+        if (userType === 'candidate') {
+            updateData.desired_position = document.getElementById('editPosition')?.value || '';
+        } else {
+            updateData.industry = document.getElementById('editIndustry')?.value || '';
+        }
+
+        const { error } = await sb.from(table).update(updateData).eq('profile_id', userId);
+        if (error) throw error;
+
+        // Actualizar UI en tiempo real
+        const headerUserName = document.getElementById('headerUserName');
+        if (headerUserName) headerUserName.textContent = newName;
+        const mobileUserName = document.getElementById('mobileUserName');
+        if (mobileUserName) mobileUserName.textContent = newName;
+        const userBadge = document.getElementById('userBadge');
+        if (userBadge) userBadge.textContent = newName;
+
+        if (msg) {
+            msg.textContent = '✅ Perfil actualizado correctamente.';
+            msg.className = 'text-center text-sm font-bold text-green-600 block';
+        }
+        setTimeout(closeEditProfileModal, 1500);
+    } catch (err) {
+        console.error("Error guardando perfil:", err);
+        const msg = document.getElementById('editProfileMsg');
+        if (msg) {
+            msg.textContent = '❌ Error: ' + err.message;
+            msg.className = 'text-center text-sm font-bold text-red-600 block';
+        }
+    }
+}
+
 function openPublishModal() { document.getElementById('publishModal')?.classList.remove('hidden'); }
-function closePublishModal() { document.getElementById('publishModal')?.classList.add('hidden'); document.getElementById('pubMsg')?.classList.add('hidden'); }
+function closePublishModal() { 
+    document.getElementById('publishModal')?.classList.add('hidden'); 
+    document.getElementById('pubMsg')?.classList.add('hidden'); 
+}
 function openSettingsModal() { document.getElementById('settingsModal')?.classList.remove('hidden'); }
 function closeSettingsModal() { document.getElementById('settingsModal')?.classList.add('hidden'); }
 function setupSettingsModal() {}
 
-window.openJobDetail = openJobDetail; window.closeJobModal = closeJobModal;
-window.openPublishModal = openPublishModal; window.closePublishModal = closePublishModal;
-window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
+// 🌍 EXPOSICIÓN GLOBAL PARA HTML ONCLICK
+window.openJobDetail = openJobDetail; 
+window.closeJobModal = closeJobModal;
+window.openPublishModal = openPublishModal; 
+window.closePublishModal = closePublishModal;
+window.openSettingsModal = openSettingsModal; 
+window.closeSettingsModal = closeSettingsModal;
+window.openEditProfileModal = openEditProfileModal; 
+window.closeEditProfileModal = closeEditProfileModal;
 window.selectAutocomplete = selectAutocomplete;
 window.postularPorWhatsapp = postularPorWhatsapp;
