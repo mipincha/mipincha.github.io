@@ -36,6 +36,7 @@ const searchData = {
 
 let currentFilter = { keyword: '', position: '', category: '', location: '' };
 let debounceTimer;
+let unreadCount = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await checkAuthState();
@@ -50,6 +51,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const editForm = document.getElementById('editProfileForm');
     if (editForm) editForm.addEventListener('submit', handleEditProfileSubmit);
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            await Notification.requestPermission();
+        }
+        setupRealtimeNotifications(session.user.user_metadata?.full_name || session.user.email);
+    }
 });
 
 function setupThemeToggle() {
@@ -142,7 +151,7 @@ async function loadJobs() {
     currentFilter.location = document.getElementById('searchLocation')?.value || '';
 
     try {
-        let jobsQuery = sb.from('jobs').select('*').eq('is_active', true);
+        let jobsQuery = sb.from('jobs').select('*').eq('is_active', true).gt('expires_at', new Date().toISOString());
         if (currentFilter.keyword) jobsQuery = jobsQuery.or(`title.ilike.%${currentFilter.keyword}%,description.ilike.%${currentFilter.keyword}%,company_name.ilike.%${currentFilter.keyword}%`);
         if (currentFilter.position) jobsQuery = jobsQuery.ilike('title', `%${currentFilter.position}%`);
         if (currentFilter.category) jobsQuery = jobsQuery.ilike('category', `%${currentFilter.category}%`);
@@ -150,7 +159,7 @@ async function loadJobs() {
         const { data: jobs, error: jobsError } = await jobsQuery.order('created_at', { ascending: false });
         if (jobsError) throw jobsError;
 
-        let candQuery = sb.from('candidates').select('profile_id, desired_position, category, preferred_locations, experience, experience_level, salary_expected, contact_info, created_at, profiles(full_name)').eq('is_active', true);
+        let candQuery = sb.from('candidates').select('profile_id, desired_position, category, preferred_locations, experience, experience_level, salary_expected, contact_info, age, avatar_url, doc_url, doc_name, is_paused, hide_phone, created_at, profiles(full_name)').eq('is_active', true).eq('is_paused', false);
         if (currentFilter.keyword) candQuery = candQuery.or(`desired_position.ilike.%${currentFilter.keyword}%,experience.ilike.%${currentFilter.keyword}%`);
         if (currentFilter.position) candQuery = candQuery.ilike('desired_position', `%${currentFilter.position}%`);
         if (currentFilter.category) candQuery = candQuery.ilike('category', `%${currentFilter.category}%`);
@@ -163,52 +172,79 @@ async function loadJobs() {
         ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         if (!allPosts.length) { 
-            grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700">📭 No se encontraron resultados.</div>'; 
+            grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700">
+                <div class="text-4xl mb-3">🔍</div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Aún no hay matches perfectos</h3>
+                <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">Estamos buscando activamente. Intenta ampliar tus municipios preferidos o ajusta tus filtros de búsqueda para ver más oportunidades.</p>
+            </div>`; 
             return; 
         }
 
         grid.innerHTML = allPosts.map(post => {
             if (post.type === 'job') {
+                const isVerified = post.logo_url && post.contact_info && post.contact_info.length >= 8;
+                const avatarSrc = post.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.company_name || 'Empresa')}&background=1E3A5F&color=fff&size=128`;
                 return `
-                <div class="bg-white dark:bg-gray-800 border-l-4 border-pincha-blue dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 group cursor-pointer" onclick="openJobDetail('${post.id}')">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">🏢 VACANTE</span>
-                        <span class="text-xs text-gray-400 dark:text-gray-500">${new Date(post.created_at).toLocaleDateString('es-CU')}</span>
+                <div class="bg-white dark:bg-gray-800 border-l-4 border-pincha-blue dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 group relative">
+                    <button onclick="reportContent('job', '${post.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition" title="Reportar contenido">🚩</button>
+                    <div class="flex items-start gap-3 mb-3">
+                        <img src="${avatarSrc}" alt="Logo" loading="lazy" class="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-600 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-lg font-bold text-pincha-blue dark:text-white group-hover:text-pincha-orange transition truncate">${post.title}</h4>
+                                ${isVerified ? '<span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-bold">✅ Verificado</span>' : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 truncate">${post.company_name}</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-bold text-pincha-blue dark:text-white group-hover:text-pincha-orange transition mb-1">${post.title}</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">${post.company_name}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">${post.category} • ${post.location || 'La Habana'}</p>
                     ${post.contact_info ? `<p class="text-xs text-pincha-orange font-medium mb-2">📞 Contacto: ${post.contact_info}</p>` : ''}
                     <div class="flex justify-between items-center mt-3 pt-3 border-t dark:border-gray-700">
                         <span class="font-bold text-gray-700 dark:text-gray-300">${post.salary || 'A convenir'}</span>
-                        <button class="text-sm font-bold text-pincha-orange hover:underline">Ver detalles →</button>
+                        <button class="text-sm font-bold text-pincha-orange hover:underline" onclick="openJobDetail('${post.id}')">Ver detalles →</button>
                     </div>
                 </div>`;
             } else {
                 const candidateName = post.profiles?.full_name || 'Candidato';
                 const locations = Array.isArray(post.preferred_locations) ? post.preferred_locations.join(', ') : (post.location || 'La Habana');
-                
-                // ✅ FIX: Lógica inteligente para el botón de contactar
+                const ageText = post.age ? `${post.age} años • ` : '';
+                const isVerified = post.avatar_url && post.doc_url;
+                const avatarSrc = post.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(candidateName)}&background=FF6B35&color=fff&size=128`;
                 const contactInfo = post.contact_info || '';
                 const cleanContact = contactInfo.replace(/\D/g, '');
                 const isPhone = cleanContact.length >= 8;
-                const waLink = isPhone ? `https://wa.me/${cleanContact.startsWith('53') ? cleanContact : '53' + cleanContact}?text=Hola,%20vi%20tu%20perfil%20en%20Mi%20Pincha%20y%20me%20interesa%20contactarte.` : '#';
-                const onClickAttr = isPhone ? `window.open('${waLink}', '_blank')` : `alert('Información de contacto:\\n${contactInfo.replace(/'/g, "\\'")}')`;
+                const waLink = isPhone ? `https://wa.me/${cleanContact.startsWith('53') ? cleanContact : '53' + cleanContact}?text=Hola,%20vi%20tu%20perfil%20en%20Mi%20Pincha.` : '#';
+                const onClickAttr = isPhone ? `window.open('${waLink}', '_blank')` : `alert('Contacto:\\n${contactInfo.replace(/'/g, "\\'")}')`;
+                const showContact = !post.hide_phone && contactInfo;
 
                 return `
-                <div class="bg-white dark:bg-gray-800 border-l-4 border-green-500 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">👤 TALENTO DISPONIBLE</span>
-                        <span class="text-xs text-gray-400 dark:text-gray-500">${new Date(post.created_at).toLocaleDateString('es-CU')}</span>
+                <div class="bg-white dark:bg-gray-800 border-l-4 border-green-500 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 relative">
+                    <button onclick="reportContent('candidate', '${post.profile_id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition" title="Reportar contenido">🚩</button>
+                    <div class="flex items-start gap-3 mb-3">
+                        <img src="${avatarSrc}" alt="Foto" loading="lazy" class="w-12 h-12 rounded-full object-cover border-2 border-pincha-orange flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-white truncate">${post.desired_position || 'Profesional'}</h4>
+                                ${isVerified ? '<span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">✅ Verificado</span>' : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 truncate">${candidateName}</p>
+                        </div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">${new Date(post.created_at).toLocaleDateString('es-CU')}</span>
                     </div>
-                    <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-1">${post.desired_position || 'Profesional'}</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">${candidateName}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">${post.category} • 📍 ${locations}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">${post.category} • 📍 ${ageText}${locations}</p>
                     ${post.experience ? `<p class="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 italic">"${post.experience}"</p>` : ''}
-                    ${post.contact_info ? `<p class="text-xs text-green-600 dark:text-green-400 font-medium mb-2">📞 Contacto: ${post.contact_info}</p>` : ''}
-                    <div class="flex justify-between items-center mt-3 pt-3 border-t dark:border-gray-700">
+                    ${post.doc_url ? `
+                        <a href="${post.doc_url}" target="_blank" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mb-3 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                            <span class="text-xl">📎</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-gray-700 dark:text-gray-200 truncate">${post.doc_name || 'Documento de referencia'}</p>
+                                <p class="text-[10px] text-gray-500">Clic para ver o descargar</p>
+                            </div>
+                        </a>
+                    ` : ''}
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t dark:border-gray-700">
                         <span class="font-bold text-gray-700 dark:text-gray-300">${post.salary_expected || 'Salario a convenir'}</span>
-                        <button class="text-sm font-bold text-green-600 hover:underline" onclick="${onClickAttr}">Contactar →</button>
+                        ${showContact ? `<button class="text-sm font-bold text-green-600 hover:underline" onclick="${onClickAttr}">Postular por WhatsApp →</button>` : '<span class="text-xs text-gray-400">Contacto oculto</span>'}
                     </div>
                 </div>`;
             }
@@ -348,6 +384,8 @@ function setupPublishModal() {
                 location: document.getElementById('jobLocation').value, salary: document.getElementById('jobSalary').value,
                 description: document.getElementById('jobDesc').value, contact_info: document.getElementById('jobContact').value,
                 preferred_gender: document.getElementById('jobGender').value, required_experience: document.getElementById('jobExperience').value,
+                preferred_age_min: document.getElementById('jobAgeMin').value ? parseInt(document.getElementById('jobAgeMin').value) : null,
+                preferred_age_max: document.getElementById('jobAgeMax').value ? parseInt(document.getElementById('jobAgeMax').value) : null,
                 company_name: session.user.user_metadata?.full_name || 'Empresa', company_id: session.user.id, is_active: true
             });
             if (jobError) throw jobError;
@@ -432,6 +470,55 @@ async function handleEditProfileSubmit(e) {
     }
 }
 
+async function reportContent(targetType, targetId) {
+    const reason = prompt("¿Por qué deseas reportar este contenido? (Ej: Estafa, contenido inapropiado, spam)");
+    if (!reason) return;
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        await sb.from('reports').insert({ reporter_id: session.user.id, target_type: targetType, target_id: targetId, reason: reason });
+        alert("✅ Gracias por tu reporte. Nuestro equipo lo revisará.");
+    } catch (err) { alert("❌ Error al enviar el reporte."); }
+}
+
+async function exportMyData() {
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        const userId = session.user.id;
+        const userType = session.user.user_metadata?.user_type;
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).single();
+        const table = userType === 'candidate' ? 'candidates' : 'companies';
+        const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
+        const exportData = { profile, [userType]: userData, exported_at: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `mi_pincha_datos_${userType}_${Date.now()}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch (err) { alert("❌ Error al exportar datos: " + err.message); }
+}
+
+async function toggleSetting(column, value) {
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        const userType = session.user.user_metadata?.user_type;
+        const table = userType === 'candidate' ? 'candidates' : 'companies';
+        await sb.from(table).update({ [column]: value }).eq('profile_id', session.user.id);
+    } catch (err) { console.error("Error actualizando configuración:", err); }
+}
+
+function setupRealtimeNotifications(userName) {
+    sb.channel(`public:notifications:user_id=eq.${sb.auth.getSession().then(s => s.data.session?.user.id)}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
+            if (Notification.permission === "granted") {
+                new Notification("🔥 ¡Nuevo Match en Mi Pincha!", {
+                    body: payload.new.message, icon: "/images/logo.png", badge: "/images/favicon.png", tag: "mipincha-match", requireInteraction: true
+                });
+            }
+            unreadCount++;
+            const notifDot = document.getElementById('notifDot');
+            if (notifDot) notifDot.classList.remove('hidden');
+        }).subscribe((status) => { if (status === 'SUBSCRIBED') console.log("✅ Escuchando matches en tiempo real..."); });
+}
+
 function openPublishModal() { document.getElementById('publishModal')?.classList.remove('hidden'); }
 function closePublishModal() { document.getElementById('publishModal')?.classList.add('hidden'); document.getElementById('pubMsg')?.classList.add('hidden'); }
 function openSettingsModal() { document.getElementById('settingsModal')?.classList.remove('hidden'); }
@@ -443,3 +530,4 @@ window.openPublishModal = openPublishModal; window.closePublishModal = closePubl
 window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
 window.openEditProfileModal = openEditProfileModal; window.closeEditProfileModal = closeEditProfileModal;
 window.selectAutocomplete = selectAutocomplete; window.postularPorWhatsapp = postularPorWhatsapp;
+window.reportContent = reportContent; window.exportMyData = exportMyData; window.toggleSetting = toggleSetting;

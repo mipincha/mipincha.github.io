@@ -73,7 +73,6 @@
             </div>
             <div id="menuUser" class="hidden flex flex-col gap-2">
                 <span id="mobileUserName" class="block py-2 text-sm font-bold text-pincha-blue dark:text-pincha-orange"></span>
-                <!-- ✅ CAMBIO: "Dashboard" ahora es "Perfil" -->
                 <a href="dashboard.html" class="block py-2 text-pincha-blue dark:text-pincha-orange font-medium">Perfil</a>
                 <button onclick="openPublishModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">📢 Publicar</button>
                 <button onclick="openSettingsModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">⚙️ Configuración</button>
@@ -145,7 +144,7 @@
         </div>
     </div>
 
-    <!-- MODAL PUBLICAR (DUAL: CANDIDATO / EMPRESA) -->
+    <!-- MODAL PUBLICAR -->
     <div id="publishModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
@@ -175,8 +174,8 @@
                     </select></div>
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label>
                     <input type="text" id="pubLocation" required placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia / Habilidades (Detalle)</label>
-                    <textarea id="pubExperience" rows="3" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe tu experiencia, habilidades clave..."></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia / Habilidades</label>
+                    <textarea id="pubExperience" rows="3" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe tu experiencia..."></textarea></div>
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario esperado (opcional)</label>
                     <input type="text" id="pubSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $300 USD/mes"></div>
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto directo</label>
@@ -192,9 +191,25 @@
                         <option value="">Seleccionar</option>
                         <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
                     </select></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-1">
+                                Edad mínima 
+                                <span class="group relative cursor-help">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50">Añadir estos datos mejora tu match con candidatos ideales en un 40%.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="jobAgeMin" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Edad máxima</label>
+                            <input type="number" id="jobAgeMax" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
+                        </div>
+                    </div>
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Género de preferencia</label>
                     <select id="jobGender" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="No especificar">No especificar (Cualquier género)</option>
+                        <option value="No especificar">No especificar</option>
                         <option value="Femenino">Femenino</option>
                         <option value="Masculino">Masculino</option>
                     </select></div>
@@ -213,7 +228,7 @@
                     <input type="text" id="jobSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $400 USD/mes o A convenir"></div>
                     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Descripción de la vacante</label>
                     <textarea id="jobDesc" rows="4" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe responsabilidades, requisitos, beneficios..."></textarea></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp de la empresa</label>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp</label>
                     <input type="text" id="jobContact" required placeholder="Ej: +53 5123 4567" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
                     <button type="submit" class="w-full bg-pincha-blue dark:bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-blue-800 dark:hover:bg-orange-600 btn-tactile">Publicar vacante</button>
                 </form>
@@ -224,25 +239,62 @@
 
     <!-- MODAL CONFIGURACIÓN -->
     <div id="settingsModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
-            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
                 <h2 class="text-xl font-bold text-pincha-blue dark:text-white">⚙️ Configuración</h2>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
-            <div class="p-6 space-y-4">
-                <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <span class="font-medium dark:text-white">✏️ Editar perfil</span>
-                    <span class="text-gray-400">→</span>
-                </button>
-                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <span class="font-medium dark:text-white">Modo oscuro</span>
-                    <button id="darkModeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-600 transition">
-                        <span class="translate-x-1 dark:translate-x-6 inline-block h-4 w-4 transform rounded-full bg-white transition"></span>
+            <div class="p-6 space-y-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Mi Perfil</h3>
+                    <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition mb-2">
+                        <span class="font-medium dark:text-white text-left">✏️ Editar información personal</span>
+                        <span class="text-gray-400">→</span>
                     </button>
                 </div>
-                <div class="pt-4 border-t dark:border-gray-700 mt-4">
-                    <h4 class="text-sm font-bold text-red-600 mb-2">Zona de Peligro</h4>
-                    <button onclick="deactivateAccount()" class="w-full border-2 border-red-500 text-red-500 font-bold py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 btn-tactile transition">🗑️ Desactivar mi cuenta</button>
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Privacidad y Visibilidad</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <p class="font-medium dark:text-white text-sm">Ocultar teléfono públicamente</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Solo visible al hacer match o postular</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggleHidePhone" class="sr-only peer" onchange="toggleSetting('hide_phone', this.checked)">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <p class="font-medium dark:text-white text-sm">Modo Pausa</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Dejar de aparecer en búsquedas temporalmente</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="togglePauseMode" class="sr-only peer" onchange="toggleSetting('is_paused', this.checked)">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Notificaciones</h3>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                            <p class="font-medium dark:text-white text-sm">Alertas de Match en navegador</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleBrowserNotif" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="pt-4 border-t dark:border-gray-700">
+                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cuenta y Datos</h3>
+                    <div class="space-y-3">
+                        <button onclick="exportMyData()" class="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm">📥 Exportar mis datos (JSON)</button>
+                        <button onclick="deactivateAccount()" class="w-full border-2 border-red-500 text-red-500 font-bold py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition text-sm">🗑️ Desactivar mi cuenta</button>
+                    </div>
                 </div>
             </div>
         </div>

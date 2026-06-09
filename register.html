@@ -3,215 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Mi Pincha</title>
+    <title>Registro Rápido - Mi Pincha</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        tailwind.config = { 
-            darkMode: 'class',
-            theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
-    </script>
-    <style>
-        .tab-btn { transition: all 0.2s ease; cursor: pointer; }
-        .tab-btn.active { background-color: white; color: #FF6B35; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
-        .dark .tab-btn.active { background-color: #374151; color: #FF6B35; }
-        .tab-btn.inactive { background-color: transparent; color: #6B7280; box-shadow: none; }
-        .form-section { display: none; }
-        .form-section.show { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-tactile:active { transform: scale(0.97); }
-        .btn-tactile { transition: all 0.15s ease; }
-    </style>
-    <script>
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col">
     <header class="bg-white dark:bg-gray-800 shadow-sm py-4">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain dark:brightness-0 dark:invert">
+                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto dark:brightness-0 dark:invert">
                 <span class="text-xl font-bold text-pincha-blue dark:text-white">Mi Pincha</span>
             </a>
-            <a href="index.html" class="text-sm text-pincha-blue dark:text-pincha-orange hover:underline font-medium">Volver al inicio</a>
         </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center py-10 px-4">
-        <div class="w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border dark:border-gray-700">
-            <div class="bg-pincha-blue p-6 text-center">
-                <h2 class="text-2xl font-bold text-white">Crear cuenta</h2>
-                <p class="text-blue-200 text-sm mt-1">Únete a la comunidad laboral más grande de Cuba</p>
-            </div>
-            <div class="p-6">
-                <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                    <button type="button" id="tabCandidate" class="tab-btn active flex-1 py-2 rounded-md font-bold text-sm">👤 Candidato</button>
-                    <button type="button" id="tabCompany" class="tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm">🏢 Empresa</button>
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border dark:border-gray-700">
+            <h2 class="text-2xl font-bold text-center text-pincha-blue dark:text-white mb-2">Crea tu cuenta en 15 segundos</h2>
+            <p class="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Luego te guiaremos para completar tu perfil.</p>
+            
+            <form id="regForm" class="space-y-4">
+                <input type="hidden" id="userType" value="candidate">
+                <div class="flex gap-2 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                    <button type="button" onclick="setRole('candidate')" id="btnCand" class="flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm">👤 Candidato</button>
+                    <button type="button" onclick="setRole('company')" id="btnComp" class="flex-1 py-2 rounded-md font-bold text-sm text-gray-500">🏢 Empresa</button>
                 </div>
-                <form id="regForm" class="space-y-4" novalidate>
-                    <input type="hidden" id="userType" value="candidate">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre completo / Razón social</label>
-                        <input type="text" id="regName" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Correo electrónico</label>
-                        <input type="email" id="regEmail" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contraseña (mín. 6 caracteres)</label>
-                        <input type="password" id="regPass" required minlength="6" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                    </div>
-
-                    <!-- CAMPOS CANDIDATO -->
-                    <div id="candidateFields" class="form-section show space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Género (para personalizar tu mensaje de postulación)</label>
-                            <select id="regGender" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar</option>
-                                <option value="masculino">Masculino</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="otro">Otro / Prefiero no decirlo</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría profesional</label>
-                            <select id="regCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar categoría</option>
-                                <option value="Tecnología e Informática">Tecnología e Informática</option>
-                                <option value="Salud y Medicina">Salud y Medicina</option>
-                                <option value="Educación y Formación">Educación y Formación</option>
-                                <option value="Administración y Oficina">Administración y Oficina</option>
-                                <option value="Finanzas y Contabilidad">Finanzas y Contabilidad</option>
-                                <option value="Construcción y Oficios">Construcción y Oficios</option>
-                                <option value="Ventas y Comercial">Ventas y Comercial</option>
-                                <option value="Hostelería y Turismo">Hostelería y Turismo</option>
-                                <option value="Servicios Domésticos">Servicios Domésticos</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto deseado</label>
-                            <input type="text" id="regPosition" placeholder="Ej: Desarrollador Frontend" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label>
-                            <input type="text" id="regLocations" placeholder="Ej: Playa, Marianao" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto directo</label>
-                            <input type="text" id="regContact" placeholder="Ej: Telegram: @usuario o +53 5xxx xxxx" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                        </div>
-                    </div>
-
-                    <!-- CAMPOS EMPRESA -->
-                    <div id="companyFields" class="form-section space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Industria / Sector</label>
-                            <select id="regIndustry" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                                <option value="">Seleccionar sector</option>
-                                <option value="Tecnología y Desarrollo de Software">Tecnología y Desarrollo de Software</option>
-                                <option value="Gastronomía y Alimentación">Gastronomía y Alimentación</option>
-                                <option value="Turismo y Hotelería">Turismo y Hotelería</option>
-                                <option value="Comercio Minorista (MIPYME)">Comercio Minorista (MIPYME)</option>
-                                <option value="Servicios Profesionales y Consultoría">Servicios Profesionales y Consultoría</option>
-                                <option value="Construcción y Mantenimiento">Construcción y Mantenimiento</option>
-                                <option value="Salud y Bienestar">Salud y Bienestar</option>
-                                <option value="Educación y Capacitación">Educación y Capacitación</option>
-                                <option value="Transporte y Logística">Transporte y Logística</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp de la empresa</label>
-                            <input type="text" id="regContactComp" placeholder="Ej: +53 5123 4567" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este número será visible para los candidatos que se postulen.</p>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btnSubmit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md mt-4">Registrarme</button>
-                </form>
-                <div id="regMsg" class="mt-4 text-center text-sm hidden font-bold"></div>
-                <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">¿Ya tienes cuenta? <a href="login.html" class="text-pincha-orange font-bold hover:underline">Inicia sesión</a></p>
-            </div>
+                <input type="text" id="regName" placeholder="Nombre completo o Razón social" required class="w-full px-4 py-3 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg outline-none focus:ring-2 focus:ring-pincha-orange">
+                <input type="email" id="regEmail" placeholder="Correo electrónico" required class="w-full px-4 py-3 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg outline-none focus:ring-2 focus:ring-pincha-orange">
+                <input type="password" id="regPass" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6" class="w-full px-4 py-3 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg outline-none focus:ring-2 focus:ring-pincha-orange">
+                
+                <button type="submit" id="btnSubmit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition">Registrarme Gratis</button>
+            </form>
+            <div id="regMsg" class="mt-4 text-center text-sm hidden font-bold"></div>
         </div>
     </main>
+
+    <!-- MODAL DE ONBOARDING GUIADO -->
+    <div id="onboardingModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border dark:border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-pincha-blue dark:text-white">Completa tu perfil</h3>
+                <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Paso 2 de 2</span>
+            </div>
+            <!-- Barra de progreso -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 dark:bg-gray-700">
+                <div class="bg-pincha-orange h-2.5 rounded-full" style="width: 75%"></div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Completa tu perfil al 100% para aparecer en los primeros matches y generar confianza.</p>
+            
+            <form id="onboardingForm" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <div>
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Edad</label>
+                    <input type="number" id="onbAge" min="16" max="99" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Género</label>
+                    <select id="onbGender" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Foto de Perfil / Logo</label>
+                    <input type="file" id="onbAvatar" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pincha-orange file:text-white hover:file:bg-orange-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Municipios de interés (Separa con coma)</label>
+                    <input type="text" id="onbLocations" placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                </div>
+                <div id="candOnbFields">
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Puesto deseado</label>
+                    <input type="text" id="onbPosition" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                </div>
+                <button type="submit" class="w-full bg-pincha-blue dark:bg-pincha-orange text-white font-bold py-3 rounded-lg hover:opacity-90 transition mt-4">Finalizar y Entrar</button>
+            </form>
+        </div
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentRole = 'candidate';
+        let tempUserId = null;
 
-        const btnC = document.getElementById('tabCandidate'), btnE = document.getElementById('tabCompany');
-        const formC = document.getElementById('candidateFields'), formE = document.getElementById('companyFields');
-        const typeInput = document.getElementById('userType');
-
-        function setActive(isCandidate) {
-            typeInput.value = isCandidate ? 'candidate' : 'company';
-            if(isCandidate) { 
-                btnC.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                btnE.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                formC.classList.add('show'); formE.classList.remove('show'); 
-            } else { 
-                btnE.className='tab-btn active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white'; 
-                btnC.className='tab-btn inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400'; 
-                formE.classList.add('show'); formC.classList.remove('show'); 
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('userType').value = role;
+            if(role === 'candidate') {
+                document.getElementById('btnCand').className = "flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm";
+                document.getElementById('btnComp').className = "flex-1 py-2 rounded-md font-bold text-sm text-gray-500";
+                document.getElementById('candOnbFields').classList.remove('hidden');
+            } else {
+                document.getElementById('btnComp').className = "flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm";
+                document.getElementById('btnCand').className = "flex-1 py-2 rounded-md font-bold text-sm text-gray-500";
+                document.getElementById('candOnbFields').classList.add('hidden');
             }
         }
-        btnC.onclick = () => setActive(true); btnE.onclick = () => setActive(false);
 
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmit'), msg = document.getElementById('regMsg');
-            btn.disabled = true; btn.textContent = 'Procesando...'; msg.classList.add('hidden');
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true; btn.textContent = 'Creando cuenta...';
             
             try {
-                const { data, error: authError } = await sb.auth.signUp({ 
-                    email: document.getElementById('regEmail').value, 
-                    password: document.getElementById('regPass').value, 
-                    options: { data: { full_name: document.getElementById('regName').value, user_type: typeInput.value } } 
+                const { data, error } = await sb.auth.signUp({
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPass').value,
+                    options: { data: { full_name: document.getElementById('regName').value, user_type: currentRole } }
                 });
-                if (authError) throw authError;
-                if (!data?.user) throw new Error("No se recibió el usuario del servidor.");
+                if (error) throw error;
                 
-                const userId = data.user.id;
-                const type = typeInput.value;
-                const name = document.getElementById('regName').value;
-
-                await sb.from('profiles').upsert({ id: userId, full_name: name }, { onConflict: 'id' });
-
-                if (type === 'candidate') {
-                    const locationsArray = document.getElementById('regLocations').value.split(',').map(s => s.trim());
-                    const { error: candErr } = await sb.from('candidates').insert({ 
-                        profile_id: userId, 
-                        gender: document.getElementById('regGender').value, // ✅ NUEVO: Género
-                        category: document.getElementById('regCategory').value, 
-                        desired_position: document.getElementById('regPosition').value, 
-                        preferred_locations: locationsArray,
-                        contact_info: document.getElementById('regContact').value,
-                        is_active: true 
-                    });
-                    if (candErr) throw new Error("Candidato: " + candErr.message);
+                tempUserId = data.user.id;
+                await sb.from('profiles').upsert({ id: tempUserId, full_name: document.getElementById('regName').value });
+                
+                // Crear registro base vacío
+                if (currentRole === 'candidate') {
+                    await sb.from('candidates').insert({ profile_id: tempUserId, is_active: true });
                 } else {
-                    const { error: compErr } = await sb.from('companies').insert({ 
-                        profile_id: userId, 
-                        industry: document.getElementById('regIndustry').value, 
-                        contact_info: document.getElementById('regContactComp').value,
-                        is_active: true,
-                        is_verified: false 
-                    });
-                    if (compErr) throw new Error("Empresa: " + compErr.message);
+                    await sb.from('companies').insert({ profile_id: tempUserId, is_active: true });
                 }
+
+                // Mostrar Onboarding
+                document.getElementById('onboardingModal').classList.remove('hidden');
+            } catch (err) {
+                const msg = document.getElementById('regMsg');
+                msg.textContent = '❌ ' + err.message; msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block';
+                btn.disabled = false; btn.textContent = 'Registrarme Gratis';
+            }
+        });
+
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = 'Guardando...'; btn.disabled = true;
+
+            try {
+                let avatarUrl = null;
+                const avatarFile = document.getElementById('onbAvatar').files[0];
+                if (avatarFile) {
+                    // Aquí iría la compresión, la manejamos en app.js, pero por simplicidad aquí:
+                    const cleanName = avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+                    const { data: urlData } = await sb.storage.from('avatars').upload(`${tempUserId}/${Date.now()}_${cleanName}`, avatarFile);
+                    if(urlData) {
+                        const { data: publicUrl } = sb.storage.from('avatars').getPublicUrl(urlData.path);
+                        avatarUrl = publicUrl.publicUrl;
+                    }
+                }
+
+                const locationsArray = document.getElementById('onbLocations').value.split(',').map(s => s.trim());
                 
-                msg.textContent = '✅ ¡Cuenta creada! Redirigiendo...';
-                msg.className = 'mt-4 text-center text-sm text-green-600 font-bold block';
-                setTimeout(() => window.location.href = 'login.html', 2000);
-            } catch (err) { 
-                msg.textContent = '❌ ' + err.message; 
-                msg.className = 'mt-4 text-center text-sm text-red-600 font-bold block'; 
-                btn.disabled = false; btn.textContent = 'Registrarme'; 
+                if (currentRole === 'candidate') {
+                    await sb.from('candidates').update({
+                        age: parseInt(document.getElementById('onbAge').value) || null,
+                        gender: document.getElementById('onbGender').value,
+                        avatar_url: avatarUrl,
+                        preferred_locations: locationsArray,
+                        desired_position: document.getElementById('onbPosition').value
+                    }).eq('profile_id', tempUserId);
+                } else {
+                    await sb.from('companies').update({
+                        logo_url: avatarUrl
+                    }).eq('profile_id', tempUserId);
+                }
+
+                window.location.href = 'index.html';
+            } catch (err) {
+                alert('Error al guardar: ' + err.message);
+                btn.textContent = 'Finalizar y Entrar'; btn.disabled = false;
             }
         });
     </script>
