@@ -8,8 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } } } } }
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
     </script>
+    <style>
+        select[multiple] option:checked { background-color: #FF6B35; color: white; }
+    </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col">
     <header class="bg-white dark:bg-gray-800 shadow-sm py-4">
@@ -24,7 +27,7 @@
     <main class="flex-grow flex items-center justify-center py-10 px-4">
         <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border dark:border-gray-700">
             <h2 class="text-2xl font-bold text-center text-pincha-blue dark:text-white mb-2">Crea tu cuenta en 15 segundos</h2>
-            <p class="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Luego te guiaremos para completar tu perfil.</p>
+            <p class="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Luego te guiaremos para completar tu perfil de match.</p>
             
             <form id="regForm" class="space-y-4">
                 <input type="hidden" id="userType" value="candidate">
@@ -42,55 +45,140 @@
         </div>
     </main>
 
-    <!-- MODAL DE ONBOARDING GUIADO -->
+    <!-- MODAL DE ONBOARDING GUIADO (CON SELECTS) -->
     <div id="onboardingModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border dark:border-gray-700">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-pincha-blue dark:text-white">Completa tu perfil</h3>
                 <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Paso 2 de 2</span>
             </div>
-            <!-- Barra de progreso -->
             <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 dark:bg-gray-700">
                 <div class="bg-pincha-orange h-2.5 rounded-full" style="width: 75%"></div>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Completa tu perfil al 100% para aparecer en los primeros matches y generar confianza.</p>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Selecciona tus datos exactos para que el sistema te haga match con las mejores oportunidades.</p>
             
             <form id="onboardingForm" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <div>
-                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Edad</label>
-                    <input type="number" id="onbAge" min="16" max="99" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                <div id="candOnbFields" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1 dark:text-gray-200">Edad</label>
+                            <input type="number" id="onbAge" min="16" max="99" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1 dark:text-gray-200">Género</label>
+                            <select id="onbGender" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 dark:text-gray-200">Categoría Profesional</label>
+                        <select id="onbCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                            <!-- Llenado por JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 dark:text-gray-200">Puesto Deseado</label>
+                        <select id="onbPosition" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                            <!-- Llenado por JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 dark:text-gray-200">Nivel de Experiencia</label>
+                        <select id="onbExperienceLevel" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                            <option value="Sin experiencia">Sin experiencia</option>
+                            <option value="1-2 años">1-2 años</option>
+                            <option value="3-5 años">3-5 años</option>
+                            <option value="Más de 5 años">Más de 5 años</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 dark:text-gray-200">Municipios de Interés (Mantén Ctrl/Cmd para varios)</label>
+                        <select id="onbLocations" multiple required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg h-32">
+                            <!-- Llenado por JS -->
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Género</label>
-                    <select id="onbGender" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                        <option value="otro">Otro</option>
-                    </select>
+                
+                <div id="compOnbFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 dark:text-gray-200">Industria / Sector</label>
+                        <select id="onbIndustry" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                            <option value="Tecnología y Desarrollo de Software">Tecnología y Desarrollo de Software</option>
+                            <option value="Gastronomía y Alimentación">Gastronomía y Alimentación</option>
+                            <option value="Turismo y Hotelería">Turismo y Hotelería</option>
+                            <option value="Comercio Minorista (MIPYME)">Comercio Minorista (MIPYME)</option>
+                            <option value="Servicios Profesionales y Consultoría">Servicios Profesionales y Consultoría</option>
+                            <option value="Construcción y Mantenimiento">Construcción y Mantenimiento</option>
+                            <option value="Salud y Bienestar">Salud y Bienestar</option>
+                            <option value="Educación y Capacitación">Educación y Capacitación</option>
+                            <option value="Transporte y Logística">Transporte y Logística</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium mb-1 dark:text-gray-200">Foto de Perfil / Logo</label>
                     <input type="file" id="onbAvatar" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pincha-orange file:text-white hover:file:bg-orange-600">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Municipios de interés (Separa con coma)</label>
-                    <input type="text" id="onbLocations" placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Contacto (WhatsApp/Telegram)</label>
+                    <input type="text" id="onbContact" required placeholder="Ej: +53 5xxx xxxx" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
                 </div>
-                <div id="candOnbFields">
-                    <label class="block text-sm font-medium mb-1 dark:text-gray-200">Puesto deseado</label>
-                    <input type="text" id="onbPosition" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
-                </div>
+
                 <button type="submit" class="w-full bg-pincha-blue dark:bg-pincha-orange text-white font-bold py-3 rounded-lg hover:opacity-90 transition mt-4">Finalizar y Entrar</button>
             </form>
-        </div
+        </div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        const municipalities = ["Playa", "Plaza de la Revolución", "Centro Habana", "Habana Vieja", "Regla", "Habana del Este", "Guanabacoa", "San Miguel del Padrón", "10 de Octubre", "Cerro", "Marianao", "La Lisa", "Arroyo Naranjo", "Boyeros", "Cotorro"];
+        const categories = ["Tecnología e Informática", "Salud y Medicina", "Educación y Formación", "Administración y Oficina", "Finanzas y Contabilidad", "Construcción y Oficios", "Ventas y Comercial", "Hostelería y Turismo", "Servicios Domésticos"];
+        const positions = {
+            "Tecnología e Informática": ["Desarrollador Frontend", "Desarrollador Backend", "Desarrollador Full Stack", "Ingeniero de Software", "Programador Web", "Administrador de Sistemas", "Técnico de Soporte IT", "QA Tester", "Analista de Datos"],
+            "Salud y Medicina": ["Médico General", "Enfermero", "Odontólogo", "Farmacéutico", "Nutricionista", "Técnico de Laboratorio"],
+            "Educación y Formación": ["Profesor de Idiomas", "Tutor Académico", "Capacitador Empresarial", "Coordinador Académico"],
+            "Administración y Oficina": ["Administrativo", "Recepcionista", "Asistente Ejecutivo", "Secretario"],
+            "Finanzas y Contabilidad": ["Contador", "Auditor", "Analista Financiero", "Cajero"],
+            "Construcción y Oficios": ["Electricista", "Plomero", "Carpintero", "Mecánico Industrial"],
+            "Ventas y Comercial": ["Vendedor", "Ejecutivo Comercial", "Teleoperador"],
+            "Hostelería y Turismo": ["Chef", "Cocinero", "Camarero", "Bartender", "Recepcionista de Hotel", "Guía Turístico"],
+            "Servicios Domésticos": ["Niñera", "Cuidador", "Personal Doméstico"]
+        };
+
         let currentRole = 'candidate';
         let tempUserId = null;
+
+        function populateSelects() {
+            // Categorías
+            const catSelects = [document.getElementById('onbCategory')];
+            catSelects.forEach(sel => {
+                if(!sel) return;
+                sel.innerHTML = '<option value="">Seleccionar categoría</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            });
+
+            // Municipios
+            const locSelects = [document.getElementById('onbLocations')];
+            locSelects.forEach(sel => {
+                if(!sel) return;
+                sel.innerHTML = municipalities.map(m => `<option value="${m}">${m}</option>`).join('');
+            });
+
+            // Actualizar puestos al cambiar categoría
+            document.getElementById('onbCategory')?.addEventListener('change', (e) => {
+                const posSel = document.getElementById('onbPosition');
+                const cats = e.target.value;
+                posSel.innerHTML = '<option value="">Seleccionar puesto</option>' + (positions[cats] || []).map(p => `<option value="${p}">${p}</option>`).join('');
+            });
+        }
+        populateSelects();
 
         function setRole(role) {
             currentRole = role;
@@ -99,10 +187,12 @@
                 document.getElementById('btnCand').className = "flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm";
                 document.getElementById('btnComp').className = "flex-1 py-2 rounded-md font-bold text-sm text-gray-500";
                 document.getElementById('candOnbFields').classList.remove('hidden');
+                document.getElementById('compOnbFields').classList.add('hidden');
             } else {
                 document.getElementById('btnComp').className = "flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm";
                 document.getElementById('btnCand').className = "flex-1 py-2 rounded-md font-bold text-sm text-gray-500";
                 document.getElementById('candOnbFields').classList.add('hidden');
+                document.getElementById('compOnbFields').classList.remove('hidden');
             }
         }
 
@@ -122,14 +212,12 @@
                 tempUserId = data.user.id;
                 await sb.from('profiles').upsert({ id: tempUserId, full_name: document.getElementById('regName').value });
                 
-                // Crear registro base vacío
                 if (currentRole === 'candidate') {
                     await sb.from('candidates').insert({ profile_id: tempUserId, is_active: true });
                 } else {
                     await sb.from('companies').insert({ profile_id: tempUserId, is_active: true });
                 }
 
-                // Mostrar Onboarding
                 document.getElementById('onboardingModal').classList.remove('hidden');
             } catch (err) {
                 const msg = document.getElementById('regMsg');
@@ -147,28 +235,31 @@
                 let avatarUrl = null;
                 const avatarFile = document.getElementById('onbAvatar').files[0];
                 if (avatarFile) {
-                    // Aquí iría la compresión, la manejamos en app.js, pero por simplicidad aquí:
                     const cleanName = avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-                    const { data: urlData } = await sb.storage.from('avatars').upload(`${tempUserId}/${Date.now()}_${cleanName}`, avatarFile);
-                    if(urlData) {
-                        const { data: publicUrl } = sb.storage.from('avatars').getPublicUrl(urlData.path);
-                        avatarUrl = publicUrl.publicUrl;
-                    }
+                    const { data: urlData, error: upErr } = await sb.storage.from('avatars').upload(`${tempUserId}/${Date.now()}_${cleanName}`, avatarFile);
+                    if(upErr) throw upErr;
+                    const { data: publicUrl } = sb.storage.from('avatars').getPublicUrl(urlData.path);
+                    avatarUrl = publicUrl.publicUrl;
                 }
 
-                const locationsArray = document.getElementById('onbLocations').value.split(',').map(s => s.trim());
+                const locationsArray = Array.from(document.getElementById('onbLocations').selectedOptions).map(opt => opt.value);
                 
                 if (currentRole === 'candidate') {
                     await sb.from('candidates').update({
                         age: parseInt(document.getElementById('onbAge').value) || null,
                         gender: document.getElementById('onbGender').value,
-                        avatar_url: avatarUrl,
+                        category: document.getElementById('onbCategory').value,
+                        desired_position: document.getElementById('onbPosition').value,
+                        experience_level: document.getElementById('onbExperienceLevel').value,
                         preferred_locations: locationsArray,
-                        desired_position: document.getElementById('onbPosition').value
+                        avatar_url: avatarUrl,
+                        contact_info: document.getElementById('onbContact').value
                     }).eq('profile_id', tempUserId);
                 } else {
                     await sb.from('companies').update({
-                        logo_url: avatarUrl
+                        industry: document.getElementById('onbIndustry').value,
+                        logo_url: avatarUrl,
+                        contact_info: document.getElementById('onbContact').value
                     }).eq('profile_id', tempUserId);
                 }
 

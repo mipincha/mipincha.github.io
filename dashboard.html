@@ -21,8 +21,6 @@
         .tab-inactive { color: #6B7280; }
         .btn-tactile:active { transform: scale(0.97); }
         .btn-tactile { transition: all 0.15s ease; }
-        .match-high { border-left: 4px solid #FF6B35; }
-        .match-med { border-left: 4px solid #3B82F6; }
         #mobileMenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         #mobileMenu.open { max-height: 500px; }
         .dark body { background: #0f172a; color: #f1f5f9; }
@@ -32,6 +30,7 @@
         .dark .text-gray-500 { color: #64748b !important; }
         .dark .border-gray-200, .dark .border-gray-100 { border-color: #334155 !important; }
         .dark input, .dark select, .dark textarea { background: #0f172a !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+        select[multiple] option:checked { background-color: #FF6B35; color: white; }
     </style>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -48,7 +47,7 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 btn-tactile">
                 <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain dark:brightness-0 dark:invert">
-                <span class="font-bold text-pincha-blue dark:text-white hidden sm:block">Dashboard</span>
+                <span class="font-bold text-pincha-blue dark:text-white hidden sm:block" id="headerBrand">Mi Pincha</span>
             </a>
             <div class="flex items-center gap-4">
                 <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 btn-tactile" title="Cambiar tema"><span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span></button>
@@ -65,8 +64,9 @@
         </div>
         <div id="mobileMenu" class="md:hidden bg-white dark:bg-dark-card border-t dark:border-gray-700 px-4 py-2 space-y-2">
             <span id="mobileUserName" class="block py-2 text-sm font-bold text-pincha-blue dark:text-pincha-orange"></span>
-            <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 font-medium">← Volver al inicio</a>
-            <button onclick="switchTab('tab-archivos')" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">📁 Archivos</button>
+            <div id="mobileNavLinks" class="flex flex-col gap-2">
+                <!-- Se llena dinámicamente con JS según el rol -->
+            </div>
             <button onclick="openSettingsModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">⚙️ Configuración</button>
             <button id="mobileLogoutBtn" class="block w-full py-2 text-left text-red-500 font-medium">Salir</button>
         </div>
@@ -74,27 +74,29 @@
 
     <main id="dashboardContainer" class="hidden max-w-7xl mx-auto px-4 py-6">
         <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
-        <div class="flex border-b dark:border-gray-700 mb-6 overflow-x-auto">
-            <button data-tab="tab-overview" class="tab-active px-4 py-2 text-sm whitespace-nowrap">Resumen</button>
-            <button data-tab="tab-content" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Mi Contenido</button>
-            <button data-tab="tab-matches" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap flex items-center gap-1">Matches</button>
-            <button data-tab="tab-archivos" class="tab-inactive px-4 py-2 text-sm whitespace-nowrap">Archivos</button>
+        
+        <!-- Navegación de Pestañas Dinámica -->
+        <div id="tabsContainer" class="flex border-b dark:border-gray-700 mb-6 overflow-x-auto">
+            <!-- Se llena dinámicamente con JS según el rol -->
         </div>
-        <div id="tabContent" class="bg-white dark:bg-dark-card rounded-xl border dark:border-gray-700 p-6 min-h-[400px]"><div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div></div>
+        
+        <div id="tabContent" class="bg-white dark:bg-dark-card rounded-xl border dark:border-gray-700 p-6 min-h-[400px]">
+            <div class="space-y-4"><div class="skeleton h-6 w-3/4 rounded"></div><div class="skeleton h-24 w-full rounded"></div></div>
+        </div>
     </main>
 
-    <!-- MODAL CONFIGURACIÓN (Expandido) -->
+    <!-- MODAL CONFIGURACIÓN -->
     <div id="settingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700 max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-dark-card z-10">
-                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">⚙️ Configuración</h2>
+                <h2 class="text-xl font-bold text-pincha-blue dark:text-white" id="settingsTitle">⚙️ Configuración</h2>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-6">
                 <div>
-                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Mi Perfil</h3>
+                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3" id="profileSectionTitle">Mi Perfil</h3>
                     <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition mb-2">
-                        <span class="font-medium dark:text-white text-left">✏️ Editar información personal</span>
+                        <span class="font-medium dark:text-white text-left" id="editProfileBtnText">✏️ Editar información</span>
                         <span class="text-gray-400">→</span>
                     </button>
                 </div>
@@ -123,18 +125,6 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Notificaciones</h3>
-                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-bg rounded-lg">
-                        <div>
-                            <p class="font-medium dark:text-white text-sm">Alertas de Match en navegador</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggleBrowserNotif" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
-                        </label>
-                    </div>
-                </div>
                 <div class="pt-4 border-t dark:border-gray-700">
                     <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cuenta y Datos</h3>
                     <div class="space-y-3">
@@ -146,34 +136,17 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR PERFIL -->
+    <!-- MODAL EDITAR PERFIL (Dinámico por rol) -->
     <div id="editProfileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
-            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">✏️ Editar Perfil</h2>
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-dark-card z-10">
+                <h2 class="text-xl font-bold text-pincha-blue dark:text-white" id="editProfileTitle">✏️ Editar Perfil</h2>
                 <button onclick="closeEditProfileModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <form id="editProfileForm" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre completo / Razón social</label>
-                    <input type="text" id="editName" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto</label>
-                    <input type="text" id="editContact" required placeholder="Ej: +53 5xxx xxxx o @usuario" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                </div>
-                <div id="editCandidateFields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto deseado</label>
-                        <input type="text" id="editPosition" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                    </div>
-                </div>
-                <div id="editCompanyFields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Industria / Sector</label>
-                        <input type="text" id="editIndustry" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-dark-bg dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                    </div>
-                </div>
+                <!-- Se inyecta dinámicamente con JS -->
+                <div id="editProfileFields"></div>
+                
                 <div class="pt-4 flex gap-3">
                     <button type="button" onclick="closeEditProfileModal()" class="flex-1 py-2.5 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-bg btn-tactile">Cancelar</button>
                     <button type="submit" class="flex-1 bg-pincha-orange text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 btn-tactile">Guardar cambios</button>
@@ -190,343 +163,6 @@
         </div>
     </footer>
 
-    <script>
-        const SUPABASE_URL = 'https://yznkrbhfsrcoskyoyfxs.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bmtyYmhmc3Jjb3NreW95ZnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjczNzQsImV4cCI6MjA5NTI0MzM3NH0.TF_iauRfdaICpT7KipXwrphQYyGu4X4v2_FzQOIl1qw';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let userType = null, userId = null, userMeta = null, unreadCount = 0;
-
-        async function initDashboard() {
-            const { data: { session } } = await sb.auth.getSession();
-            if(!session) { window.location.href = 'login.html'; return; }
-            userType = session.user.user_metadata?.user_type; userId = session.user.id; userMeta = session.user.user_metadata;
-            
-            const userName = userMeta?.full_name || session.user.email;
-            document.getElementById('headerUserName').textContent = userName;
-            document.getElementById('mobileUserName').textContent = userName;
-            
-            document.getElementById('authGuard').classList.add('hidden'); document.getElementById('dashboardContainer').classList.remove('hidden');
-            
-            document.getElementById('hamburgerBtn').onclick = () => document.getElementById('mobileMenu').classList.toggle('open');
-            document.getElementById('logoutBtn').onclick = document.getElementById('mobileLogoutBtn').onclick = async () => { await sb.auth.signOut(); window.location.href = 'index.html'; };
-            
-            document.getElementById('themeToggle').onclick = () => {
-                const isDark = !document.documentElement.classList.contains('dark');
-                document.documentElement.classList.toggle('dark', isDark);
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            };
-
-            await loadStats(); checkUnreadNotifications();
-            loadTabContent('tab-overview');
-            
-            // Inicializar notificaciones en tiempo real
-            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-                await Notification.requestPermission();
-            }
-            setupRealtimeNotifications(userName);
-        }
-
-        async function loadStats() {
-            const container = document.getElementById('statsContainer');
-            container.innerHTML = '<div class="col-span-full skeleton h-20 rounded-xl"></div>'.repeat(4);
-            try {
-                let stats = [];
-                if(userType === 'company') {
-                    const { count: jobs } = await sb.from('jobs').select('*', { count: 'exact', head: true }).eq('company_id', userId);
-                    const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('job_id', 'in', `(select id from jobs where company_id='${userId}')`);
-                    stats = [{l:'Vacantes Activas',v:jobs||0,i:'📋'},{l:'Postulaciones',v:apps||0,i:'📩'},{l:'Matches',v:0,i:'🔥'},{l:'Archivos',v:0,i:'📁'}];
-                } else {
-                    const { count: apps } = await sb.from('applications').select('*', { count: 'exact', head: true }).eq('candidate_id', userId);
-                    const { count: notifs } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId);
-                    stats = [{l:'Postulaciones',v:apps||0,i:'🚀'},{l:'Matches',v:notifs||0,i:'🔥'},{l:'Archivos',v:0,i:'📁'},{l:'Entrevistas',v:0,i:'📅'}];
-                }
-                container.innerHTML = stats.map(s => `<div class="bg-white dark:bg-dark-card p-4 rounded-xl border dark:border-gray-700 shadow-sm flex items-center gap-3"><div class="text-2xl">${s.i}</div><div><p class="text-2xl font-bold text-pincha-blue dark:text-white">${s.v}</p><p class="text-xs text-gray-500 dark:text-gray-400">${s.l}</p></div></div>`).join('');
-            } catch(e) { container.innerHTML = '<div class="col-span-full text-center text-red-500 py-4">Error KPIs</div>'; }
-        }
-
-        async function checkUnreadNotifications() {
-            const { count } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false);
-            unreadCount = count || 0;
-            document.getElementById('notifDot').classList.toggle('hidden', unreadCount === 0);
-        }
-
-        async function loadMatchesTab() {
-            const container = document.getElementById('tabContent'); 
-            container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-            try {
-                const { data: notifs, error } = await sb.from('notifications').select('*, jobs(title, location, salary, category, is_active, company_name, contact_info)').eq('user_id', userId).order('created_at', { ascending: false });
-                if (error) throw error;
-                await sb.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
-                checkUnreadNotifications();
-                let html = '<h3 class="text-lg font-bold text-pincha-blue dark:text-white mb-4">Tus Oportunidades</h3>';
-                if (!notifs?.length) { 
-                    html += '<div class="text-center py-12 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg rounded-lg border"><p class="font-bold text-xl mb-2">🔍 Buscando coincidencias...</p><p>Añade más municipios a tu perfil para recibir más alertas.</p></div>'; 
-                } else {
-                    html += '<div class="space-y-4">';
-                    notifs.forEach(n => { 
-                        const scoreClass = n.score >= 90 ? 'match-high' : 'match-med'; 
-                        html += `<div class="bg-white dark:bg-dark-card p-5 rounded-xl border dark:border-gray-700 shadow-sm ${scoreClass} hover:shadow-md transition relative overflow-hidden">
-                            <div class="absolute top-0 right-0 bg-pincha-orange text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Match ${n.score}%</div>
-                            <div class="flex items-start gap-3">
-                                <div class="text-3xl">🔥</div>
-                                <div class="flex-1">
-                                    <p class="text-gray-800 dark:text-gray-200 font-medium leading-snug mb-2">${n.message}</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">🏢 ${n.jobs?.company_name || 'Empresa'} • 💰 ${n.jobs?.salary || 'A convenir'}</p>
-                                    ${n.jobs?.contact_info ? `<p class="text-xs text-pincha-orange dark:text-pincha-orange font-medium mb-3 bg-orange-50 dark:bg-gray-800 p-2 rounded">📞 Contacto directo: ${n.jobs.contact_info}</p>` : ''}
-                                    <div class="flex gap-2">
-                                        <a href="index.html" class="flex-1 text-center bg-pincha-blue dark:bg-pincha-orange text-white text-sm font-bold py-2 rounded-lg hover:opacity-90 transition">Ver Vacante</a>
-                                        ${userType === 'candidate' ? `<button onclick="applyFromMatch('${n.job_id}')" class="flex-1 text-center border-2 border-pincha-orange text-pincha-orange dark:text-white dark:border-white text-sm font-bold py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition">Postularme Ahora</button>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`; 
-                    });
-                    html += '</div>';
-                }
-                container.innerHTML = html;
-            } catch (err) { container.innerHTML = `<div class="text-center py-8 text-red-500">Error: ${err.message}</div>`; }
-        }
-
-        async function applyFromMatch(jobId) {
-            try { 
-                const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: userId }); 
-                if (error?.code === '23505') { alert('✅ Ya te postulaste.'); return; } 
-                if (error) throw error; 
-                alert('✅ ¡Postulación enviada!'); 
-                loadMatchesTab(); 
-            } catch (err) { alert('❌ ' + err.message); }
-        }
-
-        function switchTab(tabId) { 
-            document.querySelectorAll('[data-tab]').forEach(b=>b.classList.replace('tab-active','tab-inactive')); 
-            document.querySelector(`[data-tab="${tabId}"]`)?.classList.replace('tab-inactive','tab-active'); 
-            loadTabContent(tabId); 
-        }
-        document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',e=>switchTab(e.currentTarget.dataset.tab)));
-
-        async function loadTabContent(tab) {
-            const c = document.getElementById('tabContent'); c.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pincha-orange"></div></div>';
-            let html = '';
-            if(tab==='tab-overview') html = `<div class="text-center py-8"><h3 class="text-xl font-bold dark:text-white">Bienvenido</h3><p class="text-gray-500 dark:text-gray-400">${userType==='company'?'Gestiona vacantes y revisa postulaciones.':'Revisa tus postulaciones y matches.'}</p></div>`;
-            else if(tab==='tab-content') {
-                if(userType==='company') {
-                    const { data: jobs } = await sb.from('jobs').select('*').eq('company_id', userId).order('created_at',{ascending:false});
-                    html = `<div class="space-y-2">${jobs?.length?jobs.map(j=>`<div class="p-3 border dark:border-gray-700 rounded"><h4 class="font-bold dark:text-white">${j.title}</h4><p class="text-xs text-gray-500 dark:text-gray-400">${j.location} • ${j.salary||'A convenir'}</p></div>`).join(''):'<p class="text-center text-gray-500 dark:text-gray-400">Sin vacantes.</p>'}</div>`;
-                } else {
-                    const { data: apps } = await sb.from('applications').select('*, jobs(title, location, company_name)').eq('candidate_id', userId).order('created_at',{ascending:false});
-                    html = `<div class="space-y-2">${apps?.length?apps.map(a=>`<div class="p-3 border dark:border-gray-700 rounded"><h4 class="font-bold dark:text-white">${a.jobs?.title||'Vacante'}</h4><p class="text-xs text-gray-500 dark:text-gray-400">${a.jobs?.location||''} • ${a.jobs?.company_name||''}</p><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded mt-1 inline-block">Postulado</span></div>`).join(''):'<p class="text-center text-gray-500 dark:text-gray-400">Sin postulaciones.</p>'}</div>`;
-                }
-            } else if(tab==='tab-matches') { await loadMatchesTab(); return; }
-            else if(tab==='tab-archivos') {
-                const table = userType === 'candidate' ? 'candidates' : 'companies';
-                const { data: prof, error } = await sb.from(table).select('avatar_url, logo_url, doc_url, doc_name').eq('profile_id', userId).single();
-                if (error) console.error("Error al cargar perfil:", error);
-
-                const isCand = userType === 'candidate';
-                const avatarUrl = prof?.[isCand ? 'avatar_url' : 'logo_url'];
-                const docUrl = prof?.doc_url;
-                const docName = prof?.doc_name;
-
-                html = `<div class="max-w-2xl mx-auto space-y-6">
-                    <div class="bg-white dark:bg-dark-card p-6 rounded-xl border dark:border-gray-700 text-center">
-                        <h3 class="text-lg font-bold dark:text-white mb-4">${isCand ? 'Foto de Perfil' : 'Logo de la Empresa'}</h3>
-                        <img src="${avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userMeta?.full_name || 'User')}&background=FF6B35&color=fff&size=128`}" 
-                             alt="Avatar" class="w-24 h-24 rounded-full object-cover border-4 border-pincha-orange mx-auto mb-4">
-                        <input type="file" id="avatarInput" class="hidden" accept="image/*" onchange="handleFileUpload(this, 'avatar')">
-                        <button onclick="document.getElementById('avatarInput').click()" class="bg-gray-200 dark:bg-gray-700 dark:text-white px-6 py-2 rounded-lg font-bold btn-tactile hover:bg-gray-300 dark:hover:bg-gray-600">📷 Cambiar ${isCand ? 'Foto' : 'Logo'}</button>
-                    </div>
-                    ${isCand ? `
-                    <div class="bg-white dark:bg-dark-card p-6 rounded-xl border dark:border-gray-700 text-center">
-                        <h3 class="text-lg font-bold dark:text-white mb-4">Currículum y Documentos</h3>
-                        ${docUrl ? `
-                            <div class="bg-green-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 mb-4 flex items-center gap-3 justify-center">
-                                <span class="text-3xl">📄</span>
-                                <div class="text-left flex-1 min-w-0">
-                                    <p class="font-bold dark:text-white truncate">${docName || 'Documento'}</p>
-                                    <a href="${docUrl}" target="_blank" class="text-sm text-pincha-blue hover:underline">Ver o descargar →</a>
-                                </div>
-                            </div>
-                        ` : '<p class="text-gray-500 dark:text-gray-400 mb-4">Aún no has subido ningún documento.</p>'}
-                        <input type="file" id="docInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFileUpload(this, 'doc')">
-                        <button onclick="document.getElementById('docInput').click()" class="bg-pincha-blue dark:bg-pincha-orange text-white px-6 py-2 rounded-lg font-bold btn-tactile hover:opacity-90">📤 Subir CV o Certificado</button>
-                    </div>` : ''}
-                    <div id="uploadMsg" class="text-center text-sm font-bold"></div>
-                </div>`;
-            }
-            c.innerHTML = html;
-        }
-
-        async function handleFileUpload(input, fileType) {
-            const file = input.files[0];
-            if (!file) return;
-            const msg = document.getElementById('uploadMsg');
-            if (msg) { msg.textContent = '⏳ Comprimiendo y subiendo...'; msg.className = 'mt-3 text-sm font-bold text-blue-600'; }
-
-            try {
-                const { data: { session } } = await sb.auth.getSession();
-                if (!session) throw new Error("Debes iniciar sesión");
-                const userId = session.user.id;
-                const userType = session.user.user_metadata?.user_type;
-
-                let fileToUpload = file;
-                if (fileType === 'avatar' && file.type.startsWith('image/')) {
-                    fileToUpload = await compressImage(file);
-                }
-
-                const cleanName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
-                let bucket, table, colUrl, colName;
-                
-                if (fileType === 'avatar') {
-                    bucket = 'avatars';
-                    table = userType === 'candidate' ? 'candidates' : 'companies';
-                    colUrl = userType === 'candidate' ? 'avatar_url' : 'logo_url';
-                } else {
-                    bucket = 'candidate-docs';
-                    table = 'candidates';
-                    colUrl = 'doc_url';
-                    colName = 'doc_name';
-                }
-
-                const filePath = `${userId}/${Date.now()}_${cleanName}`;
-                const { error: uploadError } = await sb.storage.from(bucket).upload(filePath, fileToUpload);
-                if (uploadError) throw uploadError;
-
-                const { data: urlData } = sb.storage.from(bucket).getPublicUrl(filePath);
-                const updatePayload = { [colUrl]: urlData.publicUrl };
-                if (colName) updatePayload[colName] = file.name;
-
-                await sb.from(table).update(updatePayload).eq('profile_id', userId);
-
-                if (msg) { msg.textContent = '✅ Guardado y optimizado.'; msg.className = 'mt-3 text-sm font-bold text-green-600'; }
-                setTimeout(() => loadTabContent('tab-archivos'), 1000);
-            } catch (error) {
-                console.error("Error al subir archivo:", error);
-                const msg = document.getElementById('uploadMsg');
-                if (msg) { msg.textContent = '❌ Error: ' + error.message; msg.className = 'mt-3 text-sm font-bold text-red-600'; }
-            }
-        }
-
-        async function compressImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
-                    };
-                };
-            });
-        }
-
-        async function deactivateAccount() {
-            if (!confirm('¿Estás seguro? Esto ocultará tu perfil y tus datos. Tus datos se preservarán.')) return;
-            try {
-                const table = userType === 'company' ? 'companies' : 'candidates';
-                await sb.from(table).update({ is_active: false }).eq('profile_id', userId);
-                if (userType === 'company') await sb.from('jobs').update({ is_active: false }).eq('company_id', userId);
-                await sb.auth.signOut();
-                alert('✅ Cuenta desactivada correctamente.');
-                window.location.href = 'index.html';
-            } catch (err) { alert('❌ Error: ' + err.message); }
-        }
-
-        async function openEditProfileModal() {
-            closeSettingsModal();
-            document.getElementById('editProfileModal').classList.remove('hidden');
-            const msg = document.getElementById('editProfileMsg'); if (msg) msg.classList.add('hidden');
-            try {
-                const { data: profile } = await sb.from('profiles').select('full_name').eq('id', userId).single();
-                document.getElementById('editName').value = profile?.full_name || '';
-                const table = userType === 'candidate' ? 'candidates' : 'companies';
-                const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
-                document.getElementById('editContact').value = userData?.contact_info || '';
-                if (userType === 'candidate') {
-                    document.getElementById('editCandidateFields').classList.remove('hidden');
-                    document.getElementById('editCompanyFields').classList.add('hidden');
-                    document.getElementById('editPosition').value = userData?.desired_position || '';
-                } else {
-                    document.getElementById('editCompanyFields').classList.remove('hidden');
-                    document.getElementById('editCandidateFields').classList.add('hidden');
-                    document.getElementById('editIndustry').value = userData?.industry || '';
-                }
-            } catch (err) { console.error("Error cargando perfil:", err); }
-        }
-
-        function closeEditProfileModal() { document.getElementById('editProfileModal').classList.add('hidden'); }
-
-        async function handleEditProfileSubmit(e) {
-            e.preventDefault();
-            const msg = document.getElementById('editProfileMsg');
-            if (msg) { msg.textContent = '⏳ Guardando...'; msg.className = 'text-center text-sm font-bold text-blue-600 block'; }
-            try {
-                const newName = document.getElementById('editName').value;
-                const newContact = document.getElementById('editContact').value;
-                const table = userType === 'candidate' ? 'candidates' : 'companies';
-                await sb.from('profiles').update({ full_name: newName }).eq('id', userId);
-                const updateData = { contact_info: newContact };
-                if (userType === 'candidate') updateData.desired_position = document.getElementById('editPosition')?.value || '';
-                else updateData.industry = document.getElementById('editIndustry')?.value || '';
-                await sb.from(table).update(updateData).eq('profile_id', userId);
-                
-                document.getElementById('headerUserName').textContent = newName;
-                document.getElementById('mobileUserName').textContent = newName;
-                if (msg) { msg.textContent = '✅ Perfil actualizado.'; msg.className = 'text-center text-sm font-bold text-green-600 block'; }
-                setTimeout(closeEditProfileModal, 1500);
-            } catch (err) {
-                const msg = document.getElementById('editProfileMsg');
-                if (msg) { msg.textContent = '❌ Error: ' + err.message; msg.className = 'text-center text-sm font-bold text-red-600 block'; }
-            }
-        }
-
-        async function toggleSetting(column, value) {
-            try {
-                const table = userType === 'candidate' ? 'candidates' : 'companies';
-                await sb.from(table).update({ [column]: value }).eq('profile_id', userId);
-            } catch (err) { console.error("Error actualizando configuración:", err); }
-        }
-
-        async function exportMyData() {
-            try {
-                const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).single();
-                const table = userType === 'candidate' ? 'candidates' : 'companies';
-                const { data: userData } = await sb.from(table).select('*').eq('profile_id', userId).single();
-                const exportData = { profile, [userType]: userData, exported_at: new Date().toISOString() };
-                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = `mi_pincha_datos_${userType}_${Date.now()}.json`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            } catch (err) { alert("❌ Error al exportar: " + err.message); }
-        }
-
-        function setupRealtimeNotifications(userName) {
-            sb.channel(`public:notifications:user_id=eq.${userId}`)
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
-                    if (Notification.permission === "granted") {
-                        new Notification("🔥 ¡Nuevo Match en Mi Pincha!", {
-                            body: payload.new.message, icon: "/images/logo.png", badge: "/images/favicon.png", tag: "mipincha-match", requireInteraction: true
-                        });
-                    }
-                    unreadCount++;
-                    document.getElementById('notifDot')?.classList.remove('hidden');
-                }).subscribe();
-        }
-
-        function openSettingsModal() { document.getElementById('settingsModal')?.classList.remove('hidden'); }
-        function closeSettingsModal() { document.getElementById('settingsModal')?.classList.add('hidden'); }
-        
-        window.switchTab = switchTab; window.handleFileUpload = handleFileUpload; window.applyFromMatch = applyFromMatch;
-        window.deactivateAccount = deactivateAccount; window.openEditProfileModal = openEditProfileModal; window.closeEditProfileModal = closeEditProfileModal;
-        window.toggleSetting = toggleSetting; window.exportMyData = exportMyData; window.openSettingsModal = openSettingsModal; window.closeSettingsModal = closeSettingsModal;
-        initDashboard();
-    </script>
+    <script src="js/app.js"></script>
 </body>
 </html>
