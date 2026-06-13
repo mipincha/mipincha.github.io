@@ -3,34 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Pincha - Agencia de Empleos en La Habana</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO BÁSICO -->
+    <title>Mi Pincha | Empleo y Vacantes en La Habana, Cuba</title>
+    <meta name="description" content="Encuentra trabajo en La Habana o publica vacantes gratis. Mi Pincha conecta candidatos verificados con empresas y MIPYMES en Cuba.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://mipincha.github.io/">
     <link rel="icon" type="image/png" href="images/favicon.png">
-    <meta name="description" content="Encuentra empleo en La Habana o publica vacantes gratis. Mi Pincha conecta candidatos y empresas en Cuba.">
+    <meta name="google-site-verification" content="googlea5fefcfb6cd2d6ed" />
+
+    <!-- OPEN GRAPH -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mi Pincha | Empleo y Vacantes en La Habana">
+    <meta property="og:description" content="Plataforma gratuita que conecta talento cubano con oportunidades reales.">
+    <meta property="og:image" content="https://mipincha.github.io/images/og-preview.jpg">
+    <meta property="og:url" content="https://mipincha.github.io/">
+
+    <!-- SCHEMA.ORG -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EmploymentAgency",
+      "name": "Mi Pincha",
+      "url": "https://mipincha.github.io",
+      "logo": "https://mipincha.github.io/images/logo.png",
+      "address": { "@type": "PostalAddress", "addressLocality": "La Habana", "addressCountry": "CU" }
+    }
+    </script>
+
+    <!-- TAILWIND & CONFIGURACIÓN DE COLORES CORPORATIVOS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = { 
             darkMode: 'class',
-            theme: { extend: { colors: { pincha: { orange: '#FF6B35', blue: '#1E3A5F' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+            theme: { 
+                extend: { 
+                    colors: { 
+                        brand: { orange: '#EE751B', blue: '#163961' },
+                        dark: { bg: '#0f172a', card: '#1e293b' }
+                    }, 
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } 
+                } 
+            } 
+        }
     </script>
     <style>
         .btn-tactile:active { transform: scale(0.97); }
         .btn-tactile { transition: all 0.15s ease; }
         .modal-bg { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
         .skeleton { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         #mobileMenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         #mobileMenu.open { max-height: 600px; }
         .autocomplete-list { max-height: 200px; overflow-y: auto; }
-        .dark .autocomplete-list { background: #1e293b; border-color: #334155; }
-        .dark body { background: #0f172a; color: #f1f5f9; }
-        .dark .bg-white, .dark .bg-gray-50 { background: #1e293b !important; }
-        .dark .text-gray-800 { color: #f1f5f9 !important; }
-        .dark .text-gray-600, .dark .text-gray-700 { color: #94a3b8 !important; }
-        .dark .text-gray-500 { color: #64748b !important; }
-        .dark .border-gray-200, .dark .border-gray-100 { border-color: #334155 !important; }
-        .dark input, .dark select, .dark textarea { background: #0f172a !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -38,199 +67,372 @@
         }
     </script>
 </head>
-<body class="font-sans flex flex-col min-h-screen transition-colors duration-200">
+<body class="font-sans flex flex-col min-h-screen bg-white text-gray-800 dark:bg-dark-bg dark:text-gray-200 transition-colors duration-200">
 
-    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40 border-b dark:border-gray-700">
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-white dark:bg-dark-card shadow-sm sticky top-0 z-40 border-b border-gray-100 dark:border-gray-800">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2 btn-tactile">
-                <img src="images/logo.png" alt="Mi Pincha" class="h-9 w-auto object-contain dark:brightness-0 dark:invert">
-                <span class="font-bold text-pincha-blue dark:text-white hidden sm:block">Agencia de Empleos</span>
+                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto object-contain dark:brightness-0 dark:invert">
+                <span class="font-extrabold text-brand-blue dark:text-white text-lg hidden sm:block tracking-tight">Mi Pincha</span>
             </a>
+            
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+                <a href="index.html" class="text-brand-orange border-b-2 border-brand-orange pb-1">Inicio</a>
+                <a href="#vacantes" class="hover:text-brand-orange transition">Buscar Empleo</a>
+                <a href="#" class="hover:text-brand-orange transition">Empresas</a>
+                <a href="#" class="hover:text-brand-orange transition">Candidatos</a>
+            </nav>
+
             <div class="flex items-center gap-3">
-                <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 btn-tactile" title="Cambiar tema">
-                    <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
-                </button>
-                <button id="hamburgerBtn" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-pincha-orange">
+                <div id="navGuest" class="flex items-center gap-3">
+                    <a href="login.html" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-brand-orange btn-tactile px-3 py-2">Iniciar sesión</a>
+                    <a href="register.html" class="bg-brand-orange text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-orange-600 btn-tactile shadow-sm">Crear cuenta</a>
+                </div>
+                <div id="navUser" class="hidden items-center gap-4">
+                    <span id="headerUserName" class="text-sm font-medium text-gray-700 dark:text-gray-200"></span>
+                    <a href="dashboard.html" class="text-brand-blue dark:text-brand-orange font-medium hover:underline btn-tactile">Dashboard</a>
+                    <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
+                </div>
+                <button id="hamburgerBtn" class="md:hidden p-2 text-gray-600 dark:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
-                <nav id="desktopNav" class="hidden md:flex items-center gap-4">
-                    <div id="navGuest" class="flex items-center gap-3">
-                        <a href="login.html" class="text-gray-600 dark:text-gray-300 hover:text-pincha-orange font-medium btn-tactile">Iniciar sesión</a>
-                        <a href="register.html" class="bg-pincha-orange text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-600 btn-tactile shadow-sm">Crear cuenta</a>
-                    </div>
-                    <div id="navUser" class="hidden items-center gap-4">
-                        <span id="headerUserName" class="text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full"></span>
-                        <a href="dashboard.html" class="text-pincha-blue dark:text-pincha-orange font-medium hover:underline btn-tactile">Dashboard</a>
-                        <button id="logoutBtn" class="text-red-500 hover:text-red-700 font-medium btn-tactile">Salir</button>
-                    </div>
-                </nav>
             </div>
         </div>
-        <div id="mobileMenu" class="md:hidden bg-white dark:bg-gray-800 border-t dark:border-gray-700 px-4 py-2 space-y-2">
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="md:hidden bg-white dark:bg-dark-card border-t border-gray-100 dark:border-gray-800 px-4 py-2 space-y-2">
             <div id="menuGuest" class="flex flex-col gap-2">
                 <a href="login.html" class="block py-2 text-gray-700 dark:text-gray-200 font-medium">Iniciar sesión</a>
-                <a href="register.html" class="block py-2 bg-pincha-orange text-white rounded-lg text-center font-bold">Crear cuenta</a>
+                <a href="register.html" class="block py-2 bg-brand-orange text-white rounded-lg text-center font-bold">Crear cuenta</a>
             </div>
             <div id="menuUser" class="hidden flex flex-col gap-2">
-                <span id="mobileUserName" class="block py-2 text-sm font-bold text-pincha-blue dark:text-pincha-orange"></span>
-                <a href="dashboard.html" class="block py-2 text-pincha-blue dark:text-pincha-orange font-medium">Perfil</a>
+                <span id="mobileUserName" class="block py-2 text-sm font-bold text-brand-blue dark:text-brand-orange"></span>
+                <a href="dashboard.html" class="block py-2 text-brand-blue dark:text-brand-orange font-medium">Perfil</a>
                 <button onclick="openPublishModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">📢 Publicar</button>
-                <button onclick="openSettingsModal()" class="block w-full py-2 text-left text-gray-700 dark:text-gray-200 font-medium">⚙️ Configuración</button>
                 <button id="mobileLogoutBtn" class="block w-full py-2 text-left text-red-500 font-medium">Salir</button>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-pincha-blue dark:text-white mb-3">Conectamos talento con <span class="text-pincha-orange">oportunidades</span></h1>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">Explora vacantes en La Habana. Regístrate gratis para postular o publicar.</p>
-            
-            <div class="relative max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 p-3 flex flex-col md:flex-row gap-3 items-center">
-                <select id="searchCategory" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile dark:text-white">
-                    <option value="">📂 Todas las categorías</option>
-                    <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
-                </select>
-                <select id="searchPosition" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile dark:text-white">
-                    <option value="">💼 Todos los puestos</option>
-                </select>
-                <div class="relative w-full">
-                    <input id="searchKeyword" type="text" placeholder="🔍 Empresa, sector o palabra clave..." class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile dark:text-white" autocomplete="off">
-                    <div id="autocompleteList" class="autocomplete-list absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-lg shadow-xl z-50 hidden"></div>
-                </div>
-                <select id="searchLocation" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none btn-tactile dark:text-white">
-                    <option value="">📍 Todos los municipios</option>
-                    <option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>Habana Vieja</option><option>Regla</option><option>Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>10 de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Arroyo Naranjo</option><option>Boyeros</option><option>Cotorro</option>
-                </select>
-                <button id="searchBtn" class="w-full md:w-auto bg-pincha-orange text-white font-bold px-6 py-2.5 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">Buscar</button>
-            </div>
-            
-            <div class="mt-4">
-                <button onclick="openPublishModal()" class="bg-pincha-blue dark:bg-pincha-orange text-white font-bold px-6 py-2.5 rounded-lg hover:bg-blue-800 dark:hover:bg-orange-600 btn-tactile shadow-md">📢 Publicar búsqueda o vacante</button>
-            </div>
-        </div>
+    <main class="flex-grow">
+        <!-- HERO SECTION -->
+        <section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28">
+            <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div class="space-y-4">
+                        <h1 class="text-4xl lg:text-6xl font-extrabold text-brand-blue dark:text-white leading-tight tracking-tight">
+                            Conectamos talento con <span class="text-brand-orange">oportunidades</span>
+                        </h1>
+                        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-xl">
+                            En Mi Pincha ayudamos a personas a encontrar el trabajo ideal y a empresas a encontrar el talento que impulsa su crecimiento en La Habana.
+                        </p>
+                    </div>
 
-        <div id="jobsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="skeleton h-32 rounded-xl"></div><div class="skeleton h-32 rounded-xl"></div><div class="skeleton h-32 rounded-xl"></div>
-        </div>
+                    <!-- SEARCH BAR CON ICONOS SVG -->
+                    <div class="bg-white dark:bg-dark-card p-2 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row gap-2">
+                        <div class="flex-1 relative">
+                            <img src="images/icon-search.svg" alt="Buscar" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60">
+                            <input id="searchKeyword" type="text" placeholder="Puesto, empresa, o palabra clave..." class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-orange outline-none dark:text-white">
+                            <div id="autocompleteList" class="autocomplete-list absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-lg shadow-xl z-50 hidden"></div>
+                        </div>
+                        <div class="flex-1 relative">
+                            <img src="images/icon-location.svg" alt="Ubicación" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60">
+                            <select id="searchLocation" class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-orange outline-none appearance-none dark:text-white">
+                                <option value="">Ubicación</option>
+                                <option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>Habana Vieja</option><option>Regla</option><option>Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>10 de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Arroyo Naranjo</option><option>Boyeros</option><option>Cotorro</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">📂</span>
+                            <select id="searchCategory" class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-orange outline-none appearance-none dark:text-white">
+                                <option value="">Todas las categorías</option>
+                                <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
+                            </select>
+                        </div>
+                        <button id="searchBtn" class="bg-brand-orange text-white font-bold px-8 py-3 rounded-xl hover:bg-orange-600 btn-tactile shadow-md whitespace-nowrap">Buscar</button>
+                    </div>
+
+                    <!-- Tags rápidos -->
+                    <div class="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span class="font-medium">Populares:</span>
+                        <button onclick="document.getElementById('searchKeyword').value='Tecnología'; loadJobs();" class="hover:text-brand-orange transition">Tecnología</button>
+                        <button onclick="document.getElementById('searchKeyword').value='Ventas'; loadJobs();" class="hover:text-brand-orange transition">Ventas</button>
+                        <button onclick="document.getElementById('searchKeyword').value='Cocinero'; loadJobs();" class="hover:text-brand-orange transition">Cocinero</button>
+                    </div>
+
+                    <!-- CTAs Hero CON ICONOS SVG -->
+                    <div class="flex flex-wrap gap-4 pt-4">
+                        <button onclick="openPublishModal()" class="bg-brand-orange text-white font-bold px-6 py-3 rounded-xl hover:bg-orange-600 btn-tactile shadow-lg flex items-center gap-2">
+                            <img src="images/icon-candidate.svg" alt="Candidato" class="w-5 h-5"> Soy candidato
+                        </button>
+                        <button onclick="openPublishModal()" class="bg-white dark:bg-dark-card text-brand-blue dark:text-white border-2 border-brand-blue dark:border-brand-orange font-bold px-6 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 btn-tactile flex items-center gap-2">
+                            <img src="images/icon-company.svg" alt="Empresa" class="w-5 h-5"> Soy empresa
+                        </button>
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <span class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-300 border-2 border-white"></div>
+                            <div class="w-6 h-6 rounded-full bg-gray-400 border-2 border-white"></div>
+                            <div class="w-6 h-6 rounded-full bg-gray-500 border-2 border-white"></div>
+                        </span>
+                        +100 personas ya encontraron su próximo gran trabajo.
+                    </p>
+                </div>
+
+                <!-- Hero Image (Ant Mascot) -->
+                <div class="relative hidden lg:block">
+                    <div class="absolute inset-0 bg-brand-orange/10 rounded-full blur-3xl transform translate-x-10 translate-y-10"></div>
+                    <img src="images/ant-hero.svg" alt="Hormiga Mi Pincha trabajando" class="relative z-10 w-full max-w-lg mx-auto drop-shadow-2xl">
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 PASOS CON ICONOS SVG -->
+        <section class="py-16 bg-gray-50 dark:bg-dark-card/50 border-y border-gray-100 dark:border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-md transition">
+                    <span class="absolute top-4 right-4 text-4xl font-bold text-gray-100 dark:text-gray-800">01</span>
+                    <img src="images/icon-register.svg" alt="Registro" class="w-12 h-12 mb-4 opacity-80">
+                    <h3 class="font-bold text-lg text-brand-blue dark:text-white mb-2">Regístrate gratis</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Crea tu perfil en minutos y comienza tu búsqueda.</p>
+                </div>
+                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-md transition">
+                    <span class="absolute top-4 right-4 text-4xl font-bold text-gray-100 dark:text-gray-800">02</span>
+                    <img src="images/icon-find-job.svg" alt="Buscar empleo" class="w-12 h-12 mb-4 opacity-80">
+                    <h3 class="font-bold text-lg text-brand-blue dark:text-white mb-2">Encuentra Empleo</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Explora miles de vacantes que se ajustan a tu perfil.</p>
+                </div>
+                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-md transition">
+                    <span class="absolute top-4 right-4 text-4xl font-bold text-gray-100 dark:text-gray-800">03</span>
+                    <img src="images/icon-apply.svg" alt="Postularse" class="w-12 h-12 mb-4 opacity-80">
+                    <h3 class="font-bold text-lg text-brand-blue dark:text-white mb-2">Postúlate Fácil</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Envía tu CV con un clic y destaca ante empresas.</p>
+                </div>
+                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-md transition">
+                    <span class="absolute top-4 right-4 text-4xl font-bold text-gray-100 dark:text-gray-800">04</span>
+                    <img src="images/icon-future.svg" alt="Futuro" class="w-12 h-12 mb-4 opacity-80">
+                    <h3 class="font-bold text-lg text-brand-blue dark:text-white mb-2">Empieza tu futuro</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Conectamos tu talento con grandes oportunidades.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VACANTES DESTACADAS -->
+        <section id="vacantes" class="py-20 max-w-7xl mx-auto px-4">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-1 h-8 bg-brand-orange rounded-full"></div>
+                <h2 class="text-3xl font-extrabold text-brand-blue dark:text-white">Vacantes destacadas</h2>
+            </div>
+            
+            <!-- GRID DE VACANTES (ID CRÍTICO PARA APP.JS) -->
+            <div id="jobsGrid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="skeleton h-48 rounded-xl"></div><div class="skeleton h-48 rounded-xl"></div><div class="skeleton h-48 rounded-xl"></div><div class="skeleton h-48 rounded-xl"></div>
+            </div>
+        </section>
+
+        <!-- EMPRESAS QUE CONFÍAN -->
+        <section class="py-12 border-t border-gray-100 dark:border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h3 class="text-xl font-bold text-brand-blue dark:text-white mb-8">Empresas que confían en nosotros</h3>
+                <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                    <span class="text-2xl font-bold text-gray-400">techsolutions</span>
+                    <span class="text-2xl font-bold text-gray-400">innovatech</span>
+                    <span class="text-2xl font-bold text-gray-400">brandify</span>
+                    <span class="text-2xl font-bold text-gray-400">finansoft</span>
+                    <span class="text-2xl font-bold text-gray-400">DataCore</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- DUAL CTA CON HORMIGAS SVG -->
+        <section class="py-20 max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8">
+            <!-- Para Candidatos -->
+            <div class="bg-brand-blue rounded-3xl p-8 lg:p-12 text-white relative overflow-hidden flex flex-col justify-between min-h-[400px]">
+                <div class="relative z-10 max-w-md">
+                    <h3 class="text-3xl font-extrabold mb-4">Para candidatos</h3>
+                    <p class="text-blue-100 mb-8 text-lg">Todo lo que necesitas para impulsar tu carrera profesional.</p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3"><span class="text-brand-orange">✓</span> Miles de vacantes verificadas</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-orange">✓</span> Postulación rápida y segura</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-orange">✓</span> Alertas personalizadas</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-orange">✓</span> Acompañamiento profesional</li>
+                    </ul>
+                    <a href="register.html" class="inline-block bg-brand-orange text-white font-bold px-8 py-3 rounded-xl hover:bg-orange-600 btn-tactile shadow-lg">Crear mi perfil gratis</a>
+                </div>
+                <img src="images/ant-candidate.svg" alt="Hormiga Candidato" class="absolute bottom-0 right-0 w-48 lg:w-64 opacity-90 transform translate-x-10 translate-y-10">
+            </div>
+
+            <!-- Para Empresas -->
+            <div class="bg-brand-orange rounded-3xl p-8 lg:p-12 text-white relative overflow-hidden flex flex-col justify-between min-h-[400px]">
+                <div class="relative z-10 max-w-md">
+                    <h3 class="text-3xl font-extrabold mb-4">Para empresas</h3>
+                    <p class="text-orange-100 mb-8 text-lg">Encuentra el talento ideal para hacer crecer tu negocio.</p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3"><span class="text-brand-blue">✓</span> Publica vacantes ilimitadas</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-blue">✓</span> Accede a talento calificado</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-blue">✓</span> Filtros inteligentes</li>
+                        <li class="flex items-center gap-3"><span class="text-brand-blue">✓</span> Soporte personalizado</li>
+                    </ul>
+                    <button onclick="openPublishModal()" class="inline-block bg-white text-brand-orange font-bold px-8 py-3 rounded-xl hover:bg-gray-100 btn-tactile shadow-lg">Publicar una vacante</button>
+                </div>
+                <img src="images/ant-company.svg" alt="Hormiga Empresa" class="absolute bottom-0 right-0 w-48 lg:w-64 opacity-90 transform translate-x-10 translate-y-10">
+            </div>
+        </section>
+
+        <!-- ¿CÓMO FUNCIONA? -->
+        <section class="py-20 bg-gray-50 dark:bg-dark-card/50">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-extrabold text-brand-blue dark:text-white mb-4">¿Cómo funciona?</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-16 max-w-2xl mx-auto">Un proceso simple para conectar talento y oportunidades.</p>
+                
+                <div class="grid md:grid-cols-4 gap-8 relative">
+                    <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 border-t-2 border-dashed border-gray-300 dark:border-gray-600 -z-0"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-24 h-24 bg-white dark:bg-dark-card rounded-full shadow-lg flex items-center justify-center mb-6 border-4 border-brand-orange/20">
+                            <img src="images/icon-register.svg" alt="Registro" class="w-10 h-10 opacity-80">
+                        </div>
+                        <h4 class="font-bold text-lg text-brand-blue dark:text-white mb-2">1. Regístrate</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 px-4">Crea tu cuenta como candidato o empresa en minutos.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-24 h-24 bg-white dark:bg-dark-card rounded-full shadow-lg flex items-center justify-center mb-6 border-4 border-brand-orange/20">
+                            <img src="images/icon-find-job.svg" alt="Buscar" class="w-10 h-10 opacity-80">
+                        </div>
+                        <h4 class="font-bold text-lg text-brand-blue dark:text-white mb-2">2. Explora y publica</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 px-4">Busca vacantes o publica tu oferta de empleos fácilmente.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-24 h-24 bg-white dark:bg-dark-card rounded-full shadow-lg flex items-center justify-center mb-6 border-4 border-brand-orange/20">🤝</div>
+                        <h4 class="font-bold text-lg text-brand-blue dark:text-white mb-2">3. Conecta</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 px-4">Postula o recibe postulaciones de candidatos calificados.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-24 h-24 bg-white dark:bg-dark-card rounded-full shadow-lg flex items-center justify-center mb-6 border-4 border-brand-orange/20">🚀</div>
+                        <h4 class="font-bold text-lg text-brand-blue dark:text-white mb-2">4. Contrata y crece</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 px-4">Encuentra el match perfecto y construye tu futuro.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATS BAR -->
+        <section class="bg-brand-blue text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <p class="text-4xl font-extrabold text-brand-orange mb-2">+10,000</p>
+                    <p class="text-blue-100 font-medium">Candidatos activos</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-extrabold text-brand-orange mb-2">+1,500</p>
+                    <p class="text-blue-100 font-medium">Empresas registradas</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-extrabold text-brand-orange mb-2">+15,000</p>
+                    <p class="text-blue-100 font-medium">Vacantes publicadas</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-extrabold text-brand-orange mb-2">+1,000</p>
+                    <p class="text-blue-100 font-medium">Contrataciones Exitosas</p>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto brightness-0 invert">
+                    <span class="font-extrabold text-xl">Mi Pincha</span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">Plataforma digital gratuita que conecta talento con oportunidades reales en La Habana.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 text-brand-orange">Legal</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="terminos.html" class="hover:text-white transition">Términos y Condiciones</a></li>
+                    <li><a href="privacidad.html" class="hover:text-white transition">Política de Privacidad</a></li>
+                    <li><a href="aviso-legal.html" class="hover:text-white transition">Aviso Legal</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 text-brand-orange">Contacto</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="mailto:mipinchainfo@gmail.com" class="hover:text-white transition flex items-center gap-2"> mipinchainfo@gmail.com</a></li>
+                    <li><a href="https://wa.me/5351283542" target="_blank" class="hover:text-white transition flex items-center gap-2">📱 WhatsApp</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 text-brand-orange">Desarrollo</h4>
+                <p class="text-sm text-gray-400 mb-2">Desarrollado por <a href="https://stikmania-tm.github.io" target="_blank" class="font-bold text-white hover:text-brand-orange transition">STIKMANIA</a></p>
+                <p class="text-xs text-gray-500">© 2026 Mi Pincha. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALES (Mantenidos intactos para app.js) -->
     <!-- MODAL DETALLES VACANTE -->
     <div id="jobModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-start">
-                <div>
-                    <h2 id="modalTitle" class="text-2xl font-bold text-pincha-blue dark:text-white"></h2>
-                    <p id="modalCompany" class="text-gray-600 dark:text-gray-400 mt-1"></p>
-                </div>
+                <div><h2 id="modalTitle" class="text-2xl font-bold text-brand-blue dark:text-white"></h2><p id="modalCompany" class="text-gray-600 dark:text-gray-400 mt-1"></p></div>
                 <button onclick="closeJobModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📍 Ubicación</span><p id="modalLocation" class="font-medium dark:text-white"></p></div>
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs"> Ubicación</span><p id="modalLocation" class="font-medium dark:text-white"></p></div>
                     <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📂 Categoría</span><p id="modalCategory" class="font-medium dark:text-white"></p></div>
                     <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">💰 Salario</span><p id="modalSalary" class="font-medium dark:text-white"></p></div>
                     <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg"><span class="text-gray-500 dark:text-gray-400 block text-xs">📅 Publicado</span><p id="modalDate" class="font-medium dark:text-white"></p></div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-                    <h3 class="font-bold text-gray-800 dark:text-white mb-2">📝 Descripción</h3>
-                    <p id="modalDesc" class="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed"></p>
-                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg"><h3 class="font-bold text-gray-800 dark:text-white mb-2">📝 Descripción</h3><p id="modalDesc" class="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed"></p></div>
             </div>
             <div class="p-6 border-t dark:border-gray-700 flex gap-3">
-                <button id="modalApplyBtn" class="flex-1 bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">Postularme por WhatsApp</button>
+                <button id="modalApplyBtn" class="flex-1 bg-brand-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile shadow-md">Postularme por WhatsApp</button>
                 <button onclick="closeJobModal()" class="px-4 py-3 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 btn-tactile">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PUBLICAR -->
+    <!-- MODAL PUBLICAR (Dual) -->
     <div id="publishModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border dark:border-gray-700">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">📢 Publicar</h2>
+                <h2 class="text-xl font-bold text-brand-blue dark:text-white">📢 Publicar</h2>
                 <button onclick="closePublishModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <div class="p-6">
-                <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                    <button type="button" id="pubCandidate" class="pub-tab active flex-1 py-2 rounded-md font-bold text-sm bg-white text-pincha-orange shadow-sm dark:bg-gray-600 dark:text-white">👤 Soy Candidato</button>
+                <div class="flex gap-2 mb-6 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                    <button type="button" id="pubCandidate" class="pub-tab active flex-1 py-2 rounded-md font-bold text-sm bg-white text-brand-orange shadow-sm dark:bg-gray-700 dark:text-white">👤 Soy Candidato</button>
                     <button type="button" id="pubCompany" class="pub-tab inactive flex-1 py-2 rounded-md font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400">🏢 Soy Empresa</button>
                 </div>
-                
                 <form id="pubCandidateForm" class="pub-form space-y-4">
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto que buscas</label>
-                    <input type="text" id="pubPosition" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label>
-                    <select id="pubCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="">Seleccionar</option>
-                        <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
-                    </select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nivel de experiencia</label>
-                    <select id="pubExperienceLevel" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="Sin experiencia">Sin experiencia</option>
-                        <option value="1-2 años">1-2 años</option>
-                        <option value="3-5 años">3-5 años</option>
-                        <option value="Más de 5 años">Más de 5 años</option>
-                    </select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label>
-                    <input type="text" id="pubLocation" required placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia / Habilidades</label>
-                    <textarea id="pubExperience" rows="3" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe tu experiencia..."></textarea></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario esperado (opcional)</label>
-                    <input type="text" id="pubSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $300 USD/mes"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto directo</label>
-                    <input type="text" id="pubContact" required placeholder="Ej: Telegram: @usuario o +53 5xxx xxxx" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <button type="submit" class="w-full bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile">Publicar búsqueda</button>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto que buscas</label><input type="text" id="pubPosition" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label><select id="pubCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="">Seleccionar</option><option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nivel de experiencia</label><select id="pubExperienceLevel" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="Sin experiencia">Sin experiencia</option><option value="1-2 años">1-2 años</option><option value="3-5 años">3-5 años</option><option value="Más de 5 años">Más de 5 años</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipios de interés (Separa con coma)</label><input type="text" id="pubLocation" required placeholder="Ej: Playa, Marianao" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia / Habilidades</label><textarea id="pubExperience" rows="3" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none" placeholder="Describe tu experiencia..."></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario esperado (opcional)</label><input type="text" id="pubSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none" placeholder="Ej: $300 USD/mes"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto directo</label><input type="text" id="pubContact" required placeholder="Ej: Telegram: @usuario o +53 5xxx xxxx" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                    <button type="submit" class="w-full bg-brand-orange text-white font-bold py-3 rounded-lg hover:bg-orange-600 btn-tactile">Publicar búsqueda</button>
                 </form>
-                
                 <form id="pubCompanyForm" class="pub-form hidden space-y-4">
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Título de la vacante</label>
-                    <input type="text" id="jobTitle" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label>
-                    <select id="jobCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="">Seleccionar</option>
-                        <option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option>
-                    </select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Título de la vacante</label><input type="text" id="jobTitle" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría</label><select id="jobCategory" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="">Seleccionar</option><option>Tecnología e Informática</option><option>Salud y Medicina</option><option>Educación y Formación</option><option>Administración y Oficina</option><option>Finanzas y Contabilidad</option><option>Construcción y Oficios</option><option>Ventas y Comercial</option><option>Hostelería y Turismo</option><option>Servicios Domésticos</option></select></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-1">
-                                Edad mínima 
-                                <span class="group relative cursor-help">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50">Añadir estos datos mejora tu match con candidatos ideales en un 40%.</span>
-                                </span>
-                            </label>
-                            <input type="number" id="jobAgeMin" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Edad máxima</label>
-                            <input type="number" id="jobAgeMax" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Edad mínima</label><input type="number" id="jobAgeMin" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Edad máxima</label><input type="number" id="jobAgeMax" min="16" max="99" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Género de preferencia</label>
-                    <select id="jobGender" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="No especificar">No especificar</option>
-                        <option value="Femenino">Femenino</option>
-                        <option value="Masculino">Masculino</option>
-                    </select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia requerida</label>
-                    <select id="jobExperience" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="Sin experiencia">Sin experiencia</option>
-                        <option value="1-2 años">1-2 años</option>
-                        <option value="3-5 años">3-5 años</option>
-                        <option value="Más de 5 años">Más de 5 años</option>
-                    </select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipio</label>
-                    <select id="jobLocation" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                        <option value="">Seleccionar</option><option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>Habana Vieja</option><option>Regla</option><option>Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>10 de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Arroyo Naranjo</option><option>Boyeros</option><option>Cotorro</option>
-                    </select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario ofrecido</label>
-                    <input type="text" id="jobSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Ej: $400 USD/mes o A convenir"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Descripción de la vacante</label>
-                    <textarea id="jobDesc" rows="4" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none" placeholder="Describe responsabilidades, requisitos, beneficios..."></textarea></div>
-                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp</label>
-                    <input type="text" id="jobContact" required placeholder="Ej: +53 5123 4567" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none"></div>
-                    <button type="submit" class="w-full bg-pincha-blue dark:bg-pincha-orange text-white font-bold py-3 rounded-lg hover:bg-blue-800 dark:hover:bg-orange-600 btn-tactile">Publicar vacante</button>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Género de preferencia</label><select id="jobGender" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="No especificar">No especificar</option><option value="Femenino">Femenino</option><option value="Masculino">Masculino</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Experiencia requerida</label><select id="jobExperience" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="Sin experiencia">Sin experiencia</option><option value="1-2 años">1-2 años</option><option value="3-5 años">3-5 años</option><option value="Más de 5 años">Más de 5 años</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Municipio</label><select id="jobLocation" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"><option value="">Seleccionar</option><option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>Habana Vieja</option><option>Regla</option><option>Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>10 de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Arroyo Naranjo</option><option>Boyeros</option><option>Cotorro</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Salario ofrecido</label><input type="text" id="jobSalary" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none" placeholder="Ej: $400 USD/mes o A convenir"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Descripción de la vacante</label><textarea id="jobDesc" rows="4" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none" placeholder="Describe responsabilidades, requisitos, beneficios..."></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contacto / WhatsApp</label><input type="text" id="jobContact" required placeholder="Ej: +53 5123 4567" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-orange outline-none"></div>
+                    <button type="submit" class="w-full bg-brand-blue dark:bg-brand-orange text-white font-bold py-3 rounded-lg hover:opacity-90 btn-tactile">Publicar vacante</button>
                 </form>
                 <div id="pubMsg" class="mt-4 text-center text-sm font-bold hidden"></div>
             </div>
@@ -239,60 +441,35 @@
 
     <!-- MODAL CONFIGURACIÓN -->
     <div id="settingsModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700 max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
-                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">⚙️ Configuración</h2>
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-dark-card z-10">
+                <h2 class="text-xl font-bold text-brand-blue dark:text-white">⚙️ Configuración</h2>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-6">
                 <div>
                     <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Mi Perfil</h3>
-                    <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition mb-2">
-                        <span class="font-medium dark:text-white text-left">✏️ Editar información personal</span>
-                        <span class="text-gray-400">→</span>
+                    <button onclick="openEditProfileModal()" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition mb-2">
+                        <span class="font-medium dark:text-white text-left">✏️ Editar información</span><span class="text-gray-400">→</span>
                     </button>
                 </div>
                 <div>
                     <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Privacidad y Visibilidad</h3>
                     <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div>
-                                <p class="font-medium dark:text-white text-sm">Ocultar teléfono públicamente</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Solo visible al hacer match o postular</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="toggleHidePhone" class="sr-only peer" onchange="toggleSetting('hide_phone', this.checked)">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
-                            </label>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div><p class="font-medium dark:text-white text-sm">Ocultar teléfono públicamente</p><p class="text-xs text-gray-500 dark:text-gray-400">Solo visible al hacer match o postular</p></div>
+                            <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="toggleHidePhone" class="sr-only peer" onchange="toggleSetting('hide_phone', this.checked)"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-orange"></div></label>
                         </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <div>
-                                <p class="font-medium dark:text-white text-sm">Modo Pausa</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Dejar de aparecer en búsquedas temporalmente</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="togglePauseMode" class="sr-only peer" onchange="toggleSetting('is_paused', this.checked)">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
-                            </label>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div><p class="font-medium dark:text-white text-sm">Modo Pausa</p><p class="text-xs text-gray-500 dark:text-gray-400">Dejar de aparecer en búsquedas temporalmente</p></div>
+                            <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="togglePauseMode" class="sr-only peer" onchange="toggleSetting('is_paused', this.checked)"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-orange"></div></label>
                         </div>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Notificaciones</h3>
-                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div>
-                            <p class="font-medium dark:text-white text-sm">Alertas de Match en navegador</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggleBrowserNotif" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pincha-orange"></div>
-                        </label>
                     </div>
                 </div>
                 <div class="pt-4 border-t dark:border-gray-700">
                     <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cuenta y Datos</h3>
                     <div class="space-y-3">
-                        <button onclick="exportMyData()" class="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm">📥 Exportar mis datos (JSON)</button>
+                        <button onclick="exportMyData()" class="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition text-sm">📥 Exportar mis datos (JSON)</button>
                         <button onclick="deactivateAccount()" class="w-full border-2 border-red-500 text-red-500 font-bold py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition text-sm">🗑️ Desactivar mi cuenta</button>
                     </div>
                 </div>
@@ -302,70 +479,21 @@
 
     <!-- MODAL EDITAR PERFIL -->
     <div id="editProfileModal" class="modal-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
+        <div class="bg-white dark:bg-dark-card rounded-xl max-w-md w-full shadow-2xl border dark:border-gray-700">
             <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-pincha-blue dark:text-white">✏️ Editar Perfil</h2>
+                <h2 class="text-xl font-bold text-brand-blue dark:text-white" id="editProfileTitle">️ Editar Perfil</h2>
                 <button onclick="closeEditProfileModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl">&times;</button>
             </div>
             <form id="editProfileForm" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre completo / Razón social</label>
-                    <input type="text" id="editName" required class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Información de contacto</label>
-                    <input type="text" id="editContact" required placeholder="Ej: +53 5xxx xxxx o @usuario" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                </div>
-                <div id="editCandidateFields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puesto deseado</label>
-                        <input type="text" id="editPosition" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                    </div>
-                </div>
-                <div id="editCompanyFields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Industria / Sector</label>
-                        <input type="text" id="editIndustry" class="w-full px-4 py-2.5 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-pincha-orange outline-none">
-                    </div>
-                </div>
+                <div id="editProfileFields"></div>
                 <div class="pt-4 flex gap-3">
-                    <button type="button" onclick="closeEditProfileModal()" class="flex-1 py-2.5 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 btn-tactile">Cancelar</button>
-                    <button type="submit" class="flex-1 bg-pincha-orange text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 btn-tactile">Guardar cambios</button>
+                    <button type="button" onclick="closeEditProfileModal()" class="flex-1 py-2.5 border dark:border-gray-600 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 btn-tactile">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-brand-orange text-white font-bold py-2.5 rounded-lg hover:bg-orange-600 btn-tactile">Guardar cambios</button>
                 </div>
                 <div id="editProfileMsg" class="text-center text-sm font-bold hidden"></div>
             </form>
         </div>
     </div>
-
-    <footer class="bg-pincha-blue dark:bg-gray-800 text-white pt-10 pb-6 mt-auto border-t dark:border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-                <img src="images/logo.png" alt="Mi Pincha" class="h-8 w-auto brightness-0 invert mb-4">
-                <p class="text-sm opacity-80 leading-relaxed">Plataforma digital gratuita que conecta talento con oportunidades reales en La Habana.</p>
-            </div>
-            <div>
-                <h4 class="font-bold mb-3 text-pincha-orange">Legal</h4>
-                <ul class="space-y-2 text-sm opacity-80">
-                    <li><a href="terminos.html" class="hover:text-white transition">Términos y Condiciones</a></li>
-                    <li><a href="privacidad.html" class="hover:text-white transition">Política de Privacidad</a></li>
-                    <li><a href="aviso-legal.html" class="hover:text-white transition">Aviso Legal</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold mb-3 text-pincha-orange">Contacto</h4>
-                <ul class="space-y-3 text-sm opacity-90">
-                    <li><a href="mailto:mipinchainfo@gmail.com" class="flex items-center gap-2 hover:text-white transition">📧 mipinchainfo@gmail.com</a></li>
-                    <li><a href="https://wa.me/5351283542?text=Hola,%20tengo%20una%20consulta%20sobre%20Mi%20Pincha" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-green-400 transition font-medium">📱 WhatsApp: +53 5128 3542</a></li>
-                    <li class="flex items-center gap-2">🌐 mipincha.github.io</li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold mb-3 text-pincha-orange">Desarrollo</h4>
-                <p class="text-sm opacity-80 mb-2">Desarrollado por <a href="https://stikmania-tm.github.io" target="_blank" rel="noopener" class="font-bold text-white hover:text-pincha-orange transition"><img src="https://stikmania-tm.github.io/images/logo.png" alt="STIKMANIA" class="h-5 w-auto inline brightness-0 invert align-middle mr-1">STIKMANIA</a></p>
-                <p class="text-xs opacity-60">© 2026 Mi Pincha. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
 
     <script src="js/app.js"></script>
 </body>
